@@ -1,0 +1,42 @@
+inherit_from: .rubocop_todo.yml
+
+Gemspec/RequiredRubyVersion:
+  Exclude:
+    - 'dfe-analytics.gemspec'
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
+
+# Offense count: 2
+# This cop supports safe auto-correction (--auto-correct).
+# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
+# URISchemes: http, https
+Layout/LineLength:
+  Enabled: false
+
+Style/RedundantFetchBlock:
+  Enabled: false
+
+Style/EachWithObject:
+  Enabled: false
+
+AllCops:
+  NewCops: enable

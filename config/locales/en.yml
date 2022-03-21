@@ -1,0 +1,41 @@
+---
+en:
+  dfe:
+    analytics:
+      config:
+        log_only:
+          description: |
+            Whether to log events instead of sending them to BigQuery.
+          default: true
+        async:
+          description: Whether to use ActiveJob or dispatch events immediately.
+          default: true
+        bigquery_table_name:
+          description: The name of the BigQuery table we’re writing to.
+          default: ENV['BIGQUERY_TABLE_NAME']
+        bigquery_project_id:
+          description: The name of the BigQuery project we’re writing to.
+          default: ENV['BIGQUERY_PROJECT_ID']
+        bigquery_api_json_key:
+          description: |
+            Service account JSON key for the BigQuery API. See
+            https://cloud.google.com/bigquery/docs/authentication/service-account-file
+          default: ENV['BIGQUERY_API_JSON_KEY']
+        bigquery_dataset:
+          description: |
+            The name of the BigQuery dataset we're writing to.
+          default: ENV['BIGQUERY_DATASET']
+        enable_analytics:
+          description: |
+            A proc which returns true or false depending on whether you want to
+            enable analytics. You might want to hook this up to a feature flag or
+            environment variable.
+          default: proc { true }
+        environment:
+          description: |
+            The environment we’re running in. This value will be attached
+            to all events we send to BigQuery.
+          default: ENV.fetch('RAILS_ENV', 'development')
+
+
+

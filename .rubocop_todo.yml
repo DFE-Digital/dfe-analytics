@@ -1,0 +1,12 @@
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+    - 'lib/dfe/analytics.rb'
+    - 'lib/dfe/analytics/entities.rb'
+    - 'lib/dfe/analytics/event.rb'
+    - 'lib/dfe/analytics/load_entities.rb'
+    - 'lib/dfe/analytics/requests.rb'
+    - 'lib/dfe/analytics/send_events.rb'
+    - 'lib/dfe/analytics/testing.rb'
+    - 'lib/dfe/analytics/testing/helpers.rb'
