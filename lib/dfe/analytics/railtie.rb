@@ -3,7 +3,7 @@
 module DfE
   module Analytics
     class Railtie < Rails::Railtie
-      config.after_initialize do
+      config.before_initialize do
         i18n_files = File.expand_path("#{File.dirname(__FILE__)}/../../../config/locales/en.yml")
         I18n.load_path << i18n_files
       end

@@ -7,6 +7,7 @@ RSpec.describe DfE::Analytics do
 
   it 'has documentation entries for all the config options' do
     config_options = DfE::Analytics.config.members
+
     config_options.each do |option|
       expect(I18n.t("dfe.analytics.config.#{option}.description")).not_to match(/translation missing/)
       expect(I18n.t("dfe.analytics.config.#{option}.default")).not_to match(/translation missing/)
