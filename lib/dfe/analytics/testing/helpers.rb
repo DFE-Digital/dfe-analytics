@@ -36,6 +36,17 @@ module DfE
           stub_request(:post, /bigquery.googleapis.com/)
             .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
         end
+
+        def with_analytics_config(options)
+          old_config = DfE::Analytics.config.dup
+          DfE::Analytics.configure do |config|
+            options.each { |option, value| config[option] = value }
+          end
+
+          yield
+        ensure
+          DfE::Analytics.instance_variable_set(:@config, old_config)
+        end
       end
     end
   end
