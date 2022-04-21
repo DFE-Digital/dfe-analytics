@@ -64,10 +64,6 @@
           "required": ["key", "value"]
         }
       ]
-    },
-    "event_tags": {
-      "type": "array",
-      "items" : [ { "type": "string" } ]
     }
   },
   "additionalProperties": false,
