@@ -30,8 +30,8 @@ module DfE
         Google::Cloud::Bigquery.new(
           project: config.bigquery_project_id,
           credentials: JSON.parse(config.bigquery_api_json_key),
-          retries: 3,
-          timeout: 120
+          retries: config.bigquery_retries,
+          timeout: config.bigquery_timeout
         ).dataset(config.bigquery_dataset, skip_lookup: true)
                                .table(config.bigquery_table_name, skip_lookup: true)
       end
@@ -45,6 +45,8 @@ module DfE
         bigquery_project_id
         bigquery_dataset
         bigquery_api_json_key
+        bigquery_retries
+        bigquery_timeout
         enable_analytics
         environment
       ]
@@ -60,6 +62,8 @@ module DfE
       config.bigquery_project_id   ||= ENV['BIGQUERY_PROJECT_ID']
       config.bigquery_dataset      ||= ENV['BIGQUERY_DATASET']
       config.bigquery_api_json_key ||= ENV['BIGQUERY_API_JSON_KEY']
+      config.bigquery_retries      ||= 3
+      config.bigquery_timeout      ||= 120
       config.environment           ||= ENV.fetch('RAILS_ENV', 'development')
       config.log_only              ||= false
       config.async                 ||= true

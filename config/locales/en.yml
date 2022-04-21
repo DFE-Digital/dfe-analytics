@@ -25,6 +25,14 @@ en:
           description: |
             The name of the BigQuery dataset we're writing to.
           default: ENV['BIGQUERY_DATASET']
+        bigquery_retries:
+          description: |
+            Passed directly to the retries: option on the BigQuery client
+          default: 3
+        bigquery_timeout:
+          description: |
+            Passed directly to the timeout: option on the BigQuery client
+          default: 120
         enable_analytics:
           description: |
             A proc which returns true or false depending on whether you want to
