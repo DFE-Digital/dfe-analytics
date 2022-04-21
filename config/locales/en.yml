@@ -10,6 +10,9 @@ en:
         async:
           description: Whether to use ActiveJob or dispatch events immediately.
           default: true
+        queue:
+          description: Which ActiveJob queue to put events on
+          default: ":default"
         bigquery_table_name:
           description: The name of the BigQuery table we’re writing to.
           default: ENV['BIGQUERY_TABLE_NAME']

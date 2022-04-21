@@ -41,6 +41,7 @@ module DfE
       configurables = %i[
         log_only
         async
+        queue
         bigquery_table_name
         bigquery_project_id
         bigquery_dataset
@@ -67,6 +68,7 @@ module DfE
       config.environment           ||= ENV.fetch('RAILS_ENV', 'development')
       config.log_only              ||= false
       config.async                 ||= true
+      config.queue                 ||= :default
     end
 
     def self.enabled?
