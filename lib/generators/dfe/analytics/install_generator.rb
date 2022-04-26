@@ -4,7 +4,7 @@ module DfE
       namespace 'dfe:analytics:install'
 
       def install
-        create_file 'config/initializers/dfe-analytics.rb', <<~FILE
+        create_file 'config/initializers/dfe_analytics.rb', <<~FILE
           DfE::Analytics.configure do |config|
           #{indent(config_options.map(&:strip).join("\n\n").gsub(/# $/, "#").chomp.chomp, 2)}
           end

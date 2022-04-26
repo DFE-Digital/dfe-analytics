@@ -76,7 +76,7 @@ bundle install
 bundle exec rails generate dfe:analytics:install
 ```
 
-and follow comments in `config/initializers/dfe-analytics.yml`.
+and follow comments in `config/initializers/dfe_analytics.rb`.
 
 The `dfe:analytics:install` generator will also initialize some empty config files:
 
