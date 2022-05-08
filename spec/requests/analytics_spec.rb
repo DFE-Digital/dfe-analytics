@@ -4,7 +4,11 @@ RSpec.describe 'Analytics flow', type: :request do
       include DfE::Analytics::Requests
 
       def index
-        Candidate.create(
+        model = Class.new(Candidate) do
+          include DfE::Analytics::Entities
+        end
+
+        model.create(
           email_address: 'a@b.com',
           first_name: 'Mr',
           last_name: 'Knox'
@@ -23,12 +27,6 @@ RSpec.describe 'Analytics flow', type: :request do
     })
   end
 
-  let(:model) do
-    Class.new(Candidate) do
-      include DfE::Analytics::Entities
-    end
-  end
-
   around do |ex|
     Rails.application.routes.draw do
       get '/example/path' => 'test#index'
@@ -43,16 +41,17 @@ RSpec.describe 'Analytics flow', type: :request do
   end
 
   it 'works end-to-end' do
+
     request_event = { environment: 'test',
                       event_type: 'web_request',
                       request_method: 'GET',
                       request_path: '/example/path' }
-    request_event_post = stub_analytics_event_submission
+    request_event_post = stub_analytics_event_submission.with(body: /web_request/)
 
     model_event = { environment: 'test',
                     event_type: 'create_entity',
                     entity_table_name: 'candidates' }
-    model_event_post = stub_analytics_event_submission
+    model_event_post = stub_analytics_event_submission.with(body: /create_entity/)
 
     perform_enqueued_jobs do
       get '/example/path'
@@ -71,7 +70,7 @@ RSpec.describe 'Analytics flow', type: :request do
     expect(model_event_post.with do |req|
       body = JSON.parse(req.body)
       payload = body['rows'].first['json']
-      expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(request_event.stringify_keys))
+      expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(model_event.stringify_keys))
 
       expect(payload['request_uuid']).to eq(request_uuid)
     end).to have_been_made
@@ -82,7 +81,7 @@ RSpec.describe 'Analytics flow', type: :request do
       with_analytics_config(queue: :my_custom_queue) do
         expect {
           get '/example/path'
-        }.to have_enqueued_job.on_queue(:my_custom_queue)
+        }.to have_enqueued_job.twice.on_queue(:my_custom_queue)
       end
     end
   end
@@ -91,7 +90,7 @@ RSpec.describe 'Analytics flow', type: :request do
     it 'uses the default queue' do
       expect {
         get '/example/path'
-      }.to have_enqueued_job.on_queue(:default)
+      }.to have_enqueued_job.twice.on_queue(:default)
     end
   end
 end
