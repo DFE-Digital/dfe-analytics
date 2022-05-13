@@ -8,7 +8,7 @@
 
 ## Overview
 
-This gem provides an _opionated integration_ with Google BigQuery.
+This gem provides an _opinionated integration_ with Google BigQuery.
 
 Once it is set up, every web request and database update (as permitted by
 configuration) will flow to BigQuery.
