@@ -2,6 +2,7 @@
 
 require 'request_store_rails'
 require 'i18n'
+require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
 require 'dfe/analytics/event'

@@ -71,7 +71,7 @@ RSpec.describe DfE::Analytics::Entities do
         model.create
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |payload|
-          schema = File.read('config/event-schema.json')
+          schema = DfE::Analytics::EventSchema.new.as_json
           schema_validator = JSONSchemaValidator.new(schema, payload.first)
 
           expect(schema_validator).to be_valid, schema_validator.failure_message
@@ -169,7 +169,7 @@ RSpec.describe DfE::Analytics::Entities do
         entity.update(email_address: 'bar@baz.com')
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later).twice do |payload|
-          schema = File.read('config/event-schema.json')
+          schema = DfE::Analytics::EventSchema.new.as_json
           schema_validator = JSONSchemaValidator.new(schema, payload.first)
 
           expect(schema_validator).to be_valid, schema_validator.failure_message
