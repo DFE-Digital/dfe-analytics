@@ -36,4 +36,8 @@ RSpec.configure do |config|
   end
 
   include DfE::Analytics::Testing::Helpers
+
+  config.expect_with :rspec do |c|
+    c.max_formatted_output_length = nil
+  end
 end
