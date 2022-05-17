@@ -9,4 +9,15 @@ RSpec.describe DfE::Analytics::EventSchema do
       expect(output).to eq schema_on_disk
     end
   end
+
+  describe '.as_bigquery_schema' do
+    it 'transforms the JSON schema into a BQ schema' do
+      bq_schema_on_disk = File.read('spec/examples/bigquery_schema.json')
+
+      output = JSON.parse(described_class.as_bigquery_schema)
+
+      expect(output).to be_present
+      expect(output).to match_array JSON.parse(bq_schema_on_disk)
+    end
+  end
 end
