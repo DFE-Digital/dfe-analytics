@@ -15,7 +15,7 @@ module DfE
 
       def perform(events)
         if DfE::Analytics.log_only?
-          Rails.logger.info('DfE::Analytics: ' + events.inspect)
+          Rails.logger.info("DfE::Analytics: #{events.inspect}")
         else
           DfE::Analytics.events_client.insert(events, ignore_unknown: true)
         end

@@ -43,7 +43,6 @@ RSpec.describe 'Analytics flow', type: :request do
   end
 
   it 'works end-to-end' do
-
     request_event = { environment: 'test',
                       event_type: 'web_request',
                       request_method: 'GET',
@@ -78,21 +77,21 @@ RSpec.describe 'Analytics flow', type: :request do
     end).to have_been_made
   end
 
-  context "when a queue is specified" do
+  context 'when a queue is specified' do
     it 'uses the specified queue' do
       with_analytics_config(queue: :my_custom_queue) do
-        expect {
+        expect do
           get '/example/path'
-        }.to have_enqueued_job.twice.on_queue(:my_custom_queue)
+        end.to have_enqueued_job.twice.on_queue(:my_custom_queue)
       end
     end
   end
 
-  context "when no queue is specified" do
+  context 'when no queue is specified' do
     it 'uses the default queue' do
-      expect {
+      expect do
         get '/example/path'
-      }.to have_enqueued_job.twice.on_queue(:default)
+      end.to have_enqueued_job.twice.on_queue(:default)
     end
   end
 end

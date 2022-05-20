@@ -31,6 +31,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'json-schema', '~> 2.8'
   spec.add_development_dependency 'rspec-rails', '~> 5.0'
   spec.add_development_dependency 'rubocop', '~> 1.26'
-  spec.add_development_dependency 'webmock', '~> 3.14'
+  spec.add_development_dependency 'rubocop-rspec', '~> 2'
   spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'webmock', '~> 3.14'
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end

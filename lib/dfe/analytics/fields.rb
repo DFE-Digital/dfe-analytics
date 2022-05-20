@@ -1,5 +1,7 @@
 module DfE
   module Analytics
+    # Tools to check and update configuration for model fields sent via
+    # DfE::Analytics
     module Fields
       def self.blocklist
         DfE::Analytics.blocklist
@@ -29,11 +31,11 @@ module DfE
             table_name = next_model.table_name&.to_sym
 
             if table_name.present?
-              attributes_considered = lists.map do |list|
-                # for each list of model attrs, look up the attrs for this model
-                list.fetch(table_name, [])
-              end.reduce(:concat) # then combine to get all the attrs we deal with
-
+              attributes_considered = # then combine to get all the attrs we deal with
+                lists.map do |list|
+                  # for each list of model attrs, look up the attrs for this model
+                  list.fetch(table_name, [])
+                end.reduce(:concat)
               missing_attributes = next_model.attribute_names - attributes_considered
               surplus_attributes = attributes_considered - next_model.attribute_names
 

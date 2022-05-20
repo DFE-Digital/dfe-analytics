@@ -18,12 +18,12 @@ RSpec.describe DfE::Analytics do
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return({
         candidates: %i[id],
-        institutions: %i[id], # table name for the School model, which doesn’t follow convention
+        institutions: %i[id] # table name for the School model, which doesn’t follow convention
       })
     end
 
     it 'returns the Rails models in the allowlist' do
-      expect(DfE::Analytics.models_for_analytics).to eq ['Candidate', 'School']
+      expect(DfE::Analytics.models_for_analytics).to eq %w[Candidate School]
     end
   end
 end

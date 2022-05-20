@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require 'active_record'
-
 RSpec.describe DfE::Analytics::Entities do
   let(:interesting_fields) { [] }
   let(:pii_fields) { [] }
 
   let(:model) do
-    klass = Class.new(Candidate) do
+    Class.new(Candidate) do
       include DfE::Analytics::Entities
 
       # yes, ugh, but another part of the code is going to enumerate
