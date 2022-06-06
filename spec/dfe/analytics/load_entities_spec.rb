@@ -34,6 +34,15 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
+  it 'converts arguments values' do
+    Candidate.create
+    Candidate.create
+
+    described_class.new(model_name: 'Candidate', batch_size: '1', sleep_time: '0').run
+
+    expect(DfE::Analytics::SendEvents).to have_received(:perform_later).twice
+  end
+
   it 'can work in batches' do
     Candidate.create
     Candidate.create
