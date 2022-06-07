@@ -1,14 +1,16 @@
 RSpec.describe 'Analytics flow', type: :request do
   before do
+    model = Class.new(Candidate) do
+      include DfE::Analytics::Entities
+    end
+
+    stub_const('Candidate', model)
+
     controller = Class.new(ApplicationController) do
       include DfE::Analytics::Requests
 
       def index
-        model = Class.new(Candidate) do
-          include DfE::Analytics::Entities
-        end
-
-        model.create(
+        Candidate.create(
           email_address: 'a@b.com',
           first_name: 'Mr',
           last_name: 'Knox'

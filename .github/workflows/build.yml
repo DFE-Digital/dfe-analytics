@@ -1,15 +1,15 @@
-name: build
+name: Build
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ $default-branch ]
   pull_request:
-    branches: [ $default-branch ]
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    name: Run specs
     strategy:
       matrix:
         ruby-version: ['2.7']
