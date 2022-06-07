@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics::SendEvents do
+  include ActiveJob::TestHelper
+
   describe '#perform' do
     let(:event) do
       {
@@ -39,6 +41,22 @@ RSpec.describe DfE::Analytics::SendEvents do
         DfE::Analytics::Testing.webmock! do
           described_class.new.perform([event.as_json])
           expect(request).not_to have_been_made
+        end
+      end
+    end
+
+    describe 'retry behaviour' do
+      before do
+        # we don't want to define a permanent exception, just one for this test
+        stub_const('DummyException', Class.new(StandardError))
+      end
+
+      it 'makes 5 attempts' do
+        allow(DfE::Analytics).to receive(:log_only?).and_raise(DummyException)
+
+        assert_performed_jobs 5 do
+          described_class.perform_later([])
+          rescue DummyException # the final exception won’t be caught
         end
       end
     end

@@ -4,6 +4,7 @@ module DfE
   module Analytics
     class SendEvents < ActiveJob::Base
       queue_as { DfE::Analytics.config.queue }
+      retry_on StandardError, wait: :exponentially_longer, attempts: 5
 
       def self.do(events)
         if DfE::Analytics.async?
