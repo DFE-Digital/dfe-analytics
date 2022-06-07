@@ -6,7 +6,7 @@ module DfE
       def install
         create_file 'config/initializers/dfe_analytics.rb', <<~FILE
           DfE::Analytics.configure do |config|
-          #{indent(config_options.map(&:strip).join("\n\n").gsub(/# $/, "#").chomp.chomp, 2)}
+          #{indent(config_options.map(&:strip).join("\n\n").gsub(/# $/, '#').chomp.chomp, 2)}
           end
         FILE
 
@@ -20,7 +20,7 @@ module DfE
       def config_options
         DfE::Analytics.config.members.map do |option|
           <<~DESC
-            # #{I18n.t("dfe.analytics.config.#{option}.description").lines.join("# ").chomp}
+            # #{I18n.t("dfe.analytics.config.#{option}.description").lines.join('# ').chomp}
             #
             # config.#{option} = #{I18n.t("dfe.analytics.config.#{option}.default")}\n
           DESC

@@ -13,18 +13,34 @@ jobs:
     strategy:
       matrix:
         ruby-version: ['2.7']
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby-version }}
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - name: Run rspec
-      run: |
-        cd spec/dummy
-        bundle
-        bundle exec rails db:test:prepare
-        cd ../..
-        bundle exec rspec
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+      - name: Run rspec
+        run: |
+          cd spec/dummy
+          bundle
+          bundle exec rails db:test:prepare
+          cd ../..
+          bundle exec rspec
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Run rubocop
+    strategy:
+      matrix:
+        ruby-version: ['2.7']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+      - name: Run rubocop
+        run: |
+          bundle exec rubocop

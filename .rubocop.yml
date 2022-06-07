@@ -25,6 +25,9 @@ Layout/FirstHashElementIndentation:
 Layout/MultilineMethodCallIndentation:
   Enabled: false
 
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
 # Offense count: 2
 # This cop supports safe auto-correction (--auto-correct).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
@@ -40,3 +43,6 @@ Style/EachWithObject:
 
 AllCops:
   NewCops: enable
+  Exclude:
+    - 'spec/dummy/db/schema.rb'
+    - 'vendor/**/*'  # necesssary because GH actions puts gems in here

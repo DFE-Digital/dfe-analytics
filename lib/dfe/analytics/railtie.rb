@@ -2,13 +2,14 @@
 
 module DfE
   module Analytics
+    # Railtie
     class Railtie < Rails::Railtie
       config.before_initialize do
         i18n_files = File.expand_path("#{File.dirname(__FILE__)}/../../../config/locales/en.yml")
         I18n.load_path << i18n_files
       end
 
-      initializer "dfe.analytics.insert_middleware" do |app|
+      initializer 'dfe.analytics.insert_middleware' do |app|
         app.config.middleware.use DfE::Analytics::Middleware::RequestIdentity
       end
 
