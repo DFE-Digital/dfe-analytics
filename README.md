@@ -152,45 +152,26 @@ BigQuery (respectively) out of the loop.
 ### 4. Adding specs
 
 The `dfe-analytics` gem comes with an RSpec matcher that can be used to ensure
-that an integration exists in controllers and models. The RSpec matcher needs to
-be required into the specs that want to use it, and it provides three matchers:
-
-- `have_sent_analytics_event` base level matcher that takes list of event types and a block expectation. It calls the block expectations and asserts that one of the passed event types has been sent
-- `have_sent_request_analytics_event` shorthand matcher that calls `have_sent_analytics_event` with correct event type for web requests
-- `have_sent_entitiy_analytics_event` shorthand matcher that calls `have_sent_analytics_event` with correct event types for entity operations (will match any of the entity event types)
-
-#### Controller Specs
-
-You can test either existing endpoints or create test routes to test out your
-base controller class (e.g. `ApplicationController`). For example:
+that an integration exists in controllers and models. The RSpec matcher file
+needs to be required into specs, and provides two different styles of matchers
+to use:
 
 ``` ruby
-require 'dfe/analytics/rspec/matchers/have_sent_analytics_event'
+require 'dfe/analytics/rspec/matchers'
 
-RSpec.describe "DFE Analytics integration" do
-  before :all do
-    class TestController < ApplicationController
-      def test
-        render plain: "test response"
-      end
-    end
-  end
+# have_sent_analytics_event_types take a block and expects event types to be sent
+# when that block is called
+it "sends a DFE Analytics web request event" do
+  expect do
+    get '/api/test'
+  end.to have_sent_analytics_event_types(:web_request)
+end
 
-  before :each do
-    Rails.application.routes.draw do
-      get "/test", to: "test#test"
-    end
-  end
-  
-  after :each do
-    Rails.application.reload_routes!
-  end
-
-  it "sends events using DFE Analytics" do
-    expect {
-      get '/test'
-    }.to have_sent_request_analytics_event
-  end
+# have_been_enqueued_event_types expects that as part of the spec, event types 
+# have been sent
+it "sends DFE Analytics request and entity events" do
+  perform_user_sign
+  expect(:web_request, :update_entity).to have_been_enqueued_event_types
 end
 ```
 
