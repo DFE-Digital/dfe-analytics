@@ -56,7 +56,8 @@ RSpec.describe DfE::Analytics::SendEvents do
 
         assert_performed_jobs 5 do
           described_class.perform_later([])
-          rescue DummyException # the final exception won’t be caught
+        rescue DummyException
+          # the final exception won’t be caught
         end
       end
     end
