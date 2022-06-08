@@ -149,6 +149,45 @@ web request and model update. While you’re setting things up consider setting
 the config options `async: false` and `log_only: true` to take ActiveJob and
 BigQuery (respectively) out of the loop.
 
+### 4. Adding specs
+
+The `dfe-analytics` gem comes with an RSpec matcher that can be used to ensure
+that an integration exists in controllers and models. The RSpec matcher file
+needs to be required into specs, and provides two different styles of matchers
+to use:
+
+``` ruby
+require 'dfe/analytics/rspec/matchers'
+
+# have_sent_analytics_event_types take a block and expects event types to be sent
+# when that block is called
+it "sends a DFE Analytics web request event" do
+  expect do
+    get '/api/test'
+  end.to have_sent_analytics_event_types(:web_request)
+end
+
+# have_been_enqueued_as_analytics_events expects that as part of the spec, event types 
+# have been sent
+it "sends DFE Analytics request and entity events" do
+  perform_user_sign
+  expect(:web_request, :update_entity).to have_been_enqueued_as_analytics_events
+end
+
+```
+
+See the list of existing event types below for what kinds of event types can be used with the above matchers. 
+
+## Existing DfE Analytics event types
+
+The different types of events that DfE Analytics send are:
+
+- `web_request` - sent after a controller action is performed using controller callbacks
+- `create_entity` - sent after an object is created using model callbacks 
+- `update_entity` - sent after an object is updated using model callbacks
+- `delete_entity` - sent after an object is deleted using model callbacks
+- `import_entity` - sent for each object imported using the DfE Analytics import rake tasks
+
 ## Importing existing data
 
 Run
