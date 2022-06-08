@@ -8,8 +8,8 @@ module DfE
 
       def initialize(model_name:, start_at_id: nil, sleep_time: nil, batch_size: nil)
         @model_class = Object.const_get(model_name)
-        @sleep_time  = sleep_time.presence || DEFAULT_SLEEP_TIME
-        @batch_size  = batch_size.presence || DEFAULT_BATCH_SIZE
+        @sleep_time  = (sleep_time.presence || DEFAULT_SLEEP_TIME).to_i
+        @batch_size  = (batch_size.presence || DEFAULT_BATCH_SIZE).to_i
         @starting_id = start_at_id || 0 # enable us to complete from a known point of failure :\
       end
 
