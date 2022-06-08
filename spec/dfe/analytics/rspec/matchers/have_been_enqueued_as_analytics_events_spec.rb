@@ -2,13 +2,13 @@
 
 require 'dfe/analytics/rspec/matchers'
 
-class HaveBeenEnqueuedEventTypesTestEvents < ActiveJob::Base
+class HaveBeenEnqueuedAsAnalyticsEventsTestEvents < ActiveJob::Base
   def perform(events)
-    Rails.logger.info("performing have_been_enqueued_event_types test event: #{events.inspect}")
+    Rails.logger.info("performing have_been_enqueued_as_analytics_events test event: #{events.inspect}")
   end
 end
 
-RSpec.describe 'have_been_enqueued_event_types matcher' do
+RSpec.describe 'have_been_enqueued_as_analytics_events matcher' do
   before do
     ActiveJob::Base.queue_adapter = :test
   end
@@ -19,46 +19,46 @@ RSpec.describe 'have_been_enqueued_event_types matcher' do
   it 'passes when the given event type was triggered' do
     DfE::Analytics::SendEvents.do([web_request_event.as_json])
 
-    expect(:web_request).to have_been_enqueued_event_types
+    expect(:web_request).to have_been_enqueued_as_analytics_events
   end
 
   it 'accepts multiple event types' do
     DfE::Analytics::SendEvents.do([web_request_event.as_json])
     DfE::Analytics::SendEvents.do([update_entity_event.as_json])
 
-    expect(%i[web_request update_entity]).to have_been_enqueued_event_types
+    expect(%i[web_request update_entity]).to have_been_enqueued_as_analytics_events
   end
 
   it 'fails if only one event type has been sent' do
     DfE::Analytics::SendEvents.do([web_request_event.as_json])
 
-    expect(%i[web_request update_entity]).not_to have_been_enqueued_event_types
+    expect(%i[web_request update_entity]).not_to have_been_enqueued_as_analytics_events
   end
 
   it 'fails when no event is triggered' do
-    expect(:web_request).not_to have_been_enqueued_event_types
+    expect(:web_request).not_to have_been_enqueued_as_analytics_events
   end
 
   it 'fails when a non analytics event is triggered' do
-    HaveBeenEnqueuedEventTypesTestEvents.perform_later({})
+    HaveBeenEnqueuedAsAnalyticsEventsTestEvents.perform_later({})
 
-    expect(HaveBeenEnqueuedEventTypesTestEvents).to have_been_enqueued
-    expect(:web_request).not_to have_been_enqueued_event_types
+    expect(HaveBeenEnqueuedAsAnalyticsEventsTestEvents).to have_been_enqueued
+    expect(:web_request).not_to have_been_enqueued_as_analytics_events
   end
 
   it 'passes if other analytics events were triggered in addition to the specified analytics type' do
     DfE::Analytics::SendEvents.do([update_entity_event.as_json])
     DfE::Analytics::SendEvents.do([web_request_event.as_json])
 
-    expect(:update_entity).to have_been_enqueued_event_types
-    expect(:web_request).to have_been_enqueued_event_types
+    expect(:update_entity).to have_been_enqueued_as_analytics_events
+    expect(:web_request).to have_been_enqueued_as_analytics_events
   end
 
   it 'passes if other jobs were triggered in addition to the specified analytics type' do
-    HaveBeenEnqueuedEventTypesTestEvents.perform_later({})
+    HaveBeenEnqueuedAsAnalyticsEventsTestEvents.perform_later({})
     DfE::Analytics::SendEvents.do([web_request_event.as_json])
 
-    expect(HaveBeenEnqueuedEventTypesTestEvents).to have_been_enqueued
-    expect(:web_request).to have_been_enqueued_event_types
+    expect(HaveBeenEnqueuedAsAnalyticsEventsTestEvents).to have_been_enqueued
+    expect(:web_request).to have_been_enqueued_as_analytics_events
   end
 end

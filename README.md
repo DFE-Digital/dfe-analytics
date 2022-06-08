@@ -167,11 +167,11 @@ it "sends a DFE Analytics web request event" do
   end.to have_sent_analytics_event_types(:web_request)
 end
 
-# have_been_enqueued_event_types expects that as part of the spec, event types 
+# have_been_enqueued_as_analytics_events expects that as part of the spec, event types 
 # have been sent
 it "sends DFE Analytics request and entity events" do
   perform_user_sign
-  expect(:web_request, :update_entity).to have_been_enqueued_event_types
+  expect(:web_request, :update_entity).to have_been_enqueued_as_analytics_events
 end
 ```
 

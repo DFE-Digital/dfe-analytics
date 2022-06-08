@@ -2,7 +2,7 @@
 
 require_relative './helpers'
 
-RSpec::Matchers.define :have_been_enqueued_event_types do
+RSpec::Matchers.define :have_been_enqueued_as_analytics_events do
   include DfE::Analytics::RSpec::Matchers::Helpers
 
   match do |event_types|
