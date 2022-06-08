@@ -19,7 +19,6 @@ RSpec::Matchers.define :have_sent_analytics_event_types do |*event_types|
     Array(event_types).each do |event_type|
       expect(@enqueued_event_types).to include(event_type.to_s)
     end
-    # expect(event_types.map(&:to_s) & @enqueued_event_types).not_to be_blank
   end
 
   failure_message do |actual|

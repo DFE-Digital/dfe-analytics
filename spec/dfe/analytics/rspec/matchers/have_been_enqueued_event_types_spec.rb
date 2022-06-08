@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../../../../lib/dfe/analytics/rspec/matchers'
+require 'dfe/analytics/rspec/matchers'
 
 class HaveBeenEnqueuedEventTypesTestEvents < ActiveJob::Base
   def perform(events)
