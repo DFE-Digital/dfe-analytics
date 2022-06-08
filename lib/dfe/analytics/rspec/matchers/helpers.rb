@@ -11,15 +11,12 @@ module DfE
           end
 
           def jobs_to_event_types(jobs)
-            jobs.map do |j|
-              j[:args].first.map do |e|
+            jobs.map do |job|
+              next unless job['job_class'] == 'DfE::Analytics::SendEvents'
+
+              job[:args].first.map do |e|
                 e.fetch('event_type')
               end
-            rescue StandardError
-              # Parsing the job args above makes a couple of assumptions that may
-              # raise an error. Treat these as non-analytics events by returning
-              # 'nil' for the type.
-              nil
             end.flatten
           end
         end
