@@ -204,8 +204,10 @@ bundle exec rails dfe:analytics:import_entity[ModelName]
 
 ## Contributing
 
-Make a copy of this repository, run `bundle install`, then `bundle exec rspec`
-to run the tests.
+1. Make a copy of this repository
+2. Install dependencies: `bundle install`
+3. Create dummy app db: `( cd spec/dummy ; bundle exec rake db:setup )`
+4. Run the tests: `bundle exec rspec`
 
 ## License
 
