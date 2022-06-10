@@ -208,6 +208,7 @@ bundle exec rails dfe:analytics:import_entity[ModelName]
 2. Install dependencies: `bundle install`
 3. Create dummy app db: `( cd spec/dummy ; bundle exec rake db:setup )`
 4. Run the tests: `bundle exec rspec`
+5. Run rubocop: `bundle exec rubocop`
 
 ## License
 
