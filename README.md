@@ -124,7 +124,7 @@ inheriting from `ApplicationRecord`, so these should be a good place to start.
 class ApplicationController < ActionController::Base
   include DfE::Analytics::Requests
 
-  # This method MUST be present in your controller and should return
+  # This method MAY be present in your controller, returning
   # either nil or an object implementing an .id method.
   #
   # def current_user; end
