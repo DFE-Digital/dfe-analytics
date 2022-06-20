@@ -1,0 +1,106 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "occurred_at",
+    "type": "TIMESTAMP"
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "event_type",
+    "type": "STRING"
+  },
+  {
+    "mode": "REQUIRED",
+    "name": "environment",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "namespace",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "user_id",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "request_uuid",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "request_method",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "request_path",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "request_user_agent",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "request_referer",
+    "type": "STRING"
+  },
+  {
+    "fields": [
+      {
+        "mode": "REQUIRED",
+        "name": "key",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "value",
+        "type": "STRING"
+      }
+    ],
+    "mode": "REPEATED",
+    "name": "request_query",
+    "type": "RECORD"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "response_content_type",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "response_status",
+    "type": "STRING"
+  },
+  {
+    "fields": [
+      {
+        "mode": "REQUIRED",
+        "name": "key",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "value",
+        "type": "STRING"
+      }
+    ],
+    "mode": "REPEATED",
+    "name": "data",
+    "type": "RECORD"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "entity_table_name",
+    "type": "STRING"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "anonymised_user_agent_and_ip",
+    "type": "STRING"
+  }
+]

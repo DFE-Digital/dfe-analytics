@@ -23,7 +23,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
     described_class.new(model_name: 'Candidate', sleep_time: 0).run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |payload|
-      schema = File.read('config/event-schema.json')
+      schema = DfE::Analytics::EventSchema.new.as_json
       schema_validator = JSONSchemaValidator.new(schema, payload.first)
 
       expect(schema_validator).to be_valid, schema_validator.failure_message

@@ -36,10 +36,7 @@
       }
     },
     "request_referer": {
-      "anyOf": [
-        {"type": "string"},
-        {"type": "null"}
-      ]
+      "type": "string"
     },
     "anonymised_user_agent_and_ip": {
       "type": "string"
@@ -48,13 +45,13 @@
       "type": "string"
     },
     "response_status": {
-      "type": "integer"
+      "type": "string"
     },
     "namespace": {
       "type": "string"
     },
     "user_id": {
-      "type": "integer"
+      "type": "string"
     },
     "data": {
       "type": "array",
