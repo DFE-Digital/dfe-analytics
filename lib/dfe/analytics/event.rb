@@ -53,10 +53,17 @@ module DfE
         self
       end
 
-      def with_user_and_namespace(user, namespace)
+      def with_user(user)
         @event_hash.merge!(
-          namespace: namespace,
           user_id: user&.id
+        )
+
+        self
+      end
+
+      def with_namespace(namespace)
+        @event_hash.merge!(
+          namespace: namespace
         )
 
         self

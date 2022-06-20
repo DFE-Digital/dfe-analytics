@@ -22,7 +22,7 @@ RSpec.describe DfE::Analytics::Event do
   end
 
   describe 'anonymised_user_agent_and_ip' do
-    subject(:field) do
+    subject do
       request = fake_request(
         remote_ip: remote_ip,
         user_agent: user_agent
