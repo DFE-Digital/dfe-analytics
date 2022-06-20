@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PublicApiController < ActionController::API
+class UnauthenticatedController < ActionController::API
   def index
     render json: []
   end

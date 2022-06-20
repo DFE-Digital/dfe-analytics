@@ -5,18 +5,18 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
     controller = Class.new(ApplicationController) do
       include DfE::Analytics::Requests
     end
-    public_api_controller = Class.new(PublicApiController) do
+    unauthenticated_controller = Class.new(UnauthenticatedController) do
       include DfE::Analytics::Requests
     end
 
     stub_const('TestController', controller)
-    stub_const('TestPublicApiController', public_api_controller)
+    stub_const('TestUnauthenticatedController', unauthenticated_controller)
   end
 
   around do |ex|
     Rails.application.routes.draw do
       get '/example/path' => 'test#index'
-      get '/api/public/things' => 'test_public_api#index'
+      get '/unauthenticated_example' => 'test_unauthenticated#index'
     end
 
     ex.run
@@ -68,7 +68,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
         event_type: 'web_request',
         request_user_agent: nil,
         request_method: 'GET',
-        request_path: '/api/public/things',
+        request_path: '/unauthenticated_example',
         request_query: [],
         request_referer: nil,
         anonymised_user_agent_and_ip: '12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0',
@@ -83,7 +83,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
 
       DfE::Analytics::Testing.webmock! do
         perform_enqueued_jobs do
-          get('/api/public/things')
+          get('/unauthenticated_example')
         end
       end
 
