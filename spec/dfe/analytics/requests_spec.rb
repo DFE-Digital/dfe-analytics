@@ -73,9 +73,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
         request_referer: nil,
         anonymised_user_agent_and_ip: '12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0',
         response_content_type: 'application/json; charset=utf-8',
-        response_status: 200,
-        namespace: nil,
-        user_id: nil }
+        response_status: 200 }
     end
 
     it 'does not require a user' do
