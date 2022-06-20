@@ -210,6 +210,18 @@ bundle exec rails dfe:analytics:import_entity[ModelName]
 4. Run the tests: `bundle exec rspec`
 5. Run rubocop: `bundle exec rubocop`
 
+## Releasing
+
+Dependencies:
+
+- [github_changelog_generator](https://github.com/github-changelog-generator/Github-Changelog-Generator)
+- [gem_release](https://github.com/svenfuchs/gem-release) (or DIY)
+
+1. Raise a PR bumping the version and get it merged
+1. On `main`, tag the current version using `gem tag`. Tags should be in the form `vX.X.X`
+1. Push the tag: `git push origin <tag name>` (or use `gem tag -p` and skip this step)
+1. Generate a changelog: `github_changelog_generator -u DFE-Digital -p dfe-analytics` and PR that.
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
