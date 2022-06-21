@@ -27,6 +27,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'request_store_rails', '~> 2'
 
   spec.add_development_dependency 'debug', '>= 1.0.0'
+  spec.add_development_dependency 'gem-release', '~> 2.2'
+  spec.add_development_dependency 'github_changelog_generator', '~> 1.16'
   spec.add_development_dependency 'json-schema', '~> 2.8'
   spec.add_development_dependency 'rails', '>= 6'
   spec.add_development_dependency 'rspec-rails', '~> 5.0'
