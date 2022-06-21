@@ -6,11 +6,11 @@ module DfE
       DEFAULT_SLEEP_TIME = 2
       DEFAULT_BATCH_SIZE = 200
 
-      def initialize(model_name:, start_at_id: nil, sleep_time: nil, batch_size: nil)
+      def initialize(model_name:, start_at_id: 0, sleep_time: DEFAULT_SLEEP_TIME, batch_size: DEFAULT_BATCH_SIZE)
         @model_class = Object.const_get(model_name)
-        @sleep_time  = (sleep_time.presence || DEFAULT_SLEEP_TIME).to_i
-        @batch_size  = (batch_size.presence || DEFAULT_BATCH_SIZE).to_i
-        @starting_id = start_at_id || 0 # enable us to complete from a known point of failure :\
+        @sleep_time  = sleep_time.to_i
+        @batch_size  = batch_size.to_i
+        @starting_id = start_at_id
       end
 
       def run
