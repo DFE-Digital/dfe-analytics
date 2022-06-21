@@ -16,7 +16,11 @@ task :prepare_release, %i[version] do |_, args|
   sh 'gem', 'bump', '-v', bump_version, '--no-commit'
 
   version = `ruby -rrubygems -e 'puts Gem::Specification::load("dfe-analytics.gemspec").version'`.chomp
+  raise 'could not retrieve version' if version.empty?
 
   sh 'github_changelog_generator', '--no-verbose', '--future-release', version
 
+  sh 'git', 'commit', '-a', '-m', version
+
+  sh 'git', 'tag', version
 end

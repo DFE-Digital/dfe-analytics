@@ -213,11 +213,9 @@ bundle exec rails dfe:analytics:import_entity[ModelName]
 ## Releasing
 
 1. Checkout a release branch: `git checkout -b new-version`
-2. Bump the version and generate the CHANGELOG.md: `rake prepare_release[minor]`
-3. Edit `CHANGELOG.md` (ONLY if necessary).
-4. Commit version bump and `CHANGELOG.md`: `git commit -m "1.1.0"`
-5. Tag: `git tag 1.1.0`
-6. Push with tags: `git push --tags`
+2. Bump the version and generate the CHANGELOG.md. This will commit and tag changes: `rake prepare_release[minor]`
+3. (Optional) Verify committed `CHANGELOG.md` changes and alter if necessary.
+4. Push with tags: `git push --tags`
 
 ## License
 
