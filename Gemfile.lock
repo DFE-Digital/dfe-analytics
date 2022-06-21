@@ -360,7 +360,7 @@ PLATFORMS
 DEPENDENCIES
   debug (>= 1.0.0)
   dfe-analytics!
-  gem-release (~> 2.2)
+  gem-release
   github_changelog_generator
   json-schema (~> 2.8)
   rails (>= 6)
