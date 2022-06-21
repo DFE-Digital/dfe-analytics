@@ -212,15 +212,12 @@ bundle exec rails dfe:analytics:import_entity[ModelName]
 
 ## Releasing
 
-Dependencies:
-
-- [github_changelog_generator](https://github.com/github-changelog-generator/Github-Changelog-Generator)
-- [gem_release](https://github.com/svenfuchs/gem-release) (or DIY)
-
-1. Raise a PR bumping the version and get it merged
-1. On `main`, tag the current version using `gem tag`. Tags should be in the form `vX.X.X`
-1. Push the tag: `git push origin <tag name>` (or use `gem tag -p` and skip this step)
-1. Generate a changelog: `github_changelog_generator -u DFE-Digital -p dfe-analytics` and PR that.
+1. Checkout a release branch: `git checkout -b new-version`
+2. Bump the version and generate the CHANGELOG.md: `rake prepare_release[minor]`
+3. Edit `CHANGELOG.md` (ONLY if necessary).
+4. Commit version bump and `CHANGELOG.md`: `git commit -m "1.1.0"`
+5. Tag: `git tag 1.1.0`
+6. Push with tags: `git push --tags`
 
 ## License
 
