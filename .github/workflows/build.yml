@@ -13,6 +13,8 @@ jobs:
     strategy:
       matrix:
         ruby-version: ['2.7']
+    env:
+      BUNDLE_WITHOUT: release
     steps:
       - uses: actions/checkout@v2
       - name: Set up Ruby
@@ -34,6 +36,8 @@ jobs:
     strategy:
       matrix:
         ruby-version: ['2.7']
+    env:
+      BUNDLE_WITHOUT: release
     steps:
       - uses: actions/checkout@v2
       - name: Set up Ruby
