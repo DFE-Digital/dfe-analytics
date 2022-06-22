@@ -15,12 +15,18 @@ task :prepare_release, %i[version] do |_, args|
 
   sh 'gem', 'bump', '-v', bump_version, '--no-commit'
 
-  version = `ruby -rrubygems -e 'puts Gem::Specification::load("dfe-analytics.gemspec").version'`.chomp
+  version = `bundle exec ruby -e 'puts DfE::Analytics::VERSION'`.chomp
   raise 'could not retrieve version' if version.empty?
 
-  sh 'github_changelog_generator', '--no-verbose', '--future-release', version
+  v_version = "v#{version}"
 
-  sh 'git', 'commit', '-a', '-m', version
+  sh 'github_changelog_generator', '--no-verbose', '--future-release', v_version
 
-  sh 'git', 'tag', version
+  sh 'git', 'commit', '-a', '-m', v_version
+
+  sh 'gem', 'tag'
+
+  puts "Ready for release #{v_version}. If you're happy with it and the CHANGELOG.md, you can push it with:",
+       '',
+       '  git push --tags origin'
 end
