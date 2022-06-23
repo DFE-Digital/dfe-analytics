@@ -1,5 +1,16 @@
 # Changelog
 
+## [v1.1.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.1.0) (2022-06-22)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.0.0...v1.1.0)
+
+**Merged pull requests:**
+
+- Add release task [\#18](https://github.com/DFE-Digital/dfe-analytics/pull/18) ([misaka](https://github.com/misaka))
+- make current\_user optional [\#17](https://github.com/DFE-Digital/dfe-analytics/pull/17) ([misaka](https://github.com/misaka))
+- CHANGELOG.md and release process [\#16](https://github.com/DFE-Digital/dfe-analytics/pull/16) ([duncanjbrown](https://github.com/duncanjbrown))
+- Emit JSON schema and BigQuery schema [\#6](https://github.com/DFE-Digital/dfe-analytics/pull/6) ([duncanjbrown](https://github.com/duncanjbrown))
+
 ## [v1.0.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.0.0) (2022-06-10)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v0.1.0...v1.0.0)
