@@ -10,6 +10,10 @@ RSpec.describe 'Analytics flow', type: :request do
       include DfE::Analytics::Requests
 
       def index
+        render plain: 'Index page'
+      end
+
+      def create
         Candidate.create(
           email_address: 'a@b.com',
           first_name: 'Mr',
@@ -31,7 +35,8 @@ RSpec.describe 'Analytics flow', type: :request do
 
   around do |ex|
     Rails.application.routes.draw do
-      get '/example/path' => 'test#index'
+      post '/example/create' => 'test#create'
+      get '/example/' => 'test#index'
     end
 
     DfE::Analytics::Testing.webmock! do
@@ -45,8 +50,8 @@ RSpec.describe 'Analytics flow', type: :request do
   it 'works end-to-end' do
     request_event = { environment: 'test',
                       event_type: 'web_request',
-                      request_method: 'GET',
-                      request_path: '/example/path' }
+                      request_method: 'POST',
+                      request_path: '/example/create' }
     request_event_post = stub_analytics_event_submission.with(body: /web_request/)
 
     model_event = { environment: 'test',
@@ -55,7 +60,7 @@ RSpec.describe 'Analytics flow', type: :request do
     model_event_post = stub_analytics_event_submission.with(body: /create_entity/)
 
     perform_enqueued_jobs do
-      get '/example/path'
+      post '/example/create'
     end
 
     request_uuid = nil # we'll compare this across requests
@@ -81,8 +86,8 @@ RSpec.describe 'Analytics flow', type: :request do
     it 'uses the specified queue' do
       with_analytics_config(queue: :my_custom_queue) do
         expect do
-          get '/example/path'
-        end.to have_enqueued_job.twice.on_queue(:my_custom_queue)
+          get '/example'
+        end.to have_enqueued_job.on_queue(:my_custom_queue)
       end
     end
   end
@@ -90,8 +95,22 @@ RSpec.describe 'Analytics flow', type: :request do
   context 'when no queue is specified' do
     it 'uses the default queue' do
       expect do
-        get '/example/path'
-      end.to have_enqueued_job.twice.on_queue(:default)
+        get '/example'
+      end.to have_enqueued_job.on_queue(:default)
+    end
+  end
+
+  context 'when a non-UTF-8-encoded User Agent is supplied' do
+    it 'coerces it to UTF-8' do
+      stub_analytics_event_submission.with(body: /web_request/)
+
+      string = "\xbf\xef"
+
+      expect do
+        perform_enqueued_jobs do
+          get '/example', headers: { 'User-Agent' => string }
+        end
+      end.not_to raise_error
     end
   end
 end
