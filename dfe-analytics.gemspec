@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Event pump for DfE Rails applications'
   spec.homepage      = 'https://teacher-services-tech-docs.london.cloudapps.digital/#teacher-services-technical-documentation'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.7.5')
 
   spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
