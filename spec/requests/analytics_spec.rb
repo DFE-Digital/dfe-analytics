@@ -99,4 +99,18 @@ RSpec.describe 'Analytics flow', type: :request do
       end.to have_enqueued_job.on_queue(:default)
     end
   end
+
+  context 'when a non-UTF-8-encoded User Agent is supplied' do
+    it 'coerces it to UTF-8' do
+      stub_analytics_event_submission.with(body: /web_request/)
+
+      string = "\xbf\xef"
+
+      expect do
+        perform_enqueued_jobs do
+          get '/example', headers: { 'User-Agent' => string }
+        end
+      end.not_to raise_error
+    end
+  end
 end

@@ -75,6 +75,29 @@ RSpec.describe DfE::Analytics::Event do
     end
   end
 
+  describe 'handling invalid UTF-8' do
+    it 'coerces it to valid UTF-8' do
+      invalid_string = "hello \xbf\xef hello"
+
+      request = fake_request(
+        user_agent: invalid_string
+      )
+
+      event = described_class.new
+      expect(event.with_request_details(request).as_json['request_user_agent']).not_to eq(invalid_string)
+      expect(event.with_request_details(request).as_json['request_user_agent']).to eq('hello �� hello')
+    end
+
+    it 'handles nil' do
+      request = fake_request(
+        user_agent: nil
+      )
+
+      event = described_class.new
+      expect(event.with_request_details(request).as_json['request_user_agent']).to be_nil
+    end
+  end
+
   def fake_request(overrides = {})
     attrs = {
       uuid: '123',

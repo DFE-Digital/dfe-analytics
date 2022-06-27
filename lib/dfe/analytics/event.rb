@@ -33,11 +33,11 @@ module DfE
       def with_request_details(rack_request)
         @event_hash.merge!(
           request_uuid: rack_request.uuid,
-          request_user_agent: rack_request.user_agent,
+          request_user_agent: ensure_utf8(rack_request.user_agent),
           request_method: rack_request.method,
-          request_path: rack_request.path,
+          request_path: ensure_utf8(rack_request.path),
           request_query: hash_to_kv_pairs(Rack::Utils.parse_query(rack_request.query_string)),
-          request_referer: rack_request.referer,
+          request_referer: ensure_utf8(rack_request.referer),
           anonymised_user_agent_and_ip: anonymised_user_agent_and_ip(rack_request)
         )
 
@@ -117,6 +117,10 @@ module DfE
 
       def anonymise(text)
         Digest::SHA2.hexdigest(text)
+      end
+
+      def ensure_utf8(str)
+        str&.scrub
       end
     end
   end
