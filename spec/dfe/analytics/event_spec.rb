@@ -62,6 +62,17 @@ RSpec.describe DfE::Analytics::Event do
   end
 
   describe 'data pairs' do
+    let(:has_as_json_class) do
+      Struct.new(:colour, :is_cat) do
+        def as_json
+          {
+            colour: colour,
+            is_cat: is_cat
+          }
+        end
+      end
+    end
+
     it 'converts booleans to strings' do
       event = described_class.new
       output = event.with_data(key: true).as_json
@@ -72,6 +83,12 @@ RSpec.describe DfE::Analytics::Event do
       event = described_class.new
       output = event.with_data(key: { equality_and_diversity: { ethnic_background: 'Irish' } }).as_json
       expect(output['data'].first['value']).to eq ['{"equality_and_diversity":{"ethnic_background":"Irish"}}']
+    end
+
+    it 'handles objects that have JSON-friendly structures' do
+      event = described_class.new
+      output = event.with_data(as_json_object: has_as_json_class.new(:green, true)).as_json
+      expect(output['data'].first['value']).to eq ['{"colour":"green","is_cat":true}']
     end
   end
 
