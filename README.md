@@ -151,12 +151,26 @@ BigQuery (respectively) out of the loop.
 
 ### 4. Adding specs
 
-The `dfe-analytics` gem comes with an RSpec matcher that can be used to ensure
-that an integration exists in controllers and models. The RSpec matcher file
-needs to be required into specs, and provides two different styles of matchers
-to use:
+#### Testing modes
 
-``` ruby
+The `dfe-analytics` Gem comes with a testing mode which prevents real analytics from being recorded when running tests.
+
+```ruby
+require 'dfe/analytics/testing'
+
+DfE::Analytics::Testing.fake!
+
+DfE::Analytics::Testing.webmock!
+```
+
+- `fake!` is the default mode, and this effectively stubs the BigQuery client meaning no requests are made.
+- `webmock!` makes the library act as normal, allowing you to write tests against mocked requests.
+
+#### Matchers
+
+The Gem also comes with an RSpec matcher that can be used to ensure that an integration exists in controllers and models. The RSpec matcher file needs to be required into specs, and provides two different styles of matchers to use:
+
+```ruby
 require 'dfe/analytics/rspec/matchers'
 
 # have_sent_analytics_event_types take a block and expects event types to be sent
