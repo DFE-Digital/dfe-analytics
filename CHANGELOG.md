@@ -1,11 +1,20 @@
 # Changelog
 
+## [v1.2.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.2.1) (2022-06-28)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.2.0...v1.2.1)
+
+**Merged pull requests:**
+
+- Improve testing modes [\#26](https://github.com/DFE-Digital/dfe-analytics/pull/26) ([thomasleese](https://github.com/thomasleese))
+
 ## [v1.2.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.2.0) (2022-06-28)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.1.0...v1.2.0)
 
 **Merged pull requests:**
 
+- v1.2.0 [\#25](https://github.com/DFE-Digital/dfe-analytics/pull/25) ([duncanjbrown](https://github.com/duncanjbrown))
 - convert data values using to\_json [\#23](https://github.com/DFE-Digital/dfe-analytics/pull/23) ([misaka](https://github.com/misaka))
 - Don't crash on invalid UTF-8 in headers [\#22](https://github.com/DFE-Digital/dfe-analytics/pull/22) ([duncanjbrown](https://github.com/duncanjbrown))
 - Simplify backfill process [\#21](https://github.com/DFE-Digital/dfe-analytics/pull/21) ([duncanjbrown](https://github.com/duncanjbrown))
