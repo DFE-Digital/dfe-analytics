@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics::LoadEntities do
+  include ActiveJob::TestHelper
+
   before do
     allow(DfE::Analytics).to receive(:allowlist).and_return(
       {
@@ -17,10 +19,16 @@ RSpec.describe DfE::Analytics::LoadEntities do
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
   end
 
+  around do |ex|
+    perform_enqueued_jobs do
+      ex.run
+    end
+  end
+
   it 'sends a model’s fields to BQ' do
     Candidate.create(email_address: 'known@address.com')
 
-    described_class.new(model_name: 'Candidate', sleep_time: 0).run
+    described_class.new(model_name: 'Candidate').run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |payload|
       schema = DfE::Analytics::EventSchema.new.as_json
@@ -34,30 +42,11 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
-  it 'converts arguments values' do
-    Candidate.create
-    Candidate.create
-
-    described_class.new(model_name: 'Candidate', batch_size: '1', sleep_time: '0').run
-
-    expect(DfE::Analytics::SendEvents).to have_received(:perform_later).twice
-  end
-
   it 'can work in batches' do
     Candidate.create
     Candidate.create
 
-    described_class.new(model_name: 'Candidate', batch_size: 1, sleep_time: 0).run
-
-    expect(DfE::Analytics::SendEvents).to have_received(:perform_later).twice
-  end
-
-  it 'can start from an id' do
-    Candidate.create
-    Candidate.create
-    highest_id = Candidate.maximum(:id)
-
-    described_class.new(model_name: 'Candidate', batch_size: 1, sleep_time: 0, start_at_id: highest_id).run
+    described_class.new(model_name: 'Candidate', batch_size: 2).run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once
   end

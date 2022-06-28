@@ -3,42 +3,28 @@
 module DfE
   module Analytics
     class LoadEntities
-      DEFAULT_SLEEP_TIME = 2
       DEFAULT_BATCH_SIZE = 200
 
-      def initialize(model_name:, start_at_id: nil, sleep_time: nil, batch_size: nil)
+      def initialize(model_name:, batch_size: DEFAULT_BATCH_SIZE)
+        @model_name = model_name
         @model_class = Object.const_get(model_name)
-        @sleep_time  = (sleep_time.presence || DEFAULT_SLEEP_TIME).to_i
-        @batch_size  = (batch_size.presence || DEFAULT_BATCH_SIZE).to_i
-        @starting_id = start_at_id || 0 # enable us to complete from a known point of failure :\
+        @batch_size  = batch_size.to_i
       end
 
       def run
         Rails.logger.info("Processing data for #{@model_class.name} with row count #{@model_class.count}")
 
-        processed_so_far = 0
+        batch_number = 0
 
-        @model_class.order(:id).where('id >= ?', @starting_id).find_in_batches(batch_size: @batch_size) do |records|
-          id = records.first.id
+        @model_class.order(:id).in_batches(of: @batch_size) do |relation|
+          batch_number += 1
 
-          events = records.map do |record|
-            DfE::Analytics::Event.new
-                                 .with_type('import_entity')
-                                 .with_entity_table_name(@model_class.table_name)
-                                 .with_data(DfE::Analytics.extract_model_attributes(record))
-          end
+          ids = relation.pluck(:id)
 
-          DfE::Analytics::SendEvents.do(events.as_json)
-
-          processed_so_far += records.count
-
-          sleep @sleep_time
-        rescue StandardError => e
-          Rails.logger.info("Process failed while processing #{@model_class.name} within the id range #{id} to #{id + @batch_size}")
-          Rails.logger.info(e.message)
+          DfE::Analytics::LoadEntityBatch.perform_later(@model_class, ids, batch_number)
         end
 
-        Rails.logger.info "Processed #{processed_so_far} records importing #{@model_class.name}"
+        Rails.logger.info "Enqueued #{batch_number} batches of #{@batch_size} #{@model_name} for importing to BigQuery"
       end
     end
   end

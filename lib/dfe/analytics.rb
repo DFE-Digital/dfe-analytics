@@ -6,8 +6,10 @@ require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
 require 'dfe/analytics/event'
+require 'dfe/analytics/analytics_job'
 require 'dfe/analytics/send_events'
 require 'dfe/analytics/load_entities'
+require 'dfe/analytics/load_entity_batch'
 require 'dfe/analytics/requests'
 require 'dfe/analytics/version'
 require 'dfe/analytics/middleware/request_identity'
@@ -77,15 +79,15 @@ module DfE
     end
 
     def self.allowlist
-      Rails.application.config_for(:analytics)
+      @allowlist ||= Rails.application.config_for(:analytics)
     end
 
     def self.allowlist_pii
-      Rails.application.config_for(:analytics_pii)
+      @allowlist_pii ||= Rails.application.config_for(:analytics_pii)
     end
 
     def self.blocklist
-      Rails.application.config_for(:analytics_blocklist)
+      @blocklist ||= Rails.application.config_for(:analytics_blocklist)
     end
 
     def self.environment
