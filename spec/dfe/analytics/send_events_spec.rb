@@ -45,6 +45,17 @@ RSpec.describe DfE::Analytics::SendEvents do
       end
     end
 
+    context 'when using fake testing mode' do
+      it 'does not go out to the network' do
+        request = stub_analytics_event_submission
+
+        DfE::Analytics::Testing.fake! do
+          described_class.new.perform([event.as_json])
+          expect(request).not_to have_been_made
+        end
+      end
+    end
+
     describe 'retry behaviour' do
       before do
         # we don't want to define a permanent exception, just one for this test
