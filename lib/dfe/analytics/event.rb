@@ -101,6 +101,8 @@ module DfE
 
       def hash_to_kv_pairs(hash)
         hash.map do |(key, value)|
+          value = value.try(:as_json)
+
           if value.in? [true, false]
             value = value.to_s
           elsif value.is_a?(Hash)
