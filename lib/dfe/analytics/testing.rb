@@ -40,7 +40,7 @@ module DfE
     end
 
     class StubClient
-      def insert(_events)
+      def insert(*)
         true
       end
     end
