@@ -2,6 +2,7 @@
 
 ENV['RAILS_ENV'] = 'test'
 require_relative '../spec/dummy/config/environment'
+require 'debug'
 require 'rspec/rails'
 require 'webmock/rspec'
 require 'json-schema'
