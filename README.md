@@ -19,6 +19,10 @@ one for keeping your field configuration up to date.
 
 To set the gem up follow the steps in "Configuration", below.
 
+## See also
+
+[dfe-analytics-dataform](https://github.com/DFE-Digital/dfe-analytics-dataform) provides a JavaScript package designed to generate SQL queries executed in [Dataform](https://dataform.co/) that transform data streamed into BigQuery by this gem into useful tables for quicker analysis and visualisation.
+
 ## Names and jargon
 
 A Rails model is an analytics **Entity**.
@@ -70,7 +74,205 @@ bundle install
 
 ## Configuration
 
-### 1. Configure BigQuery connection, feature flags etc
+
+### 1. Get a BigQuery project setup and add initial owners
+
+Ask in Slack on the `#twd_data_insights` channel for someone to help you
+procure a BigQuery instance in the `digital.education.gov.uk` Google Cloud
+Organisation.
+
+Ask - or ask your Delivery Manager to ask - for your `@digital.education.gov.uk` Google account to be setup as an owner
+via the IAM and Admin settings. Add other team members as necessary.
+
+#### Set up billing
+
+You also need to set up your BigQuery instance with paid billing. This is
+because `dfe-analytics` uses streaming, and streaming isn't allowed in the free
+tier:
+
+```
+accessDenied: Access Denied: BigQuery BigQuery: Streaming insert is not allowed
+in the free tier
+```
+
+### 2. Create a dataset and table
+
+You should create separate datasets for each environment (dev, qa, preprod, prod etc.).
+
+1. Open your project's BigQuery instance
+2. Go to the Analysis -> SQL Workspace section
+3. Tap on the 3 dots next to the project name, "Create data set"
+4. Name it something like `APPLICATIONNAME_events_ENVIRONMENT`, such as `applyforqts_events_production`, and set the location to `europe-west2 (London)`
+5. Select your new dataset
+6. Open a new query execution tab.
+7. Edit [create-events-table.sql](https://github.com/DFE-Digital/dfe-analytics/create-events-table.sql) to add your table name, and run it in the query execution tab in BigQuery to create a blank events table for dfe-analytics to stream data into.
+
+### 4. Create custom roles
+
+1. Go to IAM and Admin settings > Roles
+1. Click on "+ Create role"
+1. Create the 3 roles outlined below
+
+#### Analyst
+
+| Field             | Value                                              |
+| ----------------- | -------------------------------------------------- |
+| Title             | **BigQuery Analyst Custom**                        |
+| Description       | Assigned to accounts used by analysts and SQL developers. |
+| ID                | `bigquery_analyst_custom`                          |
+| Role launch stage | General Availability                               |
+| + Add permissions | See below                                          |
+
+<details>
+<summary>Permissions for bigquery_analyst_custom</summary>
+<pre>
+bigquery.datasets.get
+bigquery.datasets.getIamPolicy
+bigquery.datasets.updateTag
+bigquery.jobs.create
+bigquery.jobs.get
+bigquery.jobs.list
+bigquery.jobs.listAll
+bigquery.models.export
+bigquery.models.getData
+bigquery.models.getMetadata
+bigquery.models.list
+bigquery.routines.get
+bigquery.routines.list
+bigquery.savedqueries.create
+bigquery.savedqueries.delete
+bigquery.savedqueries.get
+bigquery.savedqueries.list
+bigquery.savedqueries.update
+bigquery.tables.createSnapshot
+bigquery.tables.export
+bigquery.tables.get
+bigquery.tables.getData
+bigquery.tables.getIamPolicy
+bigquery.tables.list
+bigquery.tables.restoreSnapshot
+resourcemanager.projects.get
+</pre>
+</details>
+
+#### Developer
+
+| Field             | Value                                    |
+| ----------------- | ---------------------------------------- |
+| Title             | **BigQuery Developer Custom**            |
+| Description       | Assigned to accounts used by developers. |
+| ID                | `bigquery_developer_custom`              |
+| Role launch stage | General Availability                     |
+| + Add permissions | See below                                |
+
+<details>
+<summary>Permissions for bigquery_developer_custom</summary>
+<pre>
+bigquery.connections.create
+bigquery.connections.delete
+bigquery.connections.get
+bigquery.connections.getIamPolicy
+bigquery.connections.list
+bigquery.connections.update
+bigquery.connections.updateTag
+bigquery.connections.use
+bigquery.datasets.create
+bigquery.datasets.delete
+bigquery.datasets.get
+bigquery.datasets.getIamPolicy
+bigquery.datasets.update
+bigquery.datasets.updateTag
+bigquery.jobs.create
+bigquery.jobs.delete
+bigquery.jobs.get
+bigquery.jobs.list
+bigquery.jobs.listAll
+bigquery.jobs.update
+bigquery.models.create
+bigquery.models.delete
+bigquery.models.export
+bigquery.models.getData
+bigquery.models.getMetadata
+bigquery.models.list
+bigquery.models.updateData
+bigquery.models.updateMetadata
+bigquery.models.updateTag
+bigquery.routines.create
+bigquery.routines.delete
+bigquery.routines.get
+bigquery.routines.list
+bigquery.routines.update
+bigquery.routines.updateTag
+bigquery.savedqueries.create
+bigquery.savedqueries.delete
+bigquery.savedqueries.get
+bigquery.savedqueries.list
+bigquery.savedqueries.update
+bigquery.tables.create
+bigquery.tables.createSnapshot
+bigquery.tables.delete
+bigquery.tables.deleteSnapshot
+bigquery.tables.export
+bigquery.tables.get
+bigquery.tables.getData
+bigquery.tables.getIamPolicy
+bigquery.tables.list
+bigquery.tables.restoreSnapshot
+bigquery.tables.setCategory
+bigquery.tables.update
+bigquery.tables.updateData
+bigquery.tables.updateTag
+resourcemanager.projects.get
+</pre>
+</details>
+
+#### Appender
+
+| Field             | Value                                                      |
+| ----------------- | ---------------------------------------------------------- |
+| Title             | **BigQuery Appender Custom**                               |
+| Description       | Assigned to accounts used by appenders (apps and scripts). |
+| ID                | `bigquery_appender_custom`                                 |
+| Role launch stage | General Availability                                       |
+| + Add permissions | See below                                                  |
+
+<details>
+<summary>Permissions for bigquery_appender_custom</summary>
+<pre>
+bigquery.datasets.get
+bigquery.tables.get
+bigquery.tables.updateData
+</pre>
+</details>
+
+### 5. Create an appender service account
+
+1. Go to [IAM and Admin settings > Create service account](https://console.cloud.google.com/projectselector/iam-admin/serviceaccounts/create?supportedpurview=project)
+1. Name it like "Appender NAME_OF_SERVICE ENVIRONMENT" e.g. "Appender ApplyForQTS Production"
+1. Add a description, like "Used when developing locally."
+1. Grant the service account access to the project, use the "BigQuery Appender Custom" role you set up earlier
+
+### 6. Get an API JSON key :key:
+
+1. Access the service account you previously set up
+1. Go to the keys tab, click on "Add key > Create new key"
+1. Create a JSON private key
+
+The full contents of this JSON file is your `BIGQUERY_API_JSON_KEY`.
+
+### 7. Set up environment variables
+
+Putting the previous things together, to finish setting up `dfe-analytics`, you
+need these environment variables:
+
+```
+BIGQUERY_TABLE_NAME=events
+BIGQUERY_PROJECT_ID=your-bigquery-project-name
+BIGQUERY_DATASET=your-bigquery-dataset-name
+BIGQUERY_API_JSON_KEY=<contents of the JSON, make sure to strip or escape newlines>
+```
+
+### 8. Configure BigQuery connection, feature flags etc
 
 ```bash
 bundle exec rails generate dfe:analytics:install
@@ -86,7 +288,7 @@ The `dfe:analytics:install` generator will also initialize some empty config fil
 | `config/analytics_pii.yml` | List all fields we will obfuscate before sending to BigQuery. This should be a subset of fields in `analytics.yml` |
 | `config/analytics_blocklist.yml` | Autogenerated file to list all fields we will NOT send to BigQuery, to support the `analytics:check` task |
 
-### 2. Check your fields
+### 9. Check your fields
 
 A good place to start is to run
 
@@ -110,7 +312,7 @@ config but missing from the model.
 **It's recommended to run this task regularly - at least as often as you run
 database migrations. Consider enhancing db:migrate to run it automatically.**
 
-### 3. Enable callbacks
+### 10. Enable callbacks
 
 Mix in the following modules. It's recommended to include them at the
 highest possible level in the inheritance hierarchy of your controllers and
@@ -149,7 +351,7 @@ web request and model update. While you’re setting things up consider setting
 the config options `async: false` and `log_only: true` to take ActiveJob and
 BigQuery (respectively) out of the loop.
 
-### 4. Adding specs
+### Adding specs
 
 #### Testing modes
 
@@ -190,7 +392,7 @@ end
 
 ```
 
-See the list of existing event types below for what kinds of event types can be used with the above matchers. 
+See the list of existing event types below for what kinds of event types can be used with the above matchers.
 
 ## Existing DfE Analytics event types
 
