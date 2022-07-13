@@ -37,6 +37,27 @@ module DfE
             .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
         end
 
+        def stub_analytics_event_submission_with_insert_errors
+          stub_bigquery_auth!
+
+          body = {
+            insertErrors: [
+              {
+                index: 0,
+                errors: [
+                  {
+                    reason: 'error',
+                    message: 'An error.'
+                  }
+                ]
+              }
+            ]
+          }
+
+          stub_request(:post, /bigquery.googleapis.com/)
+            .to_return(status: 200, body: body.to_json, headers: { 'Content-Type' => 'application/json' })
+        end
+
         def with_analytics_config(options)
           old_config = DfE::Analytics.config.dup
           DfE::Analytics.configure do |config|
