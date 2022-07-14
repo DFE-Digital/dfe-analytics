@@ -102,10 +102,6 @@ module DfE
       config.async
     end
 
-    def self.time_zone
-      'London'
-    end
-
     def self.entities_for_analytics
       allowlist.keys & entity_model_mapping.keys.map(&:to_sym)
     end
