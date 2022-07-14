@@ -30,6 +30,26 @@ RSpec.describe DfE::Analytics::SendEvents do
       end
     end
 
+    context 'when the request is not successful' do
+      before { stub_analytics_event_submission_with_insert_errors }
+
+      subject(:perform) do
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+        end
+      end
+
+      it 'raises an exception' do
+        expect { perform }.to raise_error(DfE::Analytics::SendEventsError, /An error./)
+      end
+
+      it 'contains the insert errors' do
+        perform
+      rescue DfE::Analytics::SendEventsError => e
+        expect(e.insert_errors).to_not be_empty
+      end
+    end
+
     context 'when "log_only" is set' do
       before do
         allow(DfE::Analytics).to receive(:log_only?).and_return true

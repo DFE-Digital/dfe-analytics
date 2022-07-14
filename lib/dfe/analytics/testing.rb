@@ -40,8 +40,10 @@ module DfE
     end
 
     class StubClient
+      Response = Struct.new(:success?)
+
       def insert(*)
-        true
+        Response.new(true)
       end
     end
 
