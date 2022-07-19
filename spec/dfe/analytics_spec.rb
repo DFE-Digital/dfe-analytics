@@ -14,7 +14,7 @@ RSpec.describe DfE::Analytics do
     end
   end
 
-  describe '#models_for_analytics' do
+  describe '#entities_for_analytics' do
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return({
         candidates: %i[id],
@@ -22,8 +22,8 @@ RSpec.describe DfE::Analytics do
       })
     end
 
-    it 'returns the Rails models in the allowlist' do
-      expect(DfE::Analytics.models_for_analytics).to eq %w[Candidate School]
+    it 'returns the entities in the allowlist' do
+      expect(DfE::Analytics.entities_for_analytics).to eq %i[candidates institutions]
     end
   end
 end

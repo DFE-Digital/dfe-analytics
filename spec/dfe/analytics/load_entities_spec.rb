@@ -25,10 +25,10 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
-  it 'sends a model’s fields to BQ' do
+  it 'sends a entity’s fields to BQ' do
     Candidate.create(email_address: 'known@address.com')
 
-    described_class.new(model_name: 'Candidate').run
+    described_class.new(entity_name: 'candidates').run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |payload|
       schema = DfE::Analytics::EventSchema.new.as_json
@@ -46,7 +46,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
     Candidate.create
     Candidate.create
 
-    described_class.new(model_name: 'Candidate', batch_size: 2).run
+    described_class.new(entity_name: 'candidates', batch_size: 2).run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once
   end
