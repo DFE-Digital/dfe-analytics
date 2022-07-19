@@ -23,6 +23,16 @@ module DfE
         diff_model_attributes_against(allowlist)[:surplus]
       end
 
+      def self.conflicting_fields
+        allowlist.keys.reduce({}) do |conflicts, entity|
+          intersection = Array.wrap(blocklist[entity]) & allowlist[entity]
+
+          conflicts[entity] = intersection if intersection.any?
+
+          conflicts
+        end
+      end
+
       def self.diff_model_attributes_against(*lists)
         DfE::Analytics.all_entities_in_application
           .reduce({ missing: {}, surplus: {} }) do |diff, entity|
