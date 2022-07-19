@@ -79,15 +79,15 @@ module DfE
     end
 
     def self.allowlist
-      @allowlist ||= Rails.application.config_for(:analytics)
+      Rails.application.config_for(:analytics)
     end
 
     def self.allowlist_pii
-      @allowlist_pii ||= Rails.application.config_for(:analytics_pii)
+      Rails.application.config_for(:analytics_pii)
     end
 
     def self.blocklist
-      @blocklist ||= Rails.application.config_for(:analytics_blocklist)
+      Rails.application.config_for(:analytics_blocklist)
     end
 
     def self.environment
