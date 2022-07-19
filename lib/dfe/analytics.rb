@@ -103,7 +103,11 @@ module DfE
     end
 
     def self.entities_for_analytics
-      allowlist.keys & entity_model_mapping.keys.map(&:to_sym)
+      allowlist.keys & all_entities_in_application
+    end
+
+    def self.all_entities_in_application
+      entity_model_mapping.keys.map(&:to_sym)
     end
 
     def self.model_for_entity(entity)
