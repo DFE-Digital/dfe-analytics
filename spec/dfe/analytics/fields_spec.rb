@@ -30,6 +30,29 @@ RSpec.describe DfE::Analytics::Fields do
       end
     end
 
+    describe '.conflicting_fields' do
+      context 'when fields conflict' do
+        let(:existing_allowlist) { { candidates: %w[email_address id first_name], institutions: %w[id] } }
+        let(:existing_blocklist) { { candidates: %w[email_address first_name] } }
+
+        it 'returns the conflicting fields' do
+          conflicts = described_class.conflicting_fields
+          expect(conflicts.keys).to eq(%i[candidates])
+          expect(conflicts[:candidates]).to eq(%w[email_address first_name])
+        end
+      end
+
+      context 'when there are no conflicts' do
+        let(:existing_allowlist) { { candidates: %w[email_address], institutions: %w[id] } }
+        let(:existing_blocklist) { { candidates: %w[id] } }
+
+        it 'returns nothing' do
+          conflicts = described_class.conflicting_fields
+          expect(conflicts).to be_empty
+        end
+      end
+    end
+
     describe '.generate_blocklist' do
       it 'returns all the fields in the model that aren’t in the allowlist' do
         fields = described_class.generate_blocklist[:candidates]

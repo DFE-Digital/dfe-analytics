@@ -114,11 +114,7 @@ module DfE
       end
 
       def anonymised_user_agent_and_ip(rack_request)
-        anonymise(rack_request.user_agent.to_s + rack_request.remote_ip.to_s) if rack_request.remote_ip.present?
-      end
-
-      def anonymise(text)
-        Digest::SHA2.hexdigest(text)
+        DfE::Analytics.anonymise(rack_request.user_agent.to_s + rack_request.remote_ip.to_s) if rack_request.remote_ip.present?
       end
 
       def ensure_utf8(str)

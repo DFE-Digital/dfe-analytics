@@ -1,6 +1,6 @@
 # DfE::Analytics
 
-**👉 Send every web request and model update to BigQuery**
+**👉 Send every web request and database update to BigQuery**
 
 **✋ Skip or anonymise fields containing PII**
 
@@ -13,9 +13,9 @@ This gem provides an _opinionated integration_ with Google BigQuery.
 Once it is set up, every web request and database update (as permitted by
 configuration) will flow to BigQuery.
 
-It also provides a Rake task for backfilling BigQuery with models created
+It also provides a Rake task for backfilling BigQuery with entities created
 before you started sending events (see **Importing existing data** below), and
-one for keeping your field configuration up to date.
+another for keeping your field configuration up to date.
 
 To set the gem up follow the steps in "Configuration", below.
 
@@ -25,11 +25,13 @@ To set the gem up follow the steps in "Configuration", below.
 
 ## Names and jargon
 
-A Rails model is an analytics **Entity**.
+A Rails model is an analytics **Entity**. All models are entities, but not all
+entities are models — for example, an entity could be an association in a
+many-to-many join table.
 
-A change to a model (including creation and deletion) is an analytics
-**Event**. When a model changes we send the entire new state of the model as
-part of the event.
+A change to a entity (update, creation or deletion) is an analytics **Event**.
+When an entity changes we send the entire new state of the entity as part of
+the event.
 
 A web request is also an analytics **Event**.
 
@@ -48,7 +50,7 @@ sequenceDiagram
     Controller->>Model: Update model
     Model->>Analytics: after_update hook
     Analytics-->>RequestStore: Retrieve request UUID
-    Analytics->>ActiveJob: enqueue Event with serialized model state and request UUID
+    Analytics->>ActiveJob: enqueue Event with serialized entity state and request UUID
     Controller->>Analytics: after_action to send request event
     Analytics->>ActiveJob: enqueue Event with serialized request and request UUID
     Controller->>Client: 200 OK
@@ -306,8 +308,8 @@ bundle exec rails dfe:analytics:check
 ```
 
 This will let you know whether there are any fields in your field configuration
-which are present in the model but missing from the config, or present in the
-config but missing from the model.
+which are present in the database but missing from the config, or present in the
+config but missing from the database.
 
 **It's recommended to run this task regularly - at least as often as you run
 database migrations. Consider enhancing db:migrate to run it automatically.**
@@ -412,10 +414,10 @@ Run
 bundle exec rails dfe:analytics:import_all_entities
 ```
 
-To reimport just one model, run:
+To reimport just one entity, run:
 
 ```bash
-bundle exec rails dfe:analytics:import_entity[ModelName]
+bundle exec rails dfe:analytics:import_entity[entity_name]
 ```
 
 ## Contributing

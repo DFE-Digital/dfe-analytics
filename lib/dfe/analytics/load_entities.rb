@@ -5,26 +5,26 @@ module DfE
     class LoadEntities
       DEFAULT_BATCH_SIZE = 200
 
-      def initialize(model_name:, batch_size: DEFAULT_BATCH_SIZE)
-        @model_name = model_name
-        @model_class = Object.const_get(model_name)
+      def initialize(entity_name:, batch_size: DEFAULT_BATCH_SIZE)
+        @entity_name = entity_name
         @batch_size  = batch_size.to_i
       end
 
       def run
-        Rails.logger.info("Processing data for #{@model_class.name} with row count #{@model_class.count}")
+        model = DfE::Analytics.model_for_entity(@entity_name)
+        Rails.logger.info("Processing data for #{@entity_name} with row count #{model.count}")
 
         batch_number = 0
 
-        @model_class.order(:id).in_batches(of: @batch_size) do |relation|
+        model.order(:id).in_batches(of: @batch_size) do |relation|
           batch_number += 1
 
           ids = relation.pluck(:id)
 
-          DfE::Analytics::LoadEntityBatch.perform_later(@model_class, ids, batch_number)
+          DfE::Analytics::LoadEntityBatch.perform_later(model, ids, batch_number)
         end
 
-        Rails.logger.info "Enqueued #{batch_number} batches of #{@batch_size} #{@model_name} for importing to BigQuery"
+        Rails.logger.info "Enqueued #{batch_number} batches of #{@batch_size} #{@entity_name} for importing to BigQuery"
       end
     end
   end

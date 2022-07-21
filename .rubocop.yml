@@ -28,6 +28,9 @@ Layout/MultilineMethodCallIndentation:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+Metrics/ModuleLength:
+  Enabled: false
+
 # Offense count: 2
 # This cop supports safe auto-correction (--auto-correct).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.

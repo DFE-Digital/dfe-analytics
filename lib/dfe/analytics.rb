@@ -79,15 +79,15 @@ module DfE
     end
 
     def self.allowlist
-      @allowlist ||= Rails.application.config_for(:analytics)
+      Rails.application.config_for(:analytics)
     end
 
     def self.allowlist_pii
-      @allowlist_pii ||= Rails.application.config_for(:analytics_pii)
+      Rails.application.config_for(:analytics_pii)
     end
 
     def self.blocklist
-      @blocklist ||= Rails.application.config_for(:analytics_blocklist)
+      Rails.application.config_for(:analytics_blocklist)
     end
 
     def self.environment
@@ -102,20 +102,16 @@ module DfE
       config.async
     end
 
-    def self.time_zone
-      'London'
+    def self.entities_for_analytics
+      allowlist.keys & all_entities_in_application
     end
 
-    def self.models_for_analytics
-      Rails.application.eager_load!
+    def self.all_entities_in_application
+      entity_model_mapping.keys.map(&:to_sym)
+    end
 
-      tables_to_models = ActiveRecord::Base.descendants
-        .reject(&:abstract_class?)
-        .to_h { |m| [m.table_name.to_sym, m.name] }
-
-      allowlist.map do |table_name, _|
-        tables_to_models[table_name]
-      end
+    def self.model_for_entity(entity)
+      entity_model_mapping.fetch(entity.to_s)
     end
 
     def self.extract_model_attributes(model, attributes = nil)
@@ -136,5 +132,22 @@ module DfE
     def self.anonymise(value)
       Digest::SHA2.hexdigest(value.to_s)
     end
+
+    def self.entity_model_mapping
+      # ActiveRecord::Base.descendants will collect every model in the
+      # application, including internal models Rails uses to represent
+      # has_and_belongs_to_many relationships without their own models. We map
+      # these back to table_names which are equivalent to dfe-analytics
+      # "entities".
+      @entity_model_mapping ||= begin
+        Rails.application.eager_load!
+
+        ActiveRecord::Base.descendants
+         .reject(&:abstract_class?)
+         .index_by(&:table_name)
+      end
+    end
+
+    private_class_method :entity_model_mapping
   end
 end
