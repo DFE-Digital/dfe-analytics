@@ -3,6 +3,53 @@ module DfE
     # Tools to check and update configuration for model fields sent via
     # DfE::Analytics
     module Fields
+      def self.check!
+        errors = []
+
+        if surplus_fields.any?
+          errors << <<~HEREDOC
+            Database field removed! Please remove it from analytics.yml and then run
+
+            bundle exec rails dfe:analytics:regenerate_blocklist
+
+            Removed fields:
+
+            #{surplus_fields.to_yaml}
+          HEREDOC
+        end
+
+        if unlisted_fields.any?
+          errors << <<~HEREDOC
+            New database field detected! You need to decide whether or not to send it
+            to BigQuery. To send, add it to config/analytics.yml. To ignore, run:
+
+            bundle exec rails dfe:analytics:regenerate_blocklist
+
+            New fields:
+
+            #{unlisted_fields.to_yaml}
+          HEREDOC
+        end
+
+        if conflicting_fields.any?
+          errors << <<~HEREDOC
+            Conflict detected between analytics.yml and analytics_blocklist.yml!
+
+            The following fields exist in both files. To remove from the blocklist, run:
+
+            bundle exec rails dfe:analytics:regenerate_blocklist
+
+            Conflicting fields:
+
+            #{conflicting_fields.to_yaml}
+          HEREDOC
+        end
+
+        configuration_errors = errors.join("\n\n----------------\n\n")
+
+        raise(ConfigurationError, configuration_errors) if errors.any?
+      end
+
       def self.blocklist
         DfE::Analytics.blocklist
       end
