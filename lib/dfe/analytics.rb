@@ -17,6 +17,8 @@ require 'dfe/analytics/railtie'
 
 module DfE
   module Analytics
+    class ConfigurationError < StandardError; end
+
     def self.events_client
       @events_client ||= begin
         require 'google/cloud/bigquery'
@@ -28,7 +30,7 @@ module DfE
           bigquery_api_json_key
         ].select { |val| config.send(val).nil? }
 
-        raise "DfE::Analytics: missing required config values: #{missing_config.join(', ')}" if missing_config.any?
+        raise(ConfigurationError, "DfE::Analytics: missing required config values: #{missing_config.join(', ')}") if missing_config.any?
 
         Google::Cloud::Bigquery.new(
           project: config.bigquery_project_id,
