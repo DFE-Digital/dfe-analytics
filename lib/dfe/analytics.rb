@@ -76,6 +76,10 @@ module DfE
       config.queue                 ||= :default
     end
 
+    def self.initialize!
+      DfE::Analytics::Fields.check!
+    end
+
     def self.enabled?
       config.enable_analytics.call
     end

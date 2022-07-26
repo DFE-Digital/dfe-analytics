@@ -13,6 +13,10 @@ module DfE
         app.config.middleware.use DfE::Analytics::Middleware::RequestIdentity
       end
 
+      config.after_initialize do
+        DfE::Analytics.initialize!
+      end
+
       rake_tasks do
         path = File.expand_path(__dir__)
         Dir.glob("#{path}/tasks/**/*.rake").each { |f| load f }

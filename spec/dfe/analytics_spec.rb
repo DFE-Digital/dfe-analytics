@@ -18,6 +18,32 @@ RSpec.describe DfE::Analytics do
     end
   end
 
+  describe 'initalization' do
+    # field validity is computed from allowlist, blocklist and database. See
+    # Analytics::Fields for more details
+    context 'when the field lists are valid' do
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return(
+          Candidate.table_name.to_sym => ['id']
+        )
+      end
+
+      it 'raises no error' do
+        expect { DfE::Analytics.initialize! }.not_to raise_error
+      end
+    end
+
+    context 'when a field list is invalid' do
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return({ invalid: [:fields] })
+      end
+
+      it 'raises an error' do
+        expect { DfE::Analytics.initialize! }.to raise_error(DfE::Analytics::ConfigurationError)
+      end
+    end
+  end
+
   it 'raises a configuration error on missing config values' do
     with_analytics_config(bigquery_project_id: nil) do
       DfE::Analytics::Testing.webmock! do
