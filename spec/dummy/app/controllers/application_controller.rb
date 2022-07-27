@@ -5,6 +5,8 @@ class ApplicationController < ActionController::Base
     render plain: ''
   end
 
+  private
+
   def current_user
     Struct.new(:id).new(1)
   end

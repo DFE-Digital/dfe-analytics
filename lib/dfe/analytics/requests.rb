@@ -18,8 +18,8 @@ module DfE
                                              .with_response_details(response)
                                              .with_request_uuid(RequestLocals.fetch(:dfe_analytics_request_id) { nil })
 
-        request_event.with_user(current_user)           if respond_to? :current_user
-        request_event.with_namespace(current_namespace) if respond_to? :current_namespace
+        request_event.with_user(current_user)           if respond_to?(:current_user, true)
+        request_event.with_namespace(current_namespace) if respond_to?(:current_namespace, true)
 
         DfE::Analytics::SendEvents.do([request_event.as_json])
       end
