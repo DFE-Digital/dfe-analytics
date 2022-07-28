@@ -146,6 +146,17 @@ module DfE
       # these back to table_names which are equivalent to dfe-analytics
       # "entities".
       @entity_model_mapping ||= begin
+        # Gems like devise put helper methods into controllers, and they add
+        # those methods via the routes file.
+        #
+        # Rails.configuration.eager_load = true, which is enabled by default in
+        # production and not in development, will cause routes to be loaded
+        # before controllers; a direct call to Rails.application.eager_load! will
+        # not. To avoid this specific conflict with devise and possibly other
+        # gems/engines, proactively load the routes unless
+        # configuration.eager_load is set.
+        Rails.application.reload_routes! unless Rails.configuration.eager_load
+
         Rails.application.eager_load!
 
         ActiveRecord::Base.descendants
