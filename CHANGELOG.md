@@ -1,5 +1,17 @@
 # Changelog
 
+## [v1.3.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.0) (2022-07-28)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.2.1...v1.3.0)
+
+**Merged pull requests:**
+
+- detect private current\_\* methods [\#31](https://github.com/DFE-Digital/dfe-analytics/pull/31) ([misaka](https://github.com/misaka))
+- Refactor to straighten out language and improve dfe:analytics:check [\#30](https://github.com/DFE-Digital/dfe-analytics/pull/30) ([duncanjbrown](https://github.com/duncanjbrown))
+- Raise insertion errors from BigQuery [\#29](https://github.com/DFE-Digital/dfe-analytics/pull/29) ([thomasleese](https://github.com/thomasleese))
+- Expand setup instructions [\#28](https://github.com/DFE-Digital/dfe-analytics/pull/28) ([stevenleggdfe](https://github.com/stevenleggdfe))
+- v1.2.1 [\#27](https://github.com/DFE-Digital/dfe-analytics/pull/27) ([duncanjbrown](https://github.com/duncanjbrown))
+
 ## [v1.2.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.2.1) (2022-06-28)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.2.0...v1.2.1)
