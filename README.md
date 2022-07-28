@@ -430,10 +430,14 @@ bundle exec rails dfe:analytics:import_entity[entity_name]
 
 ## Releasing
 
-1. Checkout a release branch: `git checkout -b new-version`
+1. Checkout a release branch: `git checkout -b v${NEW_VERSION}-release`, e.g. `git checkout -b v1.3.0-release`
 2. Bump the version and generate the CHANGELOG.md. This will commit and tag changes: `rake prepare_release[minor]`
-3. (Optional) Verify committed `CHANGELOG.md` changes and alter if necessary.
-4. Push with tags: `git push --tags`
+> **NB**: Any updated dependencies will reflect in the `Gemfile.lock`. This only affects the local dev env, and only require that specs pass.
+> 	It could be nice to have tests to prove that connectivity to GCP still works after an update, but we aren't setup for that yet.
+3. (Optional) Verify committed `CHANGELOG.md` changes and alter if necessary: `git show`
+4. Push the branch: `git push origin v${NEW_VERSION}-release`, e.g. `git push origin v1.3.0-release`
+5. Push the tags: `git push --tags`
+6. Cut a PR on GitHub and merge once approved. 
 
 ## License
 
