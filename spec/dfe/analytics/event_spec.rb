@@ -90,6 +90,14 @@ RSpec.describe DfE::Analytics::Event do
       output = event.with_data(as_json_object: has_as_json_class.new(:green, true)).as_json
       expect(output['data'].first['value']).to eq ['{"colour":"green","is_cat":true}']
     end
+
+    it 'handles arrays of JSON-friendly structures' do
+      event = described_class.new
+      output = event.with_data(
+        as_json_object: [has_as_json_class.new(:green, true)]
+      ).as_json
+      expect(output['data'].first['value']).to eq ['{"colour":"green","is_cat":true}']
+    end
   end
 
   describe 'handling invalid UTF-8' do
