@@ -99,17 +99,25 @@ module DfE
 
       private
 
-      def hash_to_kv_pairs(hash)
-        hash.map do |(key, value)|
-          value = value.try(:as_json)
+      def convert_value_to_json(value)
+        value = value.try(:as_json)
 
-          if value.in? [true, false]
-            value = value.to_s
-          elsif value.is_a?(Hash)
-            value = value.to_json
+        if value.in? [true, false]
+          value.to_s
+        elsif value.is_a?(Hash)
+          value.to_json
+        else
+          value
+        end
+      end
+
+      def hash_to_kv_pairs(hash)
+        hash.map do |(key, values)|
+          values_as_json = Array.wrap(values).map do |value|
+            convert_value_to_json(value)
           end
 
-          { 'key' => key, 'value' => Array.wrap(value) }
+          { 'key' => key, 'value' => values_as_json }
         end
       end
 
