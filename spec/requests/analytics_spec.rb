@@ -5,10 +5,6 @@ RSpec.describe 'Analytics flow', type: :request do
       t.string :first_name
       t.string :last_name
     end
-
-    model do
-      include DfE::Analytics::Entities
-    end
   end
 
   before do
@@ -35,21 +31,27 @@ RSpec.describe 'Analytics flow', type: :request do
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
 
     allow(DfE::Analytics).to receive(:allowlist).and_return({
-      Candidate.table_name.to_sym => %i[id email_address]
+      Candidate.table_name.to_sym => %w[id email_address]
     })
-  end
 
-  around do |ex|
+    # autogenerate a compliant blocklist
+    allow(DfE::Analytics).to receive(:blocklist).and_return(DfE::Analytics::Fields.generate_blocklist)
+
+    DfE::Analytics.initialize!
+
     Rails.application.routes.draw do
       post '/example/create' => 'test#create'
       get '/example/' => 'test#index'
     end
+  end
 
+  around do |ex|
     DfE::Analytics::Testing.webmock! do
       ex.run
     end
+  end
 
-  ensure
+  after do
     Rails.application.routes_reloader.reload!
   end
 

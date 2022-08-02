@@ -14,7 +14,9 @@ module DfE
       end
 
       config.after_initialize do
-        DfE::Analytics.initialize!
+        # internal gem tests will sometimes suppress this so they can test the
+        # init process
+        DfE::Analytics.initialize! unless ENV['SUPPRESS_DFE_ANALYTICS_INIT']
       end
 
       rake_tasks do

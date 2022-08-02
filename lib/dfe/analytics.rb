@@ -78,6 +78,15 @@ module DfE
 
     def self.initialize!
       DfE::Analytics::Fields.check!
+
+      entities_for_analytics.each do |entity|
+        model = model_for_entity(entity)
+        if model.include?(DfE::Analytics::Entities) && !@shown_deprecation_warning
+          Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{model.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
+        else
+          model.include(DfE::Analytics::Entities)
+        end
+      end
     end
 
     def self.enabled?
@@ -109,7 +118,7 @@ module DfE
     end
 
     def self.entities_for_analytics
-      allowlist.keys & all_entities_in_application
+      allowlist.keys
     end
 
     def self.all_entities_in_application

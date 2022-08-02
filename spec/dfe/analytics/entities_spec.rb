@@ -10,8 +10,6 @@ RSpec.describe DfE::Analytics::Entities do
       t.string :last_name
       t.string :first_name
     end
-
-    model { include DfE::Analytics::Entities }
   end
 
   before do
@@ -27,9 +25,7 @@ RSpec.describe DfE::Analytics::Entities do
     })
 
     # autogenerate a compliant blocklist
-    blocklist = DfE::Analytics::Fields.database
-    blocklist[Candidate.table_name.to_sym] = blocklist[Candidate.table_name.to_sym] - interesting_fields
-    allow(DfE::Analytics).to receive(:blocklist).and_return(blocklist)
+    allow(DfE::Analytics).to receive(:blocklist).and_return(DfE::Analytics::Fields.generate_blocklist)
 
     DfE::Analytics.initialize!
   end

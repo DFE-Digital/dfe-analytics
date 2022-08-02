@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics do
-  with_model :Candidate do
-    table
-  end
-
   it 'has a version number' do
     expect(DfE::Analytics::VERSION).not_to be nil
   end
@@ -18,9 +14,14 @@ RSpec.describe DfE::Analytics do
     end
   end
 
-  describe 'initalization' do
+  describe 'field checks on initialization' do
     # field validity is computed from allowlist, blocklist and database. See
     # Analytics::Fields for more details
+
+    with_model :Candidate do
+      table
+    end
+
     context 'when the field lists are valid' do
       before do
         allow(DfE::Analytics).to receive(:allowlist).and_return(
@@ -44,6 +45,61 @@ RSpec.describe DfE::Analytics do
     end
   end
 
+  describe 'auto-inclusion of model callbacks' do
+    context 'when a model has not included DfE::Analytics::Entities' do
+      with_model :Candidate do
+        table
+      end
+
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return(
+          Candidate.table_name.to_sym => ['id']
+        )
+      end
+
+      it 'includes it' do
+        expect(Candidate.include?(DfE::Analytics::Entities)).to be false
+
+        DfE::Analytics.initialize!
+
+        expect(Candidate.include?(DfE::Analytics::Entities)).to be true
+      end
+    end
+
+    context 'when models have already included DfE::Analytics::Entities' do
+      with_model :Candidate do
+        table
+
+        model do
+          include DfE::Analytics::Entities
+        end
+      end
+
+      with_model :School do
+        table
+
+        model do
+          include DfE::Analytics::Entities
+        end
+      end
+
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return(
+          Candidate.table_name.to_sym => ['id'],
+          School.table_name.to_sym => ['id']
+        )
+      end
+
+      it 'logs deprecation warnings' do
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        DfE::Analytics.initialize!
+
+        expect(Rails.logger).to have_received(:info).twice.with(/DEPRECATION WARNING/)
+      end
+    end
+  end
+
   it 'raises a configuration error on missing config values' do
     with_analytics_config(bigquery_project_id: nil) do
       DfE::Analytics::Testing.webmock! do
@@ -53,6 +109,14 @@ RSpec.describe DfE::Analytics do
   end
 
   describe '#entities_for_analytics' do
+    with_model :Candidate do
+      table
+
+      model do
+        include DfE::Analytics::Entities
+      end
+    end
+
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return({
         Candidate.table_name.to_sym => %i[id]
