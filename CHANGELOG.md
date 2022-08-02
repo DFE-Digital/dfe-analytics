@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.3.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.1) (2022-08-02)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.3.0...v1.3.1)
+
+**Merged pull requests:**
+
+- \[770\] handle arrays of JSON-friendly objects [\#34](https://github.com/DFE-Digital/dfe-analytics/pull/34) ([misaka](https://github.com/misaka))
+- update release section of README [\#33](https://github.com/DFE-Digital/dfe-analytics/pull/33) ([misaka](https://github.com/misaka))
+- v1.3.0 [\#32](https://github.com/DFE-Digital/dfe-analytics/pull/32) ([misaka](https://github.com/misaka))
+
 ## [v1.3.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.0) (2022-07-28)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.2.1...v1.3.0)
