@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics do
+  with_model :Candidate do
+    table
+  end
+
   it 'has a version number' do
     expect(DfE::Analytics::VERSION).not_to be nil
   end
@@ -17,13 +21,12 @@ RSpec.describe DfE::Analytics do
   describe '#entities_for_analytics' do
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return({
-        candidates: %i[id],
-        institutions: %i[id] # table name for the School model, which doesn’t follow convention
+        Candidate.table_name.to_sym => %i[id]
       })
     end
 
     it 'returns the entities in the allowlist' do
-      expect(DfE::Analytics.entities_for_analytics).to eq %i[candidates institutions]
+      expect(DfE::Analytics.entities_for_analytics).to eq [Candidate.table_name.to_sym]
     end
   end
 end

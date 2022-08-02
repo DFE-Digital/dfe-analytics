@@ -37,5 +37,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'solargraph'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'webmock', '~> 3.14'
+  spec.add_development_dependency 'with_model'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

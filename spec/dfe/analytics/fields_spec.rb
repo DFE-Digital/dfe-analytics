@@ -1,7 +1,15 @@
 RSpec.describe DfE::Analytics::Fields do
   context 'with dummy data' do
-    let(:existing_allowlist) { { candidates: ['email_address'] } }
-    let(:existing_blocklist) { { candidates: ['id'] } }
+    with_model :Candidate do
+      table do |t|
+        t.string :email_address
+        t.string :first_name
+        t.string :last_name
+      end
+    end
+
+    let(:existing_allowlist) { { Candidate.table_name.to_sym => ['email_address'] } }
+    let(:existing_blocklist) { { Candidate.table_name.to_sym => ['id'] } }
 
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return(existing_allowlist)
@@ -22,7 +30,7 @@ RSpec.describe DfE::Analytics::Fields do
 
     describe '.unlisted_fields' do
       it 'returns all the fields in the model that aren’t in either list' do
-        fields = described_class.unlisted_fields[:candidates]
+        fields = described_class.unlisted_fields[Candidate.table_name.to_sym]
         expect(fields).to include('first_name')
         expect(fields).to include('last_name')
         expect(fields).not_to include('email_address')
@@ -32,19 +40,18 @@ RSpec.describe DfE::Analytics::Fields do
 
     describe '.conflicting_fields' do
       context 'when fields conflict' do
-        let(:existing_allowlist) { { candidates: %w[email_address id first_name], institutions: %w[id] } }
-        let(:existing_blocklist) { { candidates: %w[email_address first_name] } }
+        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address id first_name] } }
+        let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[email_address first_name] } }
 
         it 'returns the conflicting fields' do
           conflicts = described_class.conflicting_fields
-          expect(conflicts.keys).to eq(%i[candidates])
-          expect(conflicts[:candidates]).to eq(%w[email_address first_name])
+          expect(conflicts[Candidate.table_name.to_sym]).to eq(%w[email_address first_name])
         end
       end
 
       context 'when there are no conflicts' do
-        let(:existing_allowlist) { { candidates: %w[email_address], institutions: %w[id] } }
-        let(:existing_blocklist) { { candidates: %w[id] } }
+        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address] } }
+        let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[id] } }
 
         it 'returns nothing' do
           conflicts = described_class.conflicting_fields
@@ -55,7 +62,7 @@ RSpec.describe DfE::Analytics::Fields do
 
     describe '.generate_blocklist' do
       it 'returns all the fields in the model that aren’t in the allowlist' do
-        fields = described_class.generate_blocklist[:candidates]
+        fields = described_class.generate_blocklist[Candidate.table_name.to_sym]
         expect(fields).to include('first_name')
         expect(fields).to include('last_name')
         expect(fields).to include('id')
@@ -65,17 +72,17 @@ RSpec.describe DfE::Analytics::Fields do
 
     describe '.surplus_fields' do
       it 'returns nothing' do
-        fields = described_class.surplus_fields[:candidates]
+        fields = described_class.surplus_fields[Candidate.table_name.to_sym]
         expect(fields).to be_nil
       end
     end
 
     context 'when the lists deal with an attribute that is no longer in the database' do
-      let(:existing_allowlist) { { candidates: ['some_removed_field'] } }
+      let(:existing_allowlist) { { Candidate.table_name.to_sym => ['some_removed_field'] } }
 
       describe '.surplus_fields' do
         it 'returns the field that has been removed' do
-          fields = described_class.surplus_fields[:candidates]
+          fields = described_class.surplus_fields[Candidate.table_name.to_sym]
           expect(fields).to eq ['some_removed_field']
         end
       end
