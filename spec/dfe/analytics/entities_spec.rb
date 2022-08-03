@@ -32,7 +32,7 @@ RSpec.describe DfE::Analytics::Entities do
 
   describe 'create_entity events' do
     context 'when fields are specified in the analytics file' do
-      let(:interesting_fields) { ["id"] }
+      let(:interesting_fields) { ['id'] }
 
       it 'includes attributes specified in the settings file' do
         Candidate.create(id: 123)
@@ -84,8 +84,8 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       context 'and the specified fields are listed as PII' do
-        let(:interesting_fields) { ["email_address"] }
-        let(:pii_fields) { ["email_address"] }
+        let(:interesting_fields) { ['email_address'] }
+        let(:pii_fields) { ['email_address'] }
 
         it 'hashes those fields' do
           Candidate.create(email_address: 'adrienne@example.com')
@@ -101,8 +101,8 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       context 'and other fields are listed as PII' do
-        let(:interesting_fields) { ["id"] }
-        let(:pii_fields) { ["email_address"] }
+        let(:interesting_fields) { ['id'] }
+        let(:pii_fields) { ['email_address'] }
 
         it 'does not include the fields only listed as PII' do
           Candidate.create(id: 123, email_address: 'adrienne@example.com')
@@ -187,7 +187,7 @@ RSpec.describe DfE::Analytics::Entities do
   end
 
   describe 'delete_entity events' do
-    let(:interesting_fields) { ["email_address"] }
+    let(:interesting_fields) { ['email_address'] }
 
     it 'sends events when objects are deleted' do
       entity = Candidate.create(email_address: 'boo@example.com')
