@@ -12,7 +12,7 @@ module DfE
             .with_data(DfE::Analytics.extract_model_attributes(record))
         end
 
-        DfE::Analytics::SendEvents.do(events.as_json)
+        DfE::Analytics::SendEvents.perform_now(events.as_json)
 
         Rails.logger.info "Enqueued batch #{batch_number} of #{model_class.table_name}"
       end
