@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.3.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.2) (2022-08-10)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.3.1...v1.3.2)
+
+**Merged pull requests:**
+
+- Fix rake tasks [\#38](https://github.com/DFE-Digital/dfe-analytics/pull/38) ([darokel](https://github.com/darokel))
+- v1.3.1 [\#35](https://github.com/DFE-Digital/dfe-analytics/pull/35) ([misaka](https://github.com/misaka))
+
 ## [v1.3.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.1) (2022-08-02)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.3.0...v1.3.1)
