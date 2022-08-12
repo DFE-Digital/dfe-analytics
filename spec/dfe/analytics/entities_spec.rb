@@ -4,23 +4,14 @@ RSpec.describe DfE::Analytics::Entities do
   let(:interesting_fields) { [] }
   let(:pii_fields) { [] }
 
-  let(:model) do
-    Class.new(Candidate) do
-      include DfE::Analytics::Entities
-
-      # yes, ugh, but another part of the code is going to enumerate
-      # descendants of activerecord and map them tables, and if the test for
-      # that code runs after this then a class without a .name means we map
-      # from nil.
-      #
-      # Assigning the class to a constant is another way to name it, but that
-      # creates _other_ problems, such as the fact that aforementioned test
-      # will expect the class to be called "Candidate" and there will exist a
-      # class called "model" referencing the same table.
-      def self.name
-        'Candidate'
-      end
+  with_model :Candidate do
+    table do |t|
+      t.string :email_address
+      t.string :last_name
+      t.string :first_name
     end
+
+    model { include DfE::Analytics::Entities }
   end
 
   before do
@@ -28,11 +19,11 @@ RSpec.describe DfE::Analytics::Entities do
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
 
     allow(DfE::Analytics).to receive(:allowlist).and_return({
-      candidates: interesting_fields
+      Candidate.table_name.to_sym => interesting_fields
     })
 
     allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
-      candidates: pii_fields
+      Candidate.table_name.to_sym => pii_fields
     })
   end
 
@@ -41,11 +32,11 @@ RSpec.describe DfE::Analytics::Entities do
       let(:interesting_fields) { [:id] }
 
       it 'includes attributes specified in the settings file' do
-        model.create(id: 123)
+        Candidate.create(id: 123)
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
           .with([a_hash_including({
-            'entity_table_name' => 'candidates',
+            'entity_table_name' => Candidate.table_name,
             'event_type' => 'create_entity',
             'data' => [
               { 'key' => 'id', 'value' => [123] }
@@ -54,11 +45,11 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       it 'does not include attributes not specified in the settings file' do
-        model.create(id: 123, email_address: 'a@b.com')
+        Candidate.create(id: 123, email_address: 'a@b.com')
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
           .with([a_hash_including({
-            'entity_table_name' => 'candidates',
+            'entity_table_name' => Candidate.table_name,
             'event_type' => 'create_entity',
             'data' => [
               { 'key' => 'id', 'value' => [123] }
@@ -68,7 +59,7 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       it 'sends events that are valid according to the schema' do
-        model.create
+        Candidate.create
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |payload|
           schema = DfE::Analytics::EventSchema.new.as_json
@@ -81,7 +72,7 @@ RSpec.describe DfE::Analytics::Entities do
       it 'sends events with the request UUID, if available' do
         RequestLocals.store[:dfe_analytics_request_id] = 'example-request-id'
 
-        model.create
+        Candidate.create
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
           .with([a_hash_including({
@@ -94,7 +85,7 @@ RSpec.describe DfE::Analytics::Entities do
         let(:pii_fields) { [:email_address] }
 
         it 'hashes those fields' do
-          model.create(email_address: 'adrienne@example.com')
+          Candidate.create(email_address: 'adrienne@example.com')
 
           expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
             .with([a_hash_including({
@@ -111,7 +102,7 @@ RSpec.describe DfE::Analytics::Entities do
         let(:pii_fields) { [:email_address] }
 
         it 'does not include the fields only listed as PII' do
-          model.create(id: 123, email_address: 'adrienne@example.com')
+          Candidate.create(id: 123, email_address: 'adrienne@example.com')
 
           expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
             .with([a_hash_including({
@@ -127,7 +118,7 @@ RSpec.describe DfE::Analytics::Entities do
       let(:interesting_fields) { [] }
 
       it 'does not send create_entity events at all' do
-        model.create
+        Candidate.create
 
         expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
           .with([a_hash_including({ 'event_type' => 'create_entity' })])
@@ -140,12 +131,12 @@ RSpec.describe DfE::Analytics::Entities do
       let(:interesting_fields) { %i[email_address first_name] }
 
       it 'sends update events for fields we care about' do
-        entity = model.create(email_address: 'foo@bar.com', first_name: 'Jason')
+        entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
         entity.update(email_address: 'bar@baz.com')
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
           .with([a_hash_including({
-            'entity_table_name' => 'candidates',
+            'entity_table_name' => Candidate.table_name,
             'event_type' => 'update_entity',
             'data' => [
               { 'key' => 'email_address', 'value' => ['bar@baz.com'] },
@@ -155,7 +146,7 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       it 'does not send update events for fields we don’t care about' do
-        entity = model.create
+        entity = Candidate.create
         entity.update(last_name: 'GB')
 
         expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
@@ -165,7 +156,7 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       it 'sends events that are valid according to the schema' do
-        entity = model.create
+        entity = Candidate.create
         entity.update(email_address: 'bar@baz.com')
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later).twice do |payload|
@@ -181,7 +172,7 @@ RSpec.describe DfE::Analytics::Entities do
       let(:interesting_fields) { [] }
 
       it 'does not send update events at all' do
-        entity = model.create
+        entity = Candidate.create
         entity.update(first_name: 'Persephone')
 
         expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
@@ -196,12 +187,12 @@ RSpec.describe DfE::Analytics::Entities do
     let(:interesting_fields) { [:email_address] }
 
     it 'sends events when objects are deleted' do
-      entity = model.create(email_address: 'boo@example.com')
+      entity = Candidate.create(email_address: 'boo@example.com')
       entity.destroy
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
-          'entity_table_name' => 'candidates',
+          'entity_table_name' => Candidate.table_name,
           'event_type' => 'delete_entity',
           'data' => [
             { 'key' => 'email_address', 'value' => ['boo@example.com'] }

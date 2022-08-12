@@ -4,9 +4,28 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
   before do
     controller = Class.new(ApplicationController) do
       include DfE::Analytics::Requests
+
+      def index
+        render plain: 'hello'
+      end
+
+      private
+
+      def current_user
+        Struct.new(:id).new(1)
+      end
+
+      def current_namespace
+        'example_namespace'
+      end
     end
-    unauthenticated_controller = Class.new(UnauthenticatedController) do
+
+    unauthenticated_controller = Class.new(ApplicationController) do
       include DfE::Analytics::Requests
+
+      def index
+        render plain: 'hello'
+      end
     end
 
     stub_const('TestController', controller)
@@ -41,7 +60,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
       anonymised_user_agent_and_ip: '16859db7ca4ec906925a0a2cb227bf307740a0c919ab9e2f7efeadf37779e770',
       response_content_type: 'text/plain; charset=utf-8',
       response_status: 200,
-      namespace: 'ddd',
+      namespace: 'example_namespace',
       user_id: 1 }
   end
 
@@ -58,7 +77,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
     expect(request.with do |req|
       body = JSON.parse(req.body)
       payload = body['rows'].first['json']
-      expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(event.deep_stringify_keys))
+      expect(payload.except('occurred_at', 'request_uuid')).to match(event.deep_stringify_keys)
     end).to have_been_made
   end
 
@@ -72,7 +91,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
         request_query: [],
         request_referer: nil,
         anonymised_user_agent_and_ip: '12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0',
-        response_content_type: 'application/json; charset=utf-8',
+        response_content_type: 'text/plain; charset=utf-8',
         response_status: 200 }
     end
 
@@ -88,7 +107,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
       expect(request.with do |req|
         body = JSON.parse(req.body)
         payload = body['rows'].first['json']
-        expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(event.deep_stringify_keys))
+        expect(payload.except('occurred_at', 'request_uuid')).to match(event.deep_stringify_keys)
       end).to have_been_made
     end
   end

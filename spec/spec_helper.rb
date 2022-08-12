@@ -6,6 +6,7 @@ require 'debug'
 require 'rspec/rails'
 require 'webmock/rspec'
 require 'json-schema'
+require 'with_model'
 require 'dfe/analytics/testing'
 require 'dfe/analytics/testing/helpers'
 
@@ -36,7 +37,13 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
+  config.extend WithModel
+
   include DfE::Analytics::Testing::Helpers
+
+  config.before do
+    DfE::Analytics.instance_variable_set(:@entity_model_mapping, nil)
+  end
 
   config.expect_with :rspec do |c|
     c.max_formatted_output_length = nil

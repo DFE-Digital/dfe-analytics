@@ -1,11 +1,17 @@
 RSpec.describe 'Analytics flow', type: :request do
-  before do
-    model = Class.new(Candidate) do
-      include DfE::Analytics::Entities
+  with_model :Candidate do
+    table do |t|
+      t.string :email_address
+      t.string :first_name
+      t.string :last_name
     end
 
-    stub_const('Candidate', model)
+    model do
+      include DfE::Analytics::Entities
+    end
+  end
 
+  before do
     controller = Class.new(ApplicationController) do
       include DfE::Analytics::Requests
 
@@ -29,7 +35,7 @@ RSpec.describe 'Analytics flow', type: :request do
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
 
     allow(DfE::Analytics).to receive(:allowlist).and_return({
-      candidates: %i[id email_address]
+      Candidate.table_name.to_sym => %i[id email_address]
     })
   end
 
@@ -56,7 +62,7 @@ RSpec.describe 'Analytics flow', type: :request do
 
     model_event = { environment: 'test',
                     event_type: 'create_entity',
-                    entity_table_name: 'candidates' }
+                    entity_table_name: Candidate.table_name }
     model_event_post = stub_analytics_event_submission.with(body: /create_entity/)
 
     perform_enqueued_jobs do

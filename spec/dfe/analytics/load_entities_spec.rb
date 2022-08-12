@@ -3,18 +3,20 @@
 RSpec.describe DfE::Analytics::LoadEntities do
   include ActiveJob::TestHelper
 
-  before do
-    allow(DfE::Analytics).to receive(:allowlist).and_return(
-      {
-        candidates: ['email_address']
-      }
-    )
+  with_model :Candidate do
+    table do |t|
+      t.string :email_address
+    end
+  end
 
-    allow(DfE::Analytics).to receive(:allowlist_pii).and_return(
-      {
-        candidates: []
-      }
-    )
+  before do
+    allow(DfE::Analytics).to receive(:allowlist).and_return({
+      Candidate.table_name.to_sym => ['email_address']
+    })
+
+    allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
+      Candidate.table_name.to_sym => []
+    })
 
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
   end
@@ -28,7 +30,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
   it 'sends a entity’s fields to BQ' do
     Candidate.create(email_address: 'known@address.com')
 
-    described_class.new(entity_name: 'candidates').run
+    described_class.new(entity_name: Candidate.table_name).run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |payload|
       schema = DfE::Analytics::EventSchema.new.as_json
@@ -46,7 +48,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
     Candidate.create
     Candidate.create
 
-    described_class.new(entity_name: 'candidates', batch_size: 2).run
+    described_class.new(entity_name: Candidate.table_name, batch_size: 2).run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once
   end
