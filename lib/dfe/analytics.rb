@@ -17,6 +17,8 @@ require 'dfe/analytics/railtie'
 
 module DfE
   module Analytics
+    class ConfigurationError < StandardError; end
+
     def self.events_client
       @events_client ||= begin
         require 'google/cloud/bigquery'
@@ -28,7 +30,7 @@ module DfE
           bigquery_api_json_key
         ].select { |val| config.send(val).nil? }
 
-        raise "DfE::Analytics: missing required config values: #{missing_config.join(', ')}" if missing_config.any?
+        raise(ConfigurationError, "DfE::Analytics: missing required config values: #{missing_config.join(', ')}") if missing_config.any?
 
         Google::Cloud::Bigquery.new(
           project: config.bigquery_project_id,
@@ -74,6 +76,19 @@ module DfE
       config.queue                 ||= :default
     end
 
+    def self.initialize!
+      DfE::Analytics::Fields.check!
+
+      entities_for_analytics.each do |entity|
+        model = model_for_entity(entity)
+        if model.include?(DfE::Analytics::Entities) && !@shown_deprecation_warning
+          Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{model.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
+        else
+          model.include(DfE::Analytics::Entities)
+        end
+      end
+    end
+
     def self.enabled?
       config.enable_analytics.call
     end
@@ -103,7 +118,7 @@ module DfE
     end
 
     def self.entities_for_analytics
-      allowlist.keys & all_entities_in_application
+      allowlist.keys
     end
 
     def self.all_entities_in_application
@@ -140,6 +155,17 @@ module DfE
       # these back to table_names which are equivalent to dfe-analytics
       # "entities".
       @entity_model_mapping ||= begin
+        # Gems like devise put helper methods into controllers, and they add
+        # those methods via the routes file.
+        #
+        # Rails.configuration.eager_load = true, which is enabled by default in
+        # production and not in development, will cause routes to be loaded
+        # before controllers; a direct call to Rails.application.eager_load! will
+        # not. To avoid this specific conflict with devise and possibly other
+        # gems/engines, proactively load the routes unless
+        # configuration.eager_load is set.
+        Rails.application.reload_routes! unless Rails.configuration.eager_load
+
         Rails.application.eager_load!
 
         ActiveRecord::Base.descendants

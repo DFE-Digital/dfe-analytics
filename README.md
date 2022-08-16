@@ -342,16 +342,14 @@ end
 
 ##### Models
 
-```ruby
-class ApplicationRecord < ActiveRecord::Base
-  include DfE::Analytics::Entities
-end
-```
+All models in your app will automatically send callbacks if their tables are
+listed in `analytics.yml`. This is a change from versions < v1.4 where it was
+necessary to manually mix in `DfE::Analytics::Entities`. This did not support
+sending events on `has_and_belongs_to_many` tables.
 
-If everything has worked, you should see jobs flowing into your queues on each
-web request and model update. While you’re setting things up consider setting
-the config options `async: false` and `log_only: true` to take ActiveJob and
-BigQuery (respectively) out of the loop.
+While you’re setting things up consider setting the config options `async:
+false` and `log_only: true` to take ActiveJob and BigQuery (respectively) out
+of the loop.
 
 ### Adding specs
 

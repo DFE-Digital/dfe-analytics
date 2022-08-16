@@ -13,6 +13,12 @@ module DfE
         app.config.middleware.use DfE::Analytics::Middleware::RequestIdentity
       end
 
+      config.after_initialize do
+        # internal gem tests will sometimes suppress this so they can test the
+        # init process
+        DfE::Analytics.initialize! unless ENV['SUPPRESS_DFE_ANALYTICS_INIT']
+      end
+
       rake_tasks do
         path = File.expand_path(__dir__)
         Dir.glob("#{path}/tasks/**/*.rake").each { |f| load f }
