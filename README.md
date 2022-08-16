@@ -111,11 +111,50 @@ You should create separate datasets for each environment (dev, qa, preprod, prod
 
 ### 4. Create custom roles
 
-1. Go to IAM and Admin settings > Roles
-1. Click on "+ Create role"
-1. Create the 3 roles outlined below
+The following steps can be performed either through the IAM section of the Google Cloud console, or using the cloud shell feature inside the Google Cloud console.
+
+The shell commands require using a command-line interface so may not be appropriate for everyone.
+
+<details>
+
+<summary>Instructions for GCloud CLI</summary>
+
+> **NB:** These instructions are appropriate for people who are comfortable running shell commands.
+
+1. Go to the IAM section of the Google Console for your project.
+2. Click ![Google Cloud shell button](https://user-images.githubusercontent.com/15608/184917222-80397b08-83fa-41e5-b485-acb4f7a8b7a0.png) to activate the Google Cloud shell. 
+3. Copy the command provided into the shell, replacing `YOUR_PROJECT_ID` with your own project ID.
+
+</details>
+
+<details>
+<summary>Instructions for GCloud IAM Web UI</summary>
+
+> **NB:** Adding permissions to a role is a manual process that requires using the permission browser to add permissions one at a time.
+
+1. Go to the IAM section of the Google Console for your project.
+1. Go to Roles section using the sidebar on the left.
+1. Click on "+ Create role" near the top.
+1. Fill in the details from the info below.
+
+</details>
+
 
 #### Analyst
+
+This role is used for analysts or other users who don't need to write to or modify data in BigQuery.
+
+<details>
+<summary>Using the GCloud CLI</summary>
+
+``` bash
+gcloud iam roles create bigquery_analyst_custom --title="BigQuery Analyst Custom" --description="Assigned to accounts used by analysts and SQL developers." --permissions=bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.routines.get,bigquery.routines.list,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.createSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,resourcemanager.projects.get --project=YOUR_PROJECT_ID
+```
+
+</details>
+
+<details>
+<summary>Using the GCloud IAM Web UI</summary>
 
 | Field             | Value                                              |
 | ----------------- | -------------------------------------------------- |
@@ -125,9 +164,9 @@ You should create separate datasets for each environment (dev, qa, preprod, prod
 | Role launch stage | General Availability                               |
 | + Add permissions | See below                                          |
 
-<details>
-<summary>Permissions for bigquery_analyst_custom</summary>
-<pre>
+##### Permissions for `bigquery_analyst_custom`
+
+```
 bigquery.datasets.get
 bigquery.datasets.getIamPolicy
 bigquery.datasets.updateTag
@@ -154,10 +193,25 @@ bigquery.tables.getIamPolicy
 bigquery.tables.list
 bigquery.tables.restoreSnapshot
 resourcemanager.projects.get
-</pre>
+```
+
 </details>
 
 #### Developer
+
+This role is used for developers or other users who need to be able to write to or modify data in BigQuery. 
+
+<details>
+<summary>Using the GCloud CLI</summary>
+
+``` bash
+gcloud iam roles create bigquery_developer_custom --title="BigQuery Developer Custom" --description="Assigned to accounts used by developers." --permissions=bigquery.connections.create,bigquery.connections.delete,bigquery.connections.get,bigquery.connections.getIamPolicy,bigquery.connections.list,bigquery.connections.update,bigquery.connections.updateTag,bigquery.connections.use,bigquery.datasets.create,bigquery.datasets.delete,bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.update,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.delete,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.jobs.update,bigquery.models.create,bigquery.models.delete,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.models.updateData,bigquery.models.updateMetadata,bigquery.models.updateTag,bigquery.routines.create,bigquery.routines.delete,bigquery.routines.get,bigquery.routines.list,bigquery.routines.update,bigquery.routines.updateTag,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.create,bigquery.tables.createSnapshot,bigquery.tables.delete,bigquery.tables.deleteSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,bigquery.tables.setCategory,bigquery.tables.update,bigquery.tables.updateData,bigquery.tables.updateTag,resourcemanager.projects.get --project=YOUR_PROJECT_ID
+```
+
+</details>
+
+<details>
+<summary>Using the GCloud IAM Web UI</summary>
 
 | Field             | Value                                    |
 | ----------------- | ---------------------------------------- |
@@ -167,9 +221,9 @@ resourcemanager.projects.get
 | Role launch stage | General Availability                     |
 | + Add permissions | See below                                |
 
-<details>
-<summary>Permissions for bigquery_developer_custom</summary>
-<pre>
+##### Permissions for `bigquery_developer_custom`
+
+```
 bigquery.connections.create
 bigquery.connections.delete
 bigquery.connections.get
@@ -225,26 +279,42 @@ bigquery.tables.update
 bigquery.tables.updateData
 bigquery.tables.updateTag
 resourcemanager.projects.get
-</pre>
+```
+
 </details>
 
 #### Appender
 
+This role is assigned to the service account used by the application connecting to Google Cloud to append data to the `events` tables. 
+
+<details>
+<summary>Using the GCloud CLI</summary>
+
+``` bash
+gcloud iam roles create bigquery_appender_custom --title="BigQuery Appender Custom" --description="Assigned to service accounts used to append data to events tables." --permissions=bigquery.datasets.get,bigquery.tables.get,bigquery.tables.updateData
+```
+
+</details>
+
+<details>
+<summary>Using the GCloud IAM Web UI</summary>
+
 | Field             | Value                                                      |
 | ----------------- | ---------------------------------------------------------- |
 | Title             | **BigQuery Appender Custom**                               |
-| Description       | Assigned to accounts used by appenders (apps and scripts). |
+| Description       | Assigned to service accounts used to append data to events tables. |
 | ID                | `bigquery_appender_custom`                                 |
 | Role launch stage | General Availability                                       |
 | + Add permissions | See below                                                  |
 
-<details>
-<summary>Permissions for bigquery_appender_custom</summary>
-<pre>
+##### Permissions for bigquery_appender_custom
+
+```
 bigquery.datasets.get
 bigquery.tables.get
 bigquery.tables.updateData
-</pre>
+```
+
 </details>
 
 ### 5. Create an appender service account
