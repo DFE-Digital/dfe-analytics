@@ -8,7 +8,8 @@
 
 ## Overview
 
-This gem provides an _opinionated integration_ with Google BigQuery.
+This gem provides an _opinionated integration_ with Google Cloud Platform (GCP)
+BigQuery.
 
 Once it is set up, every web request and database update (as permitted by
 configuration) will flow to BigQuery.
@@ -64,8 +65,19 @@ A Rails app with `ActiveJob` configured.
 
 ## Installation
 
+Before you can send data to BigQuery with `dfe-analytics` you'll need to setup
+your Google Cloud project. See the [setup Google Cloud setup guide](docs/GOOGLE_CLOUD_BIGQUERY_SETUP.md)
+for instructions on how to do that.
+
+### 1. Add the dfe-analytics to your app
+
+The `dfe-analytics` gem hasn't been published to Rubygems yet, so it needs to be
+retrieved from GitHub. Check for the latest tagged version in GitHub and provide
+that to the `tag` argument in your Gemfile. Dependabot will update this for you
+when it finds a new tagged version.
+
 ```ruby
-gem 'dfe-analytics'
+gem 'dfe-analytics', github: 'DFE-Digital/dfe-analytics', tag: 'v1.3.2'
 ```
 
 then
@@ -74,265 +86,20 @@ then
 bundle install
 ```
 
-## Configuration
+### 2. Get an API JSON key :key:
 
+Depending on how your app environments are setup, we recommend you use the
+service account created for the `development` environment on your localhost to
+test integration with BigQuery. This requires that your project is setup in
+Google Cloud as per the instructions above.
 
-### 1. Get a BigQuery project setup and add initial owners
-
-Ask in Slack on the `#twd_data_insights` channel for someone to help you
-procure a BigQuery instance in the `digital.education.gov.uk` Google Cloud
-Organisation.
-
-Ask - or ask your Delivery Manager to ask - for your `@digital.education.gov.uk` Google account to be setup as an owner
-via the IAM and Admin settings. Add other team members as necessary.
-
-#### Set up billing
-
-You also need to set up your BigQuery instance with paid billing. This is
-because `dfe-analytics` uses streaming, and streaming isn't allowed in the free
-tier:
-
-```
-accessDenied: Access Denied: BigQuery BigQuery: Streaming insert is not allowed
-in the free tier
-```
-
-### 2. Create a dataset and table
-
-You should create separate datasets for each environment (dev, qa, preprod, prod etc.).
-
-1. Open your project's BigQuery instance
-2. Go to the Analysis -> SQL Workspace section
-3. Tap on the 3 dots next to the project name, "Create data set"
-4. Name it something like `APPLICATIONNAME_events_ENVIRONMENT`, such as `applyforqts_events_production`, and set the location to `europe-west2 (London)`
-5. Select your new dataset
-6. Open a new query execution tab.
-7. Edit [create-events-table.sql](https://github.com/DFE-Digital/dfe-analytics/create-events-table.sql) to add your table name, and run it in the query execution tab in BigQuery to create a blank events table for dfe-analytics to stream data into.
-
-### 3. Create custom roles
-
-The following steps can be performed either through the IAM section of the Google Cloud console, or using the cloud shell feature inside the Google Cloud console.
-
-The shell commands require using a command-line interface so may not be appropriate for everyone.
-
-<details>
-
-<summary>Instructions for GCloud CLI</summary>
-
-> **NB:** These instructions are appropriate for people who are comfortable running shell commands.
-
-1. Go to the IAM section of the Google Console for your project.
-2. Click ![Google Cloud shell button](https://user-images.githubusercontent.com/15608/184917222-80397b08-83fa-41e5-b485-acb4f7a8b7a0.png) to activate the Google Cloud shell. 
-3. Copy the command provided into the shell, replacing `YOUR_PROJECT_ID` with your own project ID.
-
-</details>
-
-<details>
-<summary>Instructions for GCloud IAM Web UI</summary>
-
-> **NB:** Adding permissions to a role is a manual process that requires using the permission browser to add permissions one at a time.
-
-1. Go to the IAM section of the Google Console for your project.
-1. Go to Roles section using the sidebar on the left.
-1. Click on "+ Create role" near the top.
-1. Fill in the details from the info below.
-
-</details>
-
-
-#### Analyst
-
-This role is used for analysts or other users who don't need to write to or modify data in BigQuery.
-
-<details>
-<summary>Using the GCloud CLI</summary>
-
-``` bash
-gcloud iam roles create bigquery_analyst_custom --title="BigQuery Analyst Custom" --description="Assigned to accounts used by analysts and SQL developers." --permissions=bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.routines.get,bigquery.routines.list,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.createSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,resourcemanager.projects.get --project=YOUR_PROJECT_ID
-```
-
-</details>
-
-<details>
-<summary>Using the GCloud IAM Web UI</summary>
-
-| Field             | Value                                              |
-| ----------------- | -------------------------------------------------- |
-| Title             | **BigQuery Analyst Custom**                        |
-| Description       | Assigned to accounts used by analysts and SQL developers. |
-| ID                | `bigquery_analyst_custom`                          |
-| Role launch stage | General Availability                               |
-| + Add permissions | See below                                          |
-
-##### Permissions for `bigquery_analyst_custom`
-
-```
-bigquery.datasets.get
-bigquery.datasets.getIamPolicy
-bigquery.datasets.updateTag
-bigquery.jobs.create
-bigquery.jobs.get
-bigquery.jobs.list
-bigquery.jobs.listAll
-bigquery.models.export
-bigquery.models.getData
-bigquery.models.getMetadata
-bigquery.models.list
-bigquery.routines.get
-bigquery.routines.list
-bigquery.savedqueries.create
-bigquery.savedqueries.delete
-bigquery.savedqueries.get
-bigquery.savedqueries.list
-bigquery.savedqueries.update
-bigquery.tables.createSnapshot
-bigquery.tables.export
-bigquery.tables.get
-bigquery.tables.getData
-bigquery.tables.getIamPolicy
-bigquery.tables.list
-bigquery.tables.restoreSnapshot
-resourcemanager.projects.get
-```
-
-</details>
-
-#### Developer
-
-This role is used for developers or other users who need to be able to write to or modify data in BigQuery. 
-
-<details>
-<summary>Using the GCloud CLI</summary>
-
-``` bash
-gcloud iam roles create bigquery_developer_custom --title="BigQuery Developer Custom" --description="Assigned to accounts used by developers." --permissions=bigquery.connections.create,bigquery.connections.delete,bigquery.connections.get,bigquery.connections.getIamPolicy,bigquery.connections.list,bigquery.connections.update,bigquery.connections.updateTag,bigquery.connections.use,bigquery.datasets.create,bigquery.datasets.delete,bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.update,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.delete,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.jobs.update,bigquery.models.create,bigquery.models.delete,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.models.updateData,bigquery.models.updateMetadata,bigquery.models.updateTag,bigquery.routines.create,bigquery.routines.delete,bigquery.routines.get,bigquery.routines.list,bigquery.routines.update,bigquery.routines.updateTag,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.create,bigquery.tables.createSnapshot,bigquery.tables.delete,bigquery.tables.deleteSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,bigquery.tables.setCategory,bigquery.tables.update,bigquery.tables.updateData,bigquery.tables.updateTag,resourcemanager.projects.get --project=YOUR_PROJECT_ID
-```
-
-</details>
-
-<details>
-<summary>Using the GCloud IAM Web UI</summary>
-
-| Field             | Value                                    |
-| ----------------- | ---------------------------------------- |
-| Title             | **BigQuery Developer Custom**            |
-| Description       | Assigned to accounts used by developers. |
-| ID                | `bigquery_developer_custom`              |
-| Role launch stage | General Availability                     |
-| + Add permissions | See below                                |
-
-##### Permissions for `bigquery_developer_custom`
-
-```
-bigquery.connections.create
-bigquery.connections.delete
-bigquery.connections.get
-bigquery.connections.getIamPolicy
-bigquery.connections.list
-bigquery.connections.update
-bigquery.connections.updateTag
-bigquery.connections.use
-bigquery.datasets.create
-bigquery.datasets.delete
-bigquery.datasets.get
-bigquery.datasets.getIamPolicy
-bigquery.datasets.update
-bigquery.datasets.updateTag
-bigquery.jobs.create
-bigquery.jobs.delete
-bigquery.jobs.get
-bigquery.jobs.list
-bigquery.jobs.listAll
-bigquery.jobs.update
-bigquery.models.create
-bigquery.models.delete
-bigquery.models.export
-bigquery.models.getData
-bigquery.models.getMetadata
-bigquery.models.list
-bigquery.models.updateData
-bigquery.models.updateMetadata
-bigquery.models.updateTag
-bigquery.routines.create
-bigquery.routines.delete
-bigquery.routines.get
-bigquery.routines.list
-bigquery.routines.update
-bigquery.routines.updateTag
-bigquery.savedqueries.create
-bigquery.savedqueries.delete
-bigquery.savedqueries.get
-bigquery.savedqueries.list
-bigquery.savedqueries.update
-bigquery.tables.create
-bigquery.tables.createSnapshot
-bigquery.tables.delete
-bigquery.tables.deleteSnapshot
-bigquery.tables.export
-bigquery.tables.get
-bigquery.tables.getData
-bigquery.tables.getIamPolicy
-bigquery.tables.list
-bigquery.tables.restoreSnapshot
-bigquery.tables.setCategory
-bigquery.tables.update
-bigquery.tables.updateData
-bigquery.tables.updateTag
-resourcemanager.projects.get
-```
-
-</details>
-
-#### Appender
-
-This role is assigned to the service account used by the application connecting to Google Cloud to append data to the `events` tables. 
-
-<details>
-<summary>Using the GCloud CLI</summary>
-
-``` bash
-gcloud iam roles create bigquery_appender_custom --title="BigQuery Appender Custom" --description="Assigned to service accounts used to append data to events tables." --permissions=bigquery.datasets.get,bigquery.tables.get,bigquery.tables.updateData
-```
-
-</details>
-
-<details>
-<summary>Using the GCloud IAM Web UI</summary>
-
-| Field             | Value                                                      |
-| ----------------- | ---------------------------------------------------------- |
-| Title             | **BigQuery Appender Custom**                               |
-| Description       | Assigned to service accounts used to append data to events tables. |
-| ID                | `bigquery_appender_custom`                                 |
-| Role launch stage | General Availability                                       |
-| + Add permissions | See below                                                  |
-
-##### Permissions for bigquery_appender_custom
-
-```
-bigquery.datasets.get
-bigquery.tables.get
-bigquery.tables.updateData
-```
-
-</details>
-
-### 4. Create an appender service account
-
-1. Go to [IAM and Admin settings > Create service account](https://console.cloud.google.com/projectselector/iam-admin/serviceaccounts/create?supportedpurview=project)
-1. Name it like "Appender NAME_OF_SERVICE ENVIRONMENT" e.g. "Appender ApplyForQTS Production"
-1. Add a description, like "Used when developing locally."
-1. Grant the service account access to the project, use the "BigQuery Appender Custom" role you set up earlier
-
-### 5. Get an API JSON key :key:
-
-1. Access the service account you previously set up
-1. Go to the keys tab, click on "Add key > Create new key"
-1. Create a JSON private key
+1. Access the `development` service account you previously set up
+1. Go to the keys tab, click on "Add key" > "Create new key"
+1. Create a JSON private key. This file will be downloaded to your local system.
 
 The full contents of this JSON file is your `BIGQUERY_API_JSON_KEY`.
 
-### 6. Set up environment variables
+### 3. Set up environment variables
 
 Putting the previous things together, to finish setting up `dfe-analytics`, you
 need these environment variables:
@@ -344,7 +111,7 @@ BIGQUERY_DATASET=your-bigquery-dataset-name
 BIGQUERY_API_JSON_KEY=<contents of the JSON, make sure to strip or escape newlines>
 ```
 
-### 7. Configure BigQuery connection, feature flags etc
+### 4. Configure BigQuery connection, feature flags etc
 
 ```bash
 bundle exec rails generate dfe:analytics:install
@@ -354,13 +121,13 @@ and follow comments in `config/initializers/dfe_analytics.rb`.
 
 The `dfe:analytics:install` generator will also initialize some empty config files:
 
-| Filename | Purpose |
-|----------|---------|
-| `config/analytics.yml` | List all fields we will send to BigQuery |
-| `config/analytics_pii.yml` | List all fields we will obfuscate before sending to BigQuery. This should be a subset of fields in `analytics.yml` |
-| `config/analytics_blocklist.yml` | Autogenerated file to list all fields we will NOT send to BigQuery, to support the `analytics:check` task |
+| Filename                         | Purpose                                                                                                            |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `config/analytics.yml`           | List all fields we will send to BigQuery                                                                           |
+| `config/analytics_pii.yml`       | List all fields we will obfuscate before sending to BigQuery. This should be a subset of fields in `analytics.yml` |
+| `config/analytics_blocklist.yml` | Autogenerated file to list all fields we will NOT send to BigQuery, to support the `analytics:check` task          |
 
-### 8. Check your fields
+### 5. Check your fields
 
 A good place to start is to run
 
@@ -384,7 +151,7 @@ config but missing from the database.
 **It's recommended to run this task regularly - at least as often as you run
 database migrations. Consider enhancing db:migrate to run it automatically.**
 
-### 9. Enable callbacks
+### 6. Enable callbacks
 
 Mix in the following modules. It's recommended to include them at the
 highest possible level in the inheritance hierarchy of your controllers and
