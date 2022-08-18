@@ -66,7 +66,7 @@ A Rails app with `ActiveJob` configured.
 ## Installation
 
 Before you can send data to BigQuery with `dfe-analytics` you'll need to setup
-your Google Cloud project. See the [setup Google Cloud setup guide](docs/GOOGLE_CLOUD_BIGQUERY_SETUP.md)
+your Google Cloud project. See the [setup Google Cloud setup guide](docs/google_cloud_bigquery_setup.md)
 for instructions on how to do that.
 
 ### 1. Add the dfe-analytics to your app
