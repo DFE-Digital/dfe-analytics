@@ -99,6 +99,8 @@ Google Cloud as per the instructions above.
 
 The full contents of this JSON file is your `BIGQUERY_API_JSON_KEY`.
 
+Use these steps to download a key to use in your deployed environment's secrets,
+
 ### 3. Set up environment variables
 
 Putting the previous things together, to finish setting up `dfe-analytics`, you

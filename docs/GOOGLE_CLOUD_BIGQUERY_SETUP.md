@@ -46,7 +46,7 @@ Instructions are provided below and must be followed to create each role. There
 are two approaches available to create custom roles, one is using the Google
 Cloud shell CLI, which is appropriate for advanced users comfortable with
 command-line interfaces. The other is through the Google Cloud IAM web UI and
-requires more manual work especially wrt adding permissions.
+requires more manual work especially when it comes to adding permissions.
 
 <details> <summary>Instructions for GCloud CLI</summary>
 
@@ -296,8 +296,7 @@ Start by creating a dataset.
 Once the dataset is ready you need to create the `events` table in it:
 
 1. Select your new dataset and click the ![BigQuery new query
-   button](bigquery-new-query-button.png] to open a new query execution
-   tab.
+   button](bigquery-new-query-button.png) to open a new query execution tab.
 2. Copy the contents of [create-events-table.sql](create-events-table.sql)
    into the query editor.
 3. Edit your project and dataset names in the query editor.
