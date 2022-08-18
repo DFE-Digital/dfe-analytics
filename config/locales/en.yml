@@ -47,6 +47,9 @@ en:
             The environment we’re running in. This value will be attached
             to all events we send to BigQuery.
           default: ENV.fetch('RAILS_ENV', 'development')
-
-
-
+        user_identifier:
+          description: |
+            A proc which will be called with the user object, and which should
+            return the identifier for the user. This is useful for systems with
+            users that don't use the id field.
+          default: proc { |user| user&.id }

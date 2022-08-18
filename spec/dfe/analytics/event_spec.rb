@@ -123,6 +123,33 @@ RSpec.describe DfE::Analytics::Event do
     end
   end
 
+  describe 'with_user' do
+    let(:regular_user_class) { Struct.new(:id) }
+
+    it 'uses user.id by default' do
+      event = described_class.new
+      id = rand(1000)
+      output = event.with_user(regular_user_class.new(id)).as_json
+      expect(output['user_id']).to eq id
+    end
+
+    context 'users that use uuid as an identifier' do
+      let(:custom_user_class) { Struct.new(:uuid) }
+
+      before do
+        allow(DfE::Analytics).to receive(:user_identifier, &:uuid)
+      end
+
+      it 'uses the user_identifier proc to extract user id' do
+        event = described_class.new
+        uuid = SecureRandom.uuid
+        output = event.with_user(custom_user_class.new(uuid)).as_json
+
+        expect(output['user_id']).to eq uuid
+      end
+    end
+  end
+
   def fake_request(overrides = {})
     attrs = {
       uuid: '123',

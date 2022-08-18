@@ -55,6 +55,7 @@ module DfE
         bigquery_timeout
         enable_analytics
         environment
+        user_identifier
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -74,6 +75,7 @@ module DfE
       config.log_only              ||= false
       config.async                 ||= true
       config.queue                 ||= :default
+      config.user_identifier       ||= proc { |user| user&.id }
     end
 
     def self.initialize!
@@ -175,5 +177,9 @@ module DfE
     end
 
     private_class_method :entity_model_mapping
+
+    def self.user_identifier(user)
+      config.user_identifier.call(user)
+    end
   end
 end
