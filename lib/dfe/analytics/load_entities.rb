@@ -21,7 +21,7 @@ module DfE
 
           ids = relation.pluck(:id)
 
-          DfE::Analytics::LoadEntityBatch.perform_later(model, ids, batch_number)
+          DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids, batch_number)
         end
 
         Rails.logger.info "Enqueued #{batch_number} batches of #{@batch_size} #{@entity_name} for importing to BigQuery"

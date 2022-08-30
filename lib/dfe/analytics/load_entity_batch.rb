@@ -2,6 +2,9 @@ module DfE
   module Analytics
     class LoadEntityBatch < AnalyticsJob
       def perform(model_class, ids, batch_number)
+        # Support string args for Rails < 6.1
+        model_class = model_class.constantize if model_class.respond_to?(:constantize)
+
         events = model_class.where(id: ids).map do |record|
           DfE::Analytics::Event.new
             .with_type('import_entity')
