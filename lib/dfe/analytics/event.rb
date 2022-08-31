@@ -97,6 +97,10 @@ module DfE
         self
       end
 
+      def byte_size_in_transit
+        as_json.to_json.size
+      end
+
       private
 
       def convert_value_to_json(value)
