@@ -55,7 +55,7 @@ module DfE
 
       def with_user(user)
         @event_hash.merge!(
-          user_id: user&.id
+          user_id: DfE::Analytics.user_identifier(user)
         )
 
         self

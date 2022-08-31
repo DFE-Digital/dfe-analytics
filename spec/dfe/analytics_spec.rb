@@ -127,4 +127,27 @@ RSpec.describe DfE::Analytics do
       expect(DfE::Analytics.entities_for_analytics).to eq [Candidate.table_name.to_sym]
     end
   end
+
+  describe '#user_identifier' do
+    let(:user_class) { Struct.new(:id) }
+    let(:id) { rand(1000) }
+    let(:user) { user_class.new(id) }
+
+    it 'calls the user_identifier configation' do
+      expect(described_class.user_identifier(user)).to eq id
+    end
+
+    context 'with a customised user_identifier proc' do
+      let(:user_class) { Struct.new(:identifier) }
+
+      before do
+        allow(described_class.config).to receive(:user_identifier)
+                                           .and_return(->(user) { user.identifier })
+      end
+
+      it 'delegates to the provided proc' do
+        expect(described_class.user_identifier(user)).to eq id
+      end
+    end
+  end
 end
