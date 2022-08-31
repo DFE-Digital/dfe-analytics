@@ -21,7 +21,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
     # autogenerate a compliant blocklist
     allow(DfE::Analytics).to receive(:blocklist).and_return(DfE::Analytics::Fields.generate_blocklist)
 
-    allow(DfE::Analytics::SendEvents).to receive(:perform_later)
+    allow(DfE::Analytics::SendEvents).to receive(:perform_now)
 
     DfE::Analytics.initialize!
   end
@@ -37,7 +37,8 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
     described_class.new(entity_name: Candidate.table_name).run
 
-    expect(DfE::Analytics::SendEvents).to have_received(:perform_later).twice do |payload|
+    # import process
+    expect(DfE::Analytics::SendEvents).to have_received(:perform_now).once do |payload|
       schema = DfE::Analytics::EventSchema.new.as_json
       schema_validator = JSONSchemaValidator.new(schema, payload.first)
 
@@ -50,11 +51,12 @@ RSpec.describe DfE::Analytics::LoadEntities do
   end
 
   it 'can work in batches' do
-    Candidate.create
-    Candidate.create
+    stub_const('DfE::Analytics::LoadEntities::BQ_BATCH_ROWS', 2)
 
-    described_class.new(entity_name: Candidate.table_name, batch_size: 2).run
+    3.times { Candidate.create }
 
-    expect(DfE::Analytics::SendEvents).to have_received(:perform_later).exactly(3).times
+    described_class.new(entity_name: Candidate.table_name).run
+
+    expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(2).times
   end
 end
