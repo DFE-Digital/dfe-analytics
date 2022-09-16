@@ -28,10 +28,13 @@ module DfE
           raise('Invalid test mode for DfE::Analytics') unless %i[fake webmock].include? test_mode
 
           if block_given?
-            old_test_mode = @test_mode
-            @test_mode = test_mode
-            yield
-            @test_mode = old_test_mode
+            begin
+              old_test_mode = @test_mode
+              @test_mode = test_mode
+              yield
+            ensure
+              @test_mode = old_test_mode
+            end
           else
             @test_mode = test_mode
           end
