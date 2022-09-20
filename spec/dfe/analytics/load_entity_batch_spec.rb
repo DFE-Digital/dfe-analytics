@@ -26,12 +26,14 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
     expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once
   end
 
-  it 'accepts its first arg as a Class' do
-    # backwards compatability with existing enqueued jobs
-    c = Candidate.create(email_address: 'foo@example.com')
+  if Gem::Version.new(Rails.version) >= Gem::Version.new('6.1')
+    it 'accepts its first arg as a Class' do
+      # backwards compatability with existing enqueued jobs
+      c = Candidate.create(email_address: 'foo@example.com')
 
-    described_class.perform_later(Candidate, [c.id], 1)
+      described_class.perform_later(Candidate, [c.id], 1)
 
-    expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once
+    end
   end
 end
