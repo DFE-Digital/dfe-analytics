@@ -50,3 +50,5 @@ AllCops:
   Exclude:
     - 'spec/dummy/db/schema.rb'
     - 'vendor/**/*'  # necesssary because GH actions puts gems in here
+    - 'gemfiles/*'
+    - 'Appraisals'

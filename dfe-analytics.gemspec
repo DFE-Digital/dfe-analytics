@@ -26,6 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'google-cloud-bigquery', '~> 1.38'
   spec.add_dependency 'request_store_rails', '~> 2'
 
+  spec.add_development_dependency 'appraisal'
   spec.add_development_dependency 'debug', '>= 1.0.0'
   spec.add_development_dependency 'gem-release', '~> 2.2'
   spec.add_development_dependency 'github_changelog_generator', '~> 1.16'
@@ -38,6 +39,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'webmock', '~> 3.14'
   spec.add_development_dependency 'with_model'
-  spec.add_development_dependency 'appraisal'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end
