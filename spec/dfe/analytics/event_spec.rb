@@ -3,7 +3,6 @@
 require 'action_dispatch/http/mime_type'
 require 'action_dispatch/http/parameters'
 require 'action_dispatch/http/content_security_policy'
-require 'action_dispatch/http/permissions_policy'
 require 'action_dispatch/http/request'
 
 RSpec.describe DfE::Analytics::Event do
