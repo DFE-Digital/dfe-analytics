@@ -12,7 +12,8 @@ jobs:
     name: Run specs
     strategy:
       matrix:
-        ruby-version: ['2.7']
+        ruby-version: ['2.7', '3.1']
+        rails-version: ['rails-6', 'rails-6.1', 'rails-7']
     env:
       BUNDLE_WITHOUT: release
     steps:
@@ -24,11 +25,11 @@ jobs:
           bundler-cache: true
       - name: Run rspec
         run: |
+          bundle exec appraisal install
           cd spec/dummy
-          bundle
           bundle exec rails db:test:prepare
           cd ../..
-          bundle exec rspec
+          bundle exec appraisal ${{ matrix.rails-version }} rspec
 
   lint:
     runs-on: ubuntu-latest

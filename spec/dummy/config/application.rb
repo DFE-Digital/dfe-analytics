@@ -24,6 +24,15 @@ module Dummy
   class Application < Rails::Application
     config.load_defaults Rails::VERSION::STRING.to_f
 
+    if Gem::Version.new(Rails.version) < Gem::Version.new('6.1')
+      # back compat with Rails 6.0 for running tests under that version,
+      # see https://github.com/rails/rails/issues/37048
+      ActiveSupport.on_load(:active_record) do
+        configs = Application.config.active_record
+        configs.sqlite3 = { represent_boolean_as_integer: true }
+      end
+    end
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
