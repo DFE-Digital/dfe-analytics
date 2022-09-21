@@ -13,6 +13,7 @@ module DfE
 
       def perform(events)
         if DfE::Analytics.log_only?
+          # Use the Rails logger here as the job's logger is set to :warn by default
           Rails.logger.info("DfE::Analytics: #{events.inspect}")
         else
           response = DfE::Analytics.events_client.insert(events, ignore_unknown: true)

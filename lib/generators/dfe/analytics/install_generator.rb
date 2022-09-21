@@ -26,10 +26,6 @@ module DfE
           DESC
         end
       end
-
-      # def self.banner(command, namespace = nil, subcommand = false)
-      #   "#{basename} #{subcommand_prefix} #{command.usage}"
-      # end
     end
   end
 end
