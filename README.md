@@ -290,7 +290,7 @@ bundle exec rails dfe:analytics:import_entity[entity_name]
 3. (Optional) Verify committed `CHANGELOG.md` changes and alter if necessary: `git show`
 4. Push the branch: `git push origin v${NEW_VERSION}-release`, e.g. `git push origin v1.3.0-release`
 5. Push the tags: `git push --tags`
-6. Cut a PR on GitHub and merge once approved. 
+6. Cut a PR on GitHub with the label `version-release`, and merge once approved
 
 ## License
 
