@@ -273,7 +273,6 @@ To reimport just one entity, run:
 bundle exec rails dfe:analytics:import_entity[entity_name]
 ```
 
-
 ## Contributing
 
 1. Make a copy of this repository
