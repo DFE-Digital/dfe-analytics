@@ -3,28 +3,32 @@
 module DfE
   module Analytics
     class LoadEntities
-      DEFAULT_BATCH_SIZE = 200
+      # from https://cloud.google.com/bigquery/quotas#streaming_inserts
+      BQ_BATCH_ROWS = 500
 
-      def initialize(entity_name:, batch_size: DEFAULT_BATCH_SIZE)
+      def initialize(entity_name:)
         @entity_name = entity_name
-        @batch_size  = batch_size.to_i
       end
 
       def run
         model = DfE::Analytics.model_for_entity(@entity_name)
-        Rails.logger.info("Processing data for #{@entity_name} with row count #{model.count}")
 
-        batch_number = 0
-
-        model.order(:id).in_batches(of: @batch_size) do |relation|
-          batch_number += 1
-
-          ids = relation.pluck(:id)
-
-          DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids, batch_number)
+        unless model.any?
+          Rails.logger.info("No entities to process for #{@entity_name}")
+          return
         end
 
-        Rails.logger.info "Enqueued #{batch_number} batches of #{@batch_size} #{@entity_name} for importing to BigQuery"
+        Rails.logger.info("Processing data for #{@entity_name} with row count #{model.count}")
+
+        batch_count = 0
+
+        model.in_batches(of: BQ_BATCH_ROWS) do |relation|
+          batch_count += 1
+          ids = relation.pluck(:id)
+          DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids)
+        end
+
+        Rails.logger.info "Enqueued #{batch_count} batches of #{BQ_BATCH_ROWS} #{@entity_name} records for importing to BigQuery"
       end
     end
   end
