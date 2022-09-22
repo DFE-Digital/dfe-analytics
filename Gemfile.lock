@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dfe-analytics (1.4.0)
+    dfe-analytics (1.5.0)
       google-cloud-bigquery (~> 1.38)
       request_store_rails (~> 2)
 
@@ -135,9 +135,9 @@ GEM
       rake (>= 10.0)
     globalid (1.0.0)
       activesupport (>= 5.0)
-    google-apis-bigquery_v2 (0.36.0)
+    google-apis-bigquery_v2 (0.40.0)
       google-apis-core (>= 0.7, < 2.a)
-    google-apis-core (0.7.0)
+    google-apis-core (0.9.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.16.2, < 2.a)
       httpclient (>= 2.8.1, < 3.a)
@@ -157,7 +157,7 @@ GEM
       google-cloud-errors (~> 1.0)
     google-cloud-env (1.6.0)
       faraday (>= 0.17.3, < 3.0)
-    google-cloud-errors (1.2.0)
+    google-cloud-errors (1.3.0)
     googleauth (1.2.0)
       faraday (>= 0.17.3, < 3.a)
       jwt (>= 1.4, < 3.0)
@@ -177,7 +177,7 @@ GEM
     jaro_winkler (1.5.4)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    jwt (2.4.1)
+    jwt (2.5.0)
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)

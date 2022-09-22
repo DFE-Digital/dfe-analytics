@@ -1,5 +1,17 @@
 # Changelog
 
+## [v1.5.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.0) (2022-09-22)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.4.0...v1.5.0)
+
+**Merged pull requests:**
+
+- ignore version release PRs in changelog [\#49](https://github.com/DFE-Digital/dfe-analytics/pull/49) ([misaka](https://github.com/misaka))
+- Run specs on multiple Rails versions [\#48](https://github.com/DFE-Digital/dfe-analytics/pull/48) ([duncanjbrown](https://github.com/duncanjbrown))
+- Change ActiveJob log level [\#47](https://github.com/DFE-Digital/dfe-analytics/pull/47) ([duncanjbrown](https://github.com/duncanjbrown))
+- README updates covering PII and queues [\#46](https://github.com/DFE-Digital/dfe-analytics/pull/46) ([slorek](https://github.com/slorek))
+- Make backfill resilient [\#45](https://github.com/DFE-Digital/dfe-analytics/pull/45) ([duncanjbrown](https://github.com/duncanjbrown))
+
 ## [v1.4.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.4.0) (2022-08-31)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.3.2...v1.4.0)
@@ -10,7 +22,6 @@
 - allow user id field to be configurable [\#42](https://github.com/DFE-Digital/dfe-analytics/pull/42) ([misaka](https://github.com/misaka))
 - add GCloud install details and move to new file [\#41](https://github.com/DFE-Digital/dfe-analytics/pull/41) ([misaka](https://github.com/misaka))
 - Add gcloud cli instructions for roles [\#40](https://github.com/DFE-Digital/dfe-analytics/pull/40) ([misaka](https://github.com/misaka))
-- v1.3.2 [\#39](https://github.com/DFE-Digital/dfe-analytics/pull/39) ([misaka](https://github.com/misaka))
 - Initialize model callbacks on boot [\#37](https://github.com/DFE-Digital/dfe-analytics/pull/37) ([duncanjbrown](https://github.com/duncanjbrown))
 - Adopt with\_model [\#36](https://github.com/DFE-Digital/dfe-analytics/pull/36) ([duncanjbrown](https://github.com/duncanjbrown))
 
@@ -21,7 +32,6 @@
 **Merged pull requests:**
 
 - Fix rake tasks [\#38](https://github.com/DFE-Digital/dfe-analytics/pull/38) ([darokel](https://github.com/darokel))
-- v1.3.1 [\#35](https://github.com/DFE-Digital/dfe-analytics/pull/35) ([misaka](https://github.com/misaka))
 
 ## [v1.3.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.1) (2022-08-02)
 
@@ -31,7 +41,6 @@
 
 - \[770\] handle arrays of JSON-friendly objects [\#34](https://github.com/DFE-Digital/dfe-analytics/pull/34) ([misaka](https://github.com/misaka))
 - update release section of README [\#33](https://github.com/DFE-Digital/dfe-analytics/pull/33) ([misaka](https://github.com/misaka))
-- v1.3.0 [\#32](https://github.com/DFE-Digital/dfe-analytics/pull/32) ([misaka](https://github.com/misaka))
 
 ## [v1.3.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.0) (2022-07-28)
 
@@ -43,7 +52,6 @@
 - Refactor to straighten out language and improve dfe:analytics:check [\#30](https://github.com/DFE-Digital/dfe-analytics/pull/30) ([duncanjbrown](https://github.com/duncanjbrown))
 - Raise insertion errors from BigQuery [\#29](https://github.com/DFE-Digital/dfe-analytics/pull/29) ([thomasleese](https://github.com/thomasleese))
 - Expand setup instructions [\#28](https://github.com/DFE-Digital/dfe-analytics/pull/28) ([stevenleggdfe](https://github.com/stevenleggdfe))
-- v1.2.1 [\#27](https://github.com/DFE-Digital/dfe-analytics/pull/27) ([duncanjbrown](https://github.com/duncanjbrown))
 
 ## [v1.2.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.2.1) (2022-06-28)
 
@@ -52,7 +60,6 @@
 **Merged pull requests:**
 
 - Improve testing modes [\#26](https://github.com/DFE-Digital/dfe-analytics/pull/26) ([thomasleese](https://github.com/thomasleese))
-- v1.2.0 [\#25](https://github.com/DFE-Digital/dfe-analytics/pull/25) ([duncanjbrown](https://github.com/duncanjbrown))
 
 ## [v1.2.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.2.0) (2022-06-28)
 
@@ -64,7 +71,6 @@
 - Don't crash on invalid UTF-8 in headers [\#22](https://github.com/DFE-Digital/dfe-analytics/pull/22) ([duncanjbrown](https://github.com/duncanjbrown))
 - Simplify backfill process [\#21](https://github.com/DFE-Digital/dfe-analytics/pull/21) ([duncanjbrown](https://github.com/duncanjbrown))
 - Add .tool-versions [\#20](https://github.com/DFE-Digital/dfe-analytics/pull/20) ([duncanjbrown](https://github.com/duncanjbrown))
-- v1.1.0 [\#19](https://github.com/DFE-Digital/dfe-analytics/pull/19) ([misaka](https://github.com/misaka))
 
 ## [v1.1.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.1.0) (2022-06-22)
 
