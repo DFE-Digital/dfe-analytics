@@ -1,5 +1,19 @@
 # Changelog
 
+## [v1.4.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.4.0) (2022-08-31)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.3.2...v1.4.0)
+
+**Merged pull requests:**
+
+- Pass model names as strings when loading batches [\#43](https://github.com/DFE-Digital/dfe-analytics/pull/43) ([duncanjbrown](https://github.com/duncanjbrown))
+- allow user id field to be configurable [\#42](https://github.com/DFE-Digital/dfe-analytics/pull/42) ([misaka](https://github.com/misaka))
+- add GCloud install details and move to new file [\#41](https://github.com/DFE-Digital/dfe-analytics/pull/41) ([misaka](https://github.com/misaka))
+- Add gcloud cli instructions for roles [\#40](https://github.com/DFE-Digital/dfe-analytics/pull/40) ([misaka](https://github.com/misaka))
+- v1.3.2 [\#39](https://github.com/DFE-Digital/dfe-analytics/pull/39) ([misaka](https://github.com/misaka))
+- Initialize model callbacks on boot [\#37](https://github.com/DFE-Digital/dfe-analytics/pull/37) ([duncanjbrown](https://github.com/duncanjbrown))
+- Adopt with\_model [\#36](https://github.com/DFE-Digital/dfe-analytics/pull/36) ([duncanjbrown](https://github.com/duncanjbrown))
+
 ## [v1.3.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.3.2) (2022-08-10)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.3.1...v1.3.2)
@@ -38,6 +52,7 @@
 **Merged pull requests:**
 
 - Improve testing modes [\#26](https://github.com/DFE-Digital/dfe-analytics/pull/26) ([thomasleese](https://github.com/thomasleese))
+- v1.2.0 [\#25](https://github.com/DFE-Digital/dfe-analytics/pull/25) ([duncanjbrown](https://github.com/duncanjbrown))
 
 ## [v1.2.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.2.0) (2022-06-28)
 
@@ -45,7 +60,6 @@
 
 **Merged pull requests:**
 
-- v1.2.0 [\#25](https://github.com/DFE-Digital/dfe-analytics/pull/25) ([duncanjbrown](https://github.com/duncanjbrown))
 - convert data values using to\_json [\#23](https://github.com/DFE-Digital/dfe-analytics/pull/23) ([misaka](https://github.com/misaka))
 - Don't crash on invalid UTF-8 in headers [\#22](https://github.com/DFE-Digital/dfe-analytics/pull/22) ([duncanjbrown](https://github.com/duncanjbrown))
 - Simplify backfill process [\#21](https://github.com/DFE-Digital/dfe-analytics/pull/21) ([duncanjbrown](https://github.com/duncanjbrown))
