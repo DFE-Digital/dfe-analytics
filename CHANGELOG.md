@@ -1,5 +1,17 @@
 # Changelog
 
+## [v1.5.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.1) (2022-09-27)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.5.1...v1.5.1)
+
+**Merged pull requests:**
+
+- Quietly fail init if no database is present [\#51](https://github.com/DFE-Digital/dfe-analytics/pull/51) ([duncanjbrown](https://github.com/duncanjbrown))
+
+## [v1.5.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.1) (2022-09-27)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.5.0...v1.5.1)
+
 ## [v1.5.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.0) (2022-09-22)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.4.0...v1.5.0)
