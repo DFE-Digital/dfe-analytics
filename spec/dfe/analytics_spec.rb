@@ -14,6 +14,14 @@ RSpec.describe DfE::Analytics do
     end
   end
 
+  describe 'when no database connection is available' do
+    it 'recovers and logs' do
+      allow(ActiveRecord::Base).to receive(:connection).and_raise(ActiveRecord::ConnectionNotEstablished)
+      allow(Rails.logger).to receive(:info).with(/No database connection/)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
+
   describe 'field checks on initialization' do
     # field validity is computed from allowlist, blocklist and database. See
     # Analytics::Fields for more details

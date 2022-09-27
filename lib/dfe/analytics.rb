@@ -79,6 +79,13 @@ module DfE
     end
 
     def self.initialize!
+      begin
+        ActiveRecord::Base.connection
+      rescue ActiveRecord::ActiveRecordError
+        Rails.logger.info('No database connection; DfE Analytics not initialized')
+        return
+      end
+
       DfE::Analytics::Fields.check!
 
       entities_for_analytics.each do |entity|
