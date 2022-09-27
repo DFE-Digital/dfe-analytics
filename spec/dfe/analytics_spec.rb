@@ -22,6 +22,15 @@ RSpec.describe DfE::Analytics do
     end
   end
 
+  describe 'when migrations are pending' do
+    it 'recovers and logs' do
+      allow(DfE::Analytics::Fields).to receive(:check!).and_raise(ActiveRecord::PendingMigrationError)
+
+      allow(Rails.logger).to receive(:info).with(/Database requires migration/)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
+
   describe 'field checks on initialization' do
     # field validity is computed from allowlist, blocklist and database. See
     # Analytics::Fields for more details
