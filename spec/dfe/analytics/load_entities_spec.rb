@@ -9,6 +9,16 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
+  with_model :ModelWithCustomPrimaryKey do
+    table id: false do |t|
+      t.string :custom_key
+    end
+
+    model do |m|
+      m.primary_key = :custom_key
+    end
+  end
+
   before do
     allow(DfE::Analytics).to receive(:allowlist).and_return({
       Candidate.table_name.to_sym => ['email_address']
@@ -22,6 +32,8 @@ RSpec.describe DfE::Analytics::LoadEntities do
     allow(DfE::Analytics).to receive(:blocklist).and_return(DfE::Analytics::Fields.generate_blocklist)
 
     allow(DfE::Analytics::SendEvents).to receive(:perform_now)
+
+    allow(Rails.logger).to receive(:info)
 
     DfE::Analytics.initialize!
   end
@@ -58,5 +70,12 @@ RSpec.describe DfE::Analytics::LoadEntities do
     described_class.new(entity_name: Candidate.table_name).run
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(2).times
+  end
+
+  it 'does not fail with models whose primary key is not :id' do
+    ModelWithCustomPrimaryKey.create
+
+    expect { described_class.new(entity_name: ModelWithCustomPrimaryKey.table_name).run }.not_to raise_error
+    expect(Rails.logger).to have_received(:info).with(/we do not support non-id primary keys/)
   end
 end

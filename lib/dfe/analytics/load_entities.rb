@@ -18,6 +18,11 @@ module DfE
           return
         end
 
+        unless model.primary_key.to_sym == :id
+          Rails.logger.info("Not processing #{@entity_name} as we do not support non-id primary keys")
+          return
+        end
+
         Rails.logger.info("Processing data for #{@entity_name} with row count #{model.count}")
 
         batch_count = 0
