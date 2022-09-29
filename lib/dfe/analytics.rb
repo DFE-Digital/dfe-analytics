@@ -79,13 +79,7 @@ module DfE
     end
 
     def self.initialize!
-      begin
-        ActiveRecord::Base.connection
-      rescue ActiveRecord::ActiveRecordError
-        Rails.logger.info('No database connection; DfE Analytics not initialized')
-        return
-      end
-
+      ActiveRecord::Base.connection # cause an exception early if we can't connect
       DfE::Analytics::Fields.check!
 
       entities_for_analytics.each do |entity|
@@ -96,6 +90,10 @@ module DfE
           model.include(DfE::Analytics::Entities)
         end
       end
+    rescue ActiveRecord::PendingMigrationError
+      Rails.logger.info('Database requires migration; DfE Analytics not initialized')
+    rescue ActiveRecord::ActiveRecordError
+      Rails.logger.info('No database connection; DfE Analytics not initialized')
     end
 
     def self.enabled?
@@ -177,9 +175,12 @@ module DfE
 
         Rails.application.eager_load!
 
+        rails_tables = %w[ar_internal_metadata schema_migrations]
+
         ActiveRecord::Base.descendants
-         .reject(&:abstract_class?)
-         .index_by(&:table_name)
+          .reject(&:abstract_class?)
+          .index_by(&:table_name)
+          .except(*rails_tables)
       end
     end
 
