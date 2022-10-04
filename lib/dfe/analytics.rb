@@ -79,7 +79,8 @@ module DfE
     end
 
     def self.initialize!
-      ActiveRecord::Base.connection # cause an exception early if we can't connect
+      raise ActiveRecord::PendingMigrationError if ActiveRecord::Base.connection.migration_context.needs_migration?
+
       DfE::Analytics::Fields.check!
 
       entities_for_analytics.each do |entity|
