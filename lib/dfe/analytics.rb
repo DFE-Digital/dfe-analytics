@@ -79,7 +79,14 @@ module DfE
     end
 
     def self.initialize!
-      ActiveRecord::Base.connection # cause an exception early if we can't connect
+      unless defined?(ActiveRecord)
+        # bail if we don't have AR at all
+        Rails.logger.info('ActiveRecord not loaded; DfE Analytics not initialized')
+        return
+      end
+
+      raise ActiveRecord::PendingMigrationError if ActiveRecord::Base.connection.migration_context.needs_migration?
+
       DfE::Analytics::Fields.check!
 
       entities_for_analytics.each do |entity|

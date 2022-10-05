@@ -35,6 +35,11 @@ RSpec.configure do |config|
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!
 
+  config.around do |example|
+    ActiveRecord::Base.connection.migration_context.migrate
+    example.run
+  end
+
   config.define_derived_metadata do |metadata|
     metadata[:skip_analytics_init] = true unless metadata[:skip_analytics_init] == false
   end

@@ -17,7 +17,7 @@ RSpec.describe DfE::Analytics do
   describe 'when no database connection is available' do
     it 'recovers and logs' do
       allow(ActiveRecord::Base).to receive(:connection).and_raise(ActiveRecord::ConnectionNotEstablished)
-      allow(Rails.logger).to receive(:info).with(/No database connection/)
+      expect(Rails.logger).to receive(:info).with(/No database connection/)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
@@ -26,7 +26,16 @@ RSpec.describe DfE::Analytics do
     it 'recovers and logs' do
       allow(DfE::Analytics::Fields).to receive(:check!).and_raise(ActiveRecord::PendingMigrationError)
 
-      allow(Rails.logger).to receive(:info).with(/Database requires migration/)
+      expect(Rails.logger).to receive(:info).with(/Database requires migration/)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
+
+  describe 'when ActiveRecord is not loaded' do
+    it 'recovers and logs' do
+      hide_const('ActiveRecord')
+
+      expect(Rails.logger).to receive(:info).with(/ActiveRecord not loaded/)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
