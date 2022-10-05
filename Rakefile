@@ -26,7 +26,24 @@ task :prepare_release, %i[version] do |_, args|
 
   sh 'gem', 'tag'
 
-  puts "Ready for release #{v_version}. If you're happy with it and the CHANGELOG.md, you can push it with:",
-       '',
-       '  git push --tags origin'
+  puts <<~EOMESSAGE
+    Release #{v_version} is almost ready! Before you push:
+
+    - Check that the CHANGELOG.md has no empty sections with no changes listed,
+      duplicate version numbers (e.g. two v1.5.1 entries) or non-version entries
+      (e.g. "push"). There should also only typically be a section added for the
+      latest version being cut, and no changes to previous entries.
+
+        git show -- CHANGELOG.md
+
+    - Ensure that if you rebase or amend HEAD in any way, the #{v_version} tag
+      points to the new HEAD; the references listed here should point to the
+      same SHA:
+
+        git show-ref tags/#{v_version} heads/#{v_version}-release
+
+    Once you're happy with the CHANGELOG.md and the tag, you can push it with:
+
+      git push --tags origin
+  EOMESSAGE
 end
