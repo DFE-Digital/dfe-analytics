@@ -33,9 +33,7 @@ there are certain restrictions.
 
 - Streaming data to BigQuery isn't allowed, so you won't be able to use
   `dfe_analytics`.
-- Tables are limited to 60 days retention. It's not clear if this limitation is
-  automatically lifted once the project is connected to a billing account,
-  tables may have to be modified or recreated.
+- Tables are limited to 60 days retention.
 
 ### 3. Create custom roles
 
