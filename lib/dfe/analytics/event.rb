@@ -21,7 +21,8 @@ module DfE
       end
 
       def with_type(type)
-        raise 'Invalid analytics event type' unless EVENT_TYPES.include?(type.to_s)
+        allowed_types = EVENT_TYPES + DfE::Analytics.custom_events
+        raise 'Invalid analytics event type' unless allowed_types.include?(type.to_s)
 
         @event_hash.merge!(
           event_type: type

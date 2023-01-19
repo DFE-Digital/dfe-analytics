@@ -119,6 +119,12 @@ module DfE
       Rails.application.config_for(:analytics_blocklist)
     end
 
+    def self.custom_events
+      Rails.application.config_for(:analytics_custom_events)
+    rescue RuntimeError
+      []
+    end
+
     def self.environment
       config.environment
     end

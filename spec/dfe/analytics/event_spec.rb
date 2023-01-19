@@ -149,6 +149,38 @@ RSpec.describe DfE::Analytics::Event do
     end
   end
 
+  describe 'with_type' do
+    context 'when called with any of the internal event types' do
+      let(:type) { DfE::Analytics::Event::EVENT_TYPES.sample }
+
+      it 'assigns event type' do
+        subject.with_type(type)
+        expect(subject.as_json['event_type']).to eq type
+      end
+    end
+
+    context 'when called with a type added to custom events' do
+      let(:type) { 'some_custom_event' }
+
+      before do
+        allow(DfE::Analytics).to receive(:custom_events).and_return [type]
+      end
+
+      it 'assigns event type' do
+        subject.with_type(type)
+        expect(subject.as_json['event_type']).to eq type
+      end
+    end
+
+    context 'when called with a type which is neither internal event type nor added to custom event list' do
+      let(:type) { 'some_custom_event' }
+
+      it 'raises exception' do
+        expect { subject.with_type(type) }.to raise_error
+      end
+    end
+  end
+
   def fake_request(overrides = {})
     attrs = {
       uuid: '123',
