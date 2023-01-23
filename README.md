@@ -202,7 +202,7 @@ event = DfE::Analytics::Event.new
 Once all the events have been constructed, simply send them to your analytics:
 
 ```ruby
-DfE::Analytics::SendEvents.do(event, event2, event3, ...)
+DfE::Analytics::SendEvents.do([event, event2, event3])
 ```
 
 #### Controllers

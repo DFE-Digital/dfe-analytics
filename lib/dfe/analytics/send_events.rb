@@ -4,6 +4,8 @@ module DfE
   module Analytics
     class SendEvents < AnalyticsJob
       def self.do(events)
+        events = events.map { |event| event.is_a?(Event) ? event.as_json : event }
+
         if DfE::Analytics.async?
           perform_later(events)
         else
