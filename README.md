@@ -77,7 +77,7 @@ that to the `tag` argument in your Gemfile. Dependabot will update this for you
 when it finds a new tagged version.
 
 ```ruby
-gem 'dfe-analytics', github: 'DFE-Digital/dfe-analytics', tag: 'v1.3.2'
+gem 'dfe-analytics', github: 'DFE-Digital/dfe-analytics', tag: 'v1.6.0'
 ```
 
 then
