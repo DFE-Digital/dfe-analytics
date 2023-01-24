@@ -1,13 +1,29 @@
 # Changelog
 
-## [v1.5.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.2) (2022-10-03)
+## [v1.6.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.6.0) (2023-01-24)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.5.1...v1.5.2)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.5.3...v1.6.0)
 
 **Merged pull requests:**
 
+- Custom events [\#61](https://github.com/DFE-Digital/dfe-analytics/pull/61) ([BroiSatse](https://github.com/BroiSatse))
+- Allowing pushing custom events [\#60](https://github.com/DFE-Digital/dfe-analytics/pull/60) ([BroiSatse](https://github.com/BroiSatse))
+- add instructions before pushing [\#56](https://github.com/DFE-Digital/dfe-analytics/pull/56) ([misaka](https://github.com/misaka))
+
+## [v1.5.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.3) (2022-10-05)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.5.2...v1.5.3)
+
+**Merged pull requests:**
+
+- Recover when the database hasn’t been set up yet [\#58](https://github.com/DFE-Digital/dfe-analytics/pull/58) ([duncanjbrown](https://github.com/duncanjbrown))
+- Remove misleading question [\#57](https://github.com/DFE-Digital/dfe-analytics/pull/57) ([stevenleggdfe](https://github.com/stevenleggdfe))
 - 🍀 Four kinds of init error [\#54](https://github.com/DFE-Digital/dfe-analytics/pull/54) ([duncanjbrown](https://github.com/duncanjbrown))
 - Ignore models with non-id primary keys [\#53](https://github.com/DFE-Digital/dfe-analytics/pull/53) ([duncanjbrown](https://github.com/duncanjbrown))
+
+## [v1.5.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.2) (2022-10-03)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.5.1...v1.5.2)
 
 ## [v1.5.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.5.1) (2022-09-27)
 
