@@ -6,6 +6,7 @@ require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
 require 'dfe/analytics/event'
+require 'dfe/analytics/event_matcher'
 require 'dfe/analytics/analytics_job'
 require 'dfe/analytics/send_events'
 require 'dfe/analytics/load_entities'
@@ -127,12 +128,22 @@ module DfE
       []
     end
 
+    def self.logging
+      Rails.application.config_for(:analytics_logging)
+    rescue RuntimeError
+      {}
+    end
+
     def self.environment
       config.environment
     end
 
     def self.log_only?
       config.log_only
+    end
+
+    def self.logging_enabled?
+      logging[:event_filters]&.any?
     end
 
     def self.async?
