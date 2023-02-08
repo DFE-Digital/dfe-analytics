@@ -58,6 +58,14 @@ RSpec.describe DfE::Analytics::SendEvents do
       rescue DfE::Analytics::SendEventsError => e
         expect(e.message).to_not be_empty
       end
+
+      it 'logs the error message' do
+        expect(Rails.logger).to receive(:error).with(/Could not insert all events:/)
+
+        perform
+      rescue DfE::Analytics::SendEventsError
+        nil
+      end
     end
 
     context 'when "log_only" is set' do

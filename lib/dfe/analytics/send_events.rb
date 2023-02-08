@@ -30,6 +30,8 @@ module DfE
           unless response.success?
             error_message = error_message_for(response.insert_errors)
 
+            Rails.logger.error(error_message)
+
             raise SendEventsError, error_message
           end
         end
