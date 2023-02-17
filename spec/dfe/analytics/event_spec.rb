@@ -125,7 +125,7 @@ RSpec.describe DfE::Analytics::Event do
   describe 'with_user' do
     let(:regular_user_class) { Struct.new(:id) }
 
-    it 'uses user.id by default' do
+    it 'uses user.id by default without anonymisation' do
       event = described_class.new
       id = rand(1000)
       output = event.with_user(regular_user_class.new(id)).as_json
@@ -145,6 +145,21 @@ RSpec.describe DfE::Analytics::Event do
         output = event.with_user(custom_user_class.new(uuid)).as_json
 
         expect(output['user_id']).to eq uuid
+      end
+    end
+
+    context 'anonymisation of user_id' do
+      before do
+        allow(DfE::Analytics.config).to receive(:anonymise_web_request_user_id).and_return(true)
+      end
+
+      it 'anonymises the user id' do
+        event = described_class.new
+        uuid = SecureRandom.uuid
+        anonymised_uuid = Digest::SHA2.hexdigest(uuid)
+        output = event.with_user(regular_user_class.new(uuid)).as_json
+
+        expect(output['user_id']).to eq anonymised_uuid
       end
     end
   end
