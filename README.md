@@ -242,19 +242,21 @@ All web request events will add a `user_id` to the event data sent to BigQuery. 
 
 #### Custom User Identifier
 
-If a field other than `id` is required for the user identifier, then  a custom user identifier proc can be defined in `config/initializers/dfe_analytics.rb`:
+If a field other than `id` is required for the user identifier, then a custom user identifier proc can be defined in `config/initializers/dfe_analytics.rb`:
 
 ```ruby
-DfE::Analytics.config.user_idenitifier = proc { |user| user&.id }
+DfE::Analytics.config.user_identifier = proc { |user| user&.id }
 ```
 
 #### User ID anonymisation
 
-The `user_id` in the web request event will not be anonymised by default. This can be changed by updating  the configuration option in `config/initializers/dfe_analytics.rb`:
+The `user_id` in the web request event will not be anonymised by default. This can be changed by updating the configuration option in `config/initializers/dfe_analytics.rb`:
 
 ```ruby
 DfE::Analytics.config.anonymise_web_request_user_id = false
 ```
+
+Anonymisation of `user_id` would be required if the source field in the schema is in `analytics_pii.yml` so that analysts can join the IDs together. If the `user_id` is not in `analytics_pii.yml` but is in `analytics.yml` then `user_id` anonymisation would *not* be required so that the IDs could still be joined together.
 
 ### Adding specs
 
