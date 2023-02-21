@@ -348,9 +348,9 @@ Event filters allow targeted event logging for diagnostic and debug purposes. Th
 When defining event filters, note the following:
 - All values are converted to regular expressions for matching
 - Any filter fields can be defined as long as the field exists in the target event
-- A filter must be a hash and nesteds field are allowed.
-- If a corresponding hash field in the target event is not found, then the remaining value in the target is converted into a string and compared with the value from the filter. The remaining nested fileds in the filter are then ignored. This may result in a wider match than expected
-- If there are mutiple filters then at least one must match the event
+- A filter must be a hash and nested fields are allowed
+- If a corresponding hash field in the target event is not found, then the remaining value in the target is converted into a string and compared with the value from the filter. The remaining nested fields in the filter are then ignored. This may result in a wider match than expected
+- If there are multiple filters then at least one must match the event
 - All filter fields must match the event fields for a filter to match
 
 In the above example, all CRUD entity events to the `course_options` table and `id` matching value `1234` will be logged, or any update events to the `courses` table will also be logged.
