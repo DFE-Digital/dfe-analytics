@@ -55,33 +55,25 @@ module DfE
       end
 
       def with_user(user)
-        @event_hash.merge!(
-          user_id: DfE::Analytics.user_identifier(user)
-        )
+        @event_hash.merge!(user_id: user_identifier_for(user))
 
         self
       end
 
       def with_namespace(namespace)
-        @event_hash.merge!(
-          namespace: namespace
-        )
+        @event_hash.merge!(namespace: namespace)
 
         self
       end
 
       def with_entity_table_name(table_name)
-        @event_hash.merge!(
-          entity_table_name: table_name
-        )
+        @event_hash.merge!(entity_table_name: table_name)
 
         self
       end
 
       def with_data(hash)
-        @event_hash.deep_merge!({
-                                  data: hash_to_kv_pairs(hash)
-                                })
+        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash))
 
         self
       end
@@ -132,6 +124,13 @@ module DfE
 
       def ensure_utf8(str)
         str&.scrub
+      end
+
+      def user_identifier_for(user)
+        user_id = DfE::Analytics.user_identifier(user)
+        user_id = DfE::Analytics.anonymise(user_id) if user_id.present? && DfE::Analytics.config.anonymise_web_request_user_id
+
+        user_id
       end
     end
   end

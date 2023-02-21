@@ -53,3 +53,7 @@ en:
             return the identifier for the user. This is useful for systems with
             users that don't use the id field.
           default: proc { |user| user&.id }
+        anonymise_web_request_user_id:
+          description: |
+            Whether to anonymise the user_id field in the web request event.
+          default: false
