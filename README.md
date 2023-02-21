@@ -325,6 +325,36 @@ To reimport just one entity, run:
 bundle exec rails dfe:analytics:import_entity[entity_name]
 ```
 
+
+## Event debugging
+
+If you wish to log events for debug purposes, create a file `config/analytics_event_debug.yml` containing an array of your event filters  under a `shared` key like:
+
+```yaml
+shared:
+  event_filters:
+    -
+      type: (create|update|delete)_entity
+      entity_table_name: course_options
+      key: id
+      value: 12345
+    -
+      type: update_entity
+      entity_table_name: courses
+```
+
+Event filters allow targeted event logging for diagnostic and debug purposes. The logging level is `info`.
+
+When defining event filters, note the following:
+- All values are converted to regular expressions for matching
+- Any filter fields can be defined as long as the field exists in the target event
+- A filter must be a hash and nesteds field are allowed.
+- If a corresponding hash field in the target event is not found, then the remaining value in the target is converted into a string and compared with the value from the filter. The remaining nested fileds in the filter are then ignored. This may result in a wider match than expected
+- If there are mutiple filters then at least one must match the event
+- All filter fields must match the event fields for a filter to match
+
+In the above example, all CRUD entity events to the `course_options` table and `id` matching value `1234` will be logged, or any update events to the `courses` table will also be logged.
+
 ## Contributing
 
 1. Make a copy of this repository
