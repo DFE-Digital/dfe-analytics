@@ -4,11 +4,11 @@ RSpec.describe DfE::Analytics::EventMatcher do
   context 'when event is a database update' do
     let(:event) do
       {
-        'entity_table_name' => 'application_choice_details',
+        'entity_table_name' => 'course_options',
         'event_type' => 'update_entity',
         'data' => [
-          { 'key' => 'course_option_id', 'value' => ['12345'] },
-          { 'key' => 'application_form_id', 'value' => ['42'] }
+          { 'key' => 'id', 'value' => ['12345'] },
+          { 'key' => 'course_id', 'value' => ['42'] }
         ]
       }
     end
@@ -20,7 +20,7 @@ RSpec.describe DfE::Analytics::EventMatcher do
             event_filters: [
               {
                 event_type: 'update_entity',
-                entity_table_name: 'application_choice_details'
+                entity_table_name: 'course_options'
               }
             ]
           }
@@ -36,9 +36,9 @@ RSpec.describe DfE::Analytics::EventMatcher do
               event_filters: [
                 {
                   event_type: 'update_entity',
-                  entity_table_name: 'application_choice_details',
+                  entity_table_name: 'course_options',
                   data: {
-                    key: 'course_option_id'
+                    key: 'id'
                   }
                 }
               ]
@@ -56,7 +56,7 @@ RSpec.describe DfE::Analytics::EventMatcher do
               event_filters: [
                 {
                   event_type: 'update_entity',
-                  entity_table_name: 'application_choice_details',
+                  entity_table_name: 'course_options',
                   data: {
                     key: 'foo_bar'
                   }
@@ -77,7 +77,7 @@ RSpec.describe DfE::Analytics::EventMatcher do
             event_filters: [
               {
                 event_type: 'update_entity',
-                entity_table_name: 'application_choice_details'
+                entity_table_name: 'course_options'
               },
               {
                 event_type: 'foo'
@@ -112,7 +112,7 @@ RSpec.describe DfE::Analytics::EventMatcher do
               event_filters: [
                 {
                   event_type: 'create_entity',
-                  entity_table_name: 'application_choice_details'
+                  entity_table_name: 'course_options'
                 },
                 {
                   event_type: 'foo'

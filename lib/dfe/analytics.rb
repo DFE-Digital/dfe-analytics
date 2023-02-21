@@ -128,8 +128,8 @@ module DfE
       []
     end
 
-    def self.logging
-      Rails.application.config_for(:analytics_logging)
+    def self.event_debug
+      Rails.application.config_for(:analytics_event_debug)
     rescue RuntimeError
       {}
     end
@@ -142,8 +142,8 @@ module DfE
       config.log_only
     end
 
-    def self.logging_enabled?
-      logging[:event_filters]&.any?
+    def self.event_debug_enabled?
+      event_debug[:event_filters]&.any?
     end
 
     def self.async?

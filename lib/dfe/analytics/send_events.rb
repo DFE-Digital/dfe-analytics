@@ -19,7 +19,7 @@ module DfE
           Rails.logger.info("DfE::Analytics: #{events.inspect}")
         else
 
-          if DfE::Analytics.logging_enabled?
+          if DfE::Analytics.event_debug_enabled?
             events
               .select { |event| DfE::Analytics::EventMatcher.new(event).matched? }
               .each { |event| Rails.logger.info("DfE::Analytics processing: #{event.inspect}") }
