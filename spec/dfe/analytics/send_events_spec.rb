@@ -87,7 +87,7 @@ RSpec.describe DfE::Analytics::SendEvents do
       before do
         stub_analytics_event_submission
 
-        allow(DfE::Analytics).to receive(:event_debug).and_return(event_debug)
+        allow(DfE::Analytics).to receive(:event_debug_filters).and_return(event_debug_filters)
       end
 
       subject(:perform) do
@@ -97,7 +97,7 @@ RSpec.describe DfE::Analytics::SendEvents do
       end
 
       context 'when the event filter matches' do
-        let(:event_debug) do
+        let(:event_debug_filters) do
           {
             event_filters: [
               {
@@ -116,7 +116,7 @@ RSpec.describe DfE::Analytics::SendEvents do
       end
 
       context 'when the event filter does not match' do
-        let(:event_debug) do
+        let(:event_debug_filters) do
           {
             event_filters: [
               {
@@ -128,7 +128,7 @@ RSpec.describe DfE::Analytics::SendEvents do
           }
         end
 
-        it 'does not logs the event' do
+        it 'does not log the event' do
           expect(Rails.logger).not_to receive(:info)
           perform
         end

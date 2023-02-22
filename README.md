@@ -334,12 +334,13 @@ If you wish to log events for debug purposes, create a file `config/analytics_ev
 shared:
   event_filters:
     -
-      type: (create|update|delete)_entity
+      event_type: (create|update|delete)_entity
       entity_table_name: course_options
-      key: id
-      value: 12345
+      data:
+        key: id
+        value: 12345
     -
-      type: update_entity
+      event_type: import_entity
       entity_table_name: courses
 ```
 
@@ -353,7 +354,7 @@ When defining event filters, note the following:
 - If there are multiple filters then at least one must match the event
 - All filter fields must match the event fields for a filter to match
 
-In the above example, all CRUD entity events to the `course_options` table and `id` matching value `1234` will be logged, or any update events to the `courses` table will also be logged.
+In the above example, all create, delete or update entity events to the `course_options` table and `id` matching value `1234` will be logged, or any import entity events to the `courses` table will also be logged.
 
 ## Contributing
 
