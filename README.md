@@ -170,13 +170,15 @@ Events are sent to BigQuery by your application's queueing backed via its Active
 
 Events are generated on each web request and database insert/update/delete query. Depending on the architecture of your application, potentially many jobs could be enqueued as users interact with your application.
 
-Consider how this may impact the processing of the other jobs in your application. You may wish to consider setting a custom queue name in `config/initializers/dfe_analytics.rb`:
+Consider how this may impact the processing of the other jobs in your application. Set a dedicated custom queue name rather than `:default` in `config/initializers/dfe_analytics.rb`:
 
 ```ruby
-DfE::Analytics.config.queue = :default
+DfE::Analytics.config.queue = :dfe_analytics
 ```
 
-Alternatively you may consider setting the priority of the jobs according to your chosen ActiveJob adapter's conventions.
+Please note that a custom queue will require the queue to be defined in your ActiveJob adapter configuration.
+
+Also consider setting the priority of the jobs according to your chosen ActiveJob adapter's conventions.
 
 ### 8. Custom events
 
@@ -325,6 +327,9 @@ To reimport just one entity, run:
 bundle exec rails dfe:analytics:import_entity[entity_name]
 ```
 
+**IMPORTANT**:
+
+Do not run an import when there is a lot of traffic on the website. Consider running the import out of hours or when the traffic is minimal.
 
 ## Event debugging
 
