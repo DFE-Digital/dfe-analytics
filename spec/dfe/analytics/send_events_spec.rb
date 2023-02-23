@@ -28,6 +28,16 @@ RSpec.describe DfE::Analytics::SendEvents do
           end).to have_been_made
         end
       end
+
+      it 'does not log the request when event_debug disabled' do
+        stub_analytics_event_submission
+
+        expect(Rails.logger).not_to receive(:info)
+
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+        end
+      end
     end
 
     context 'when the request is not successful' do
@@ -46,7 +56,15 @@ RSpec.describe DfE::Analytics::SendEvents do
       it 'contains the insert errors' do
         perform
       rescue DfE::Analytics::SendEventsError => e
-        expect(e.insert_errors).to_not be_empty
+        expect(e.message).to_not be_empty
+      end
+
+      it 'logs the error message' do
+        expect(Rails.logger).to receive(:error).with(/Could not insert all events:/)
+
+        perform
+      rescue DfE::Analytics::SendEventsError
+        nil
       end
     end
 
@@ -61,6 +79,58 @@ RSpec.describe DfE::Analytics::SendEvents do
         DfE::Analytics::Testing.webmock! do
           described_class.new.perform([event.as_json])
           expect(request).not_to have_been_made
+        end
+      end
+    end
+
+    describe 'logging events for event debug' do
+      before do
+        stub_analytics_event_submission
+
+        allow(DfE::Analytics).to receive(:event_debug_filters).and_return(event_debug_filters)
+      end
+
+      subject(:perform) do
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+        end
+      end
+
+      context 'when the event filter matches' do
+        let(:event_debug_filters) do
+          {
+            event_filters: [
+              {
+                request_method: 'GET',
+                request_path: '/provider/applications',
+                namespace: 'provider_interface'
+              }
+            ]
+          }
+        end
+
+        it 'logs the event' do
+          expect(Rails.logger).to receive(:info).with("DfE::Analytics processing: #{event.as_json}")
+          perform
+        end
+      end
+
+      context 'when the event filter does not match' do
+        let(:event_debug_filters) do
+          {
+            event_filters: [
+              {
+                request_method: 'POST',
+                request_path: '/provider/applications',
+                namespace: 'provider_interface'
+              }
+            ]
+          }
+        end
+
+        it 'does not log the event' do
+          expect(Rails.logger).not_to receive(:info)
+          perform
         end
       end
     end
