@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.7.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.7.0) (2023-02-24)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.6.0...v1.7.0)
+
+**Merged pull requests:**
+
+- Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
+- Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
+- Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
 ## [v1.6.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.6.0) (2023-01-24)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.5.3...v1.6.0)
