@@ -389,6 +389,35 @@ So the comparisons in Ruby would be:
 
 The fields do match successfully, but note the the first comparison matches `id` on `id` and `course_id` so the match would be wider than expected in some instances.
 
+## Page Caching
+
+Any page visit in the App will result in a web request event being sent to Big Query. The event is automatically sent by the Controller after action callback `trigger_request_event`. However, cached pages that are served from rack middleware return early and therefore do not execute any actions in the controller. This means that any cached page visits handled by rack middleware do NOT result in a web request event being sent to Big Query.
+
+To overcome this issue the `dfe-analytics` gem allows the sending of web request events from rack middleware, before the cached page is served, through configuration.
+
+If a page is cached by rack middleware, then a custom `rack_page_cached` proc must be defined in `config/initializers/dfe_analytics.rb`, that returns a boolean indicating whether the page is cached by rack.
+
+For example, if a projects uses standard rails page caching, then a custom `rack_page_cached` proc  can be defined in `config/initializers/dfe_analytics.rb` as follows:
+
+
+```ruby
+DfE::Analytics.config.rack_page_cached = do |rack_env|
+  def path
+    File.join(Rails.application.config.root, 'public/cached_pages')
+  end
+
+  Rails.application.config.action_controller.perform_caching &&
+    ActionDispatch::FileHandler.new(path).attempt(rack_env)
+end
+```
+
+**IMPORTANT**
+
+`rack_page_cached` must only return `true` if a specific request for a page is in the cache and the cached page is served by rack middleware. Otherwise web request events might be sent twice, resulting in inaccurate information in Big Query.
+
+Please note that page caching is project specific and each project must carefully consider  how pages are cached and whether web request events are sent. If page caching on your project results in web request events not being sent, and the above does not resolve the issue, then please get in touch with the data insights team though slack.
+
+
 ## Contributing
 
 1. Make a copy of this repository
