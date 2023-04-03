@@ -1,7 +1,7 @@
 module DfE
   module Analytics
     module Middleware
-      # Middleware to send request event to big query if page cached by rack
+      # Middleware to send request event to BigQuery if page cached by rack
       # In Rails a cached page is commonly served by ActionDispatch:Static middleware
       # This middleware must be inserted before ActionDispatch:Static to intercept request
       class SendCachedPageRequestEvent
@@ -31,7 +31,7 @@ module DfE
         end
 
         def response
-          ActionDispatch::Response.new(200, 'Content-Type' => 'text/html')
+          ActionDispatch::Response.new(304, 'Content-Type' => 'text/html; charset=utf-8')
         end
       end
     end

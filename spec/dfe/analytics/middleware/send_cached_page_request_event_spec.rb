@@ -15,8 +15,10 @@ RSpec.describe DfE::Analytics::Middleware::SendCachedPageRequestEvent do
     before do
       allow(DfE::Analytics).to receive(:rack_page_cached?).with(env).and_return(is_cached)
       allow(ActionDispatch::Request).to receive(:new).with(env).and_return(request)
-      allow(ActionDispatch::Response).to receive(:new).with(200, 'Content-Type' => 'text/html').and_return(response)
       allow(DfE::Analytics::Event).to receive(:new).and_return(event)
+
+      allow(ActionDispatch::Response)
+        .to receive(:new).with(304, 'Content-Type' => 'text/html; charset=utf-8').and_return(response)
 
       allow(event).to receive(:with_type).with('web_request').and_return(event)
       allow(event).to receive(:with_request_details).with(request).and_return(event)
