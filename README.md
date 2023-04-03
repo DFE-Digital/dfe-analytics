@@ -401,13 +401,12 @@ For example, if a projects uses standard rails page caching, then a custom `rack
 
 
 ```ruby
-DfE::Analytics.config.rack_page_cached = do |rack_env|
-  def path
-    File.join(Rails.application.config.root, 'public/cached_pages')
-  end
+DfE::Analytics.config.rack_page_cached = proc do |rack_env|
+  def path; File.join(Rails.root, 'public/cached_pages'); end
 
   Rails.application.config.action_controller.perform_caching &&
     ActionDispatch::FileHandler.new(path).attempt(rack_env)
+  end
 end
 ```
 
