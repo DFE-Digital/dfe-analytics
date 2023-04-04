@@ -405,7 +405,7 @@ For example, if a projects uses standard rails page caching, then a custom `rack
 ```ruby
 DfE::Analytics.config.rack_page_cached = proc do |rack_env|
    Rails.application.config.action_controller.perform_caching &&
-   !!ActionDispatch::FileHandler.new(Rails.root.join("public/cached_pages").to_s).attempt(rack_env)
+     ActionDispatch::FileHandler.new(Rails.root.join("public/cached_pages").to_s).attempt(rack_env).present?
 end
 ```
 
