@@ -57,3 +57,9 @@ en:
           description: |
             Whether to anonymise the user_id field in the web request event.
           default: false
+        rack_page_cached:
+          description: |
+            A proc which will be called with the rack env, and which should
+            return a boolean indicating whether the page is cached and will
+            be served by rack middleware.
+          default: proc { |_rack_env| false }

@@ -111,4 +111,50 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
       end).to have_been_made
     end
   end
+
+  context 'rack page caching' do
+    let!(:event) do
+      { environment: 'test',
+        event_type: 'web_request',
+        request_user_agent: nil,
+        request_method: 'GET',
+        request_path: '/unauthenticated_example',
+        request_query: [],
+        request_referer: nil,
+        anonymised_user_agent_and_ip: '12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0',
+        response_content_type: 'text/html; charset=utf-8',
+        response_status: 304 }
+    end
+
+    # Modify controller so that web request events are not handled by the controller
+    # Otherwise we'll get 2 web request events in the test
+    before do
+      unauthenticated_controller = Class.new(ApplicationController) do
+        def index
+          render plain: 'hello'
+        end
+      end
+
+      stub_const('TestUnauthenticatedController', unauthenticated_controller)
+    end
+
+    it 'serves a cached page from rack middleware' do
+      # Indicate to rack middleware that this page is cached
+      allow(DfE::Analytics).to receive(:rack_page_cached?).and_return(true)
+
+      request = stub_analytics_event_submission
+
+      DfE::Analytics::Testing.webmock! do
+        perform_enqueued_jobs do
+          get('/unauthenticated_example')
+        end
+      end
+
+      expect(request.with do |req|
+        body = JSON.parse(req.body)
+        payload = body['rows'].first['json']
+        expect(payload.except('occurred_at', 'request_uuid')).to match(event.deep_stringify_keys)
+      end).to have_been_made
+    end
+  end
 end

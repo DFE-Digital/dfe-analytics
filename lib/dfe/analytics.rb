@@ -14,6 +14,7 @@ require 'dfe/analytics/load_entity_batch'
 require 'dfe/analytics/requests'
 require 'dfe/analytics/version'
 require 'dfe/analytics/middleware/request_identity'
+require 'dfe/analytics/middleware/send_cached_page_request_event'
 require 'dfe/analytics/railtie'
 
 module DfE
@@ -58,6 +59,7 @@ module DfE
         environment
         user_identifier
         anonymise_web_request_user_id
+        rack_page_cached
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -79,6 +81,7 @@ module DfE
       config.queue                         ||= :default
       config.user_identifier               ||= proc { |user| user&.id }
       config.anonymise_web_request_user_id ||= false
+      config.rack_page_cached              ||= proc { |_rack_env| false }
     end
 
     def self.initialize!
@@ -214,6 +217,10 @@ module DfE
 
     def self.user_identifier(user)
       config.user_identifier.call(user)
+    end
+
+    def self.rack_page_cached?(rack_env)
+      config.rack_page_cached.call(rack_env)
     end
   end
 end
