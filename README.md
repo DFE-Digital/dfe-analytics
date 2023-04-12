@@ -373,6 +373,12 @@ When defining event filters, note the following:
 
 In the above example, all create, delete or update entity events to the `course_options` table and `id` matching value `1234` will be logged, or any import entity events to the `courses` table will also be logged.
 
+**IMPORTANT**:
+
+Please ensure you are not logging sensitive data to debug. Your project should define blocklist and pii (personally identifiable information) fields, so these should prevent any sensitive data appearing in the events.
+
+Logging to debug should only be used for diagnosis/investigation purposes. Once diagnosis/investigation is complete, the logging to debug should be removed.
+
 ### Matching on non-hash fields
 
 This is best demonstrated by example.
