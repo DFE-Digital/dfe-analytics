@@ -2,6 +2,7 @@
 
 ENV['RAILS_ENV'] = 'test'
 ENV['SUPPRESS_DFE_ANALYTICS_INIT'] = 'true'
+ENV['RAILS_SERVE_STATIC_FILES'] = 'true'
 
 require_relative '../spec/dummy/config/environment'
 require 'debug'

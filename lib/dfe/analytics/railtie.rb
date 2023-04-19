@@ -12,8 +12,10 @@ module DfE
       initializer 'dfe.analytics.insert_middleware' do |app|
         app.config.middleware.use DfE::Analytics::Middleware::RequestIdentity
 
-        app.config.middleware.insert_before \
-          ActionDispatch::Static, DfE::Analytics::Middleware::SendCachedPageRequestEvent
+        if ENV['RAILS_SERVE_STATIC_FILES'].present?
+          app.config.middleware.insert_before \
+            ActionDispatch::Static, DfE::Analytics::Middleware::SendCachedPageRequestEvent
+        end
       end
 
       initializer 'dfe.analytics.logger' do
