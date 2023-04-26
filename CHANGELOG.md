@@ -1,15 +1,20 @@
 # Changelog
 
-## [v1.8.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.8.0) (2023-04-04)
+## [v1.9.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.9.0) (2023-04-26)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.7.0...v1.8.0)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.8.0...v1.9.0)
 
 **Merged pull requests:**
 
+- Refer serious misconduct / Apply for QTS unable to upgrade to DfE Analytics GEM \(v1.8.0\) [\#70](https://github.com/DFE-Digital/dfe-analytics/pull/70) ([asatwal](https://github.com/asatwal))
 - Send request events for cached pages with rack middleware [\#67](https://github.com/DFE-Digital/dfe-analytics/pull/67) ([asatwal](https://github.com/asatwal))
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.8.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.8.0) (2023-04-04)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.7.0...v1.8.0)
 
 ## [v1.7.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.7.0) (2023-02-24)
 
