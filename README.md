@@ -260,6 +260,18 @@ DfE::Analytics.config.anonymise_web_request_user_id = false
 
 Anonymisation of `user_id` would be required if the source field in the schema is in `analytics_pii.yml` so that analysts can join the IDs together. If the `user_id` is not in `analytics_pii.yml` but is in `analytics.yml` then `user_id` anonymisation would *not* be required so that the IDs could still be joined together.
 
+### Data Anonymisation Algorithm
+
+Generally all PII data should be anonymised, including data that directly or indirect references PII, for example database IDs.
+
+The `dfe-analytics` gem also anonymises such data, if it is configured to do so. If you are anonymising database IDs in your code (in custom events for example), then you should uses the same hashing algorithm for anonymisation that the gem uses.
+
+The following method should be used in your code for anonymisation:
+
+```ruby
+DfE::Analytics.anonymise(value)
+```
+
 ### Adding specs
 
 #### Testing modes
@@ -432,8 +444,11 @@ Please note that page caching is project specific and each project must carefull
 > 	It could be nice to have tests to prove that connectivity to GCP still works after an update, but we aren't setup for that yet.
 3. (Optional) Verify committed `CHANGELOG.md` changes and alter if necessary: `git show`
 4. Push the branch: `git push origin v${NEW_VERSION}-release`, e.g. `git push origin v1.3.0-release`
-5. Push the tags: `git push --tags`
-6. Cut a PR on GitHub with the label `version-release`, and merge once approved
+5. Cut a PR on GitHub with the label `version-release`, and wait for approval 
+6. Once the PR is approved push the tags, immediately prior to merging: `git push --tags`
+7. Merge the PR.
+
+IMPORTANT:  Pushing the tags will immediately make the release available even on a unmerged branch. Therefore, push the tags to Github only when the PR is approved and immediately prior to merging the PR.
 
 ## License
 
