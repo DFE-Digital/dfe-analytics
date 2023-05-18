@@ -5,7 +5,14 @@ require 'active_support/values/time_zone'
 module DfE
   module Analytics
     class Event
-      EVENT_TYPES = %w[web_request create_entity update_entity delete_entity import_entity].freeze
+      EVENT_TYPES = %w[
+        web_request
+        create_entity
+        update_entity
+        delete_entity
+        import_entity
+        analytics_initialise
+      ].freeze
 
       def initialize
         time_zone = 'London'
@@ -24,9 +31,7 @@ module DfE
         allowed_types = EVENT_TYPES + DfE::Analytics.custom_events
         raise 'Invalid analytics event type' unless allowed_types.include?(type.to_s)
 
-        @event_hash.merge!(
-          event_type: type
-        )
+        @event_hash.merge!(event_type: type)
 
         self
       end

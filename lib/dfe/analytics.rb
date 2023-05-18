@@ -12,6 +12,7 @@ require 'dfe/analytics/send_events'
 require 'dfe/analytics/load_entities'
 require 'dfe/analytics/load_entity_batch'
 require 'dfe/analytics/requests'
+require 'dfe/analytics/initialise'
 require 'dfe/analytics/version'
 require 'dfe/analytics/middleware/request_identity'
 require 'dfe/analytics/middleware/send_cached_page_request_event'
@@ -103,6 +104,9 @@ module DfE
           model.include(DfE::Analytics::Entities)
         end
       end
+
+      DfE::Analytics::Initialise.trigger_initialise_event
+
     rescue ActiveRecord::PendingMigrationError
       Rails.logger.info('Database requires migration; DfE Analytics not initialized')
     rescue ActiveRecord::ActiveRecordError
