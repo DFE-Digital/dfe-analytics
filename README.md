@@ -264,7 +264,7 @@ Anonymisation of `user_id` would be required if the source field in the schema i
 
 Generally all PII data should be anonymised, including data that directly or indirect references PII, for example database IDs.
 
-The `dfe-analytics` gem also anonymises such data, if it is configured to do so. If you are anonymising database IDs in your code (in custom events for example), then you should uses the same hashing algorithm for anonymisation that the gem uses.
+The `dfe-analytics` gem also anonymises such data, if it is configured to do so. If you are anonymising database IDs in your code (in custom events for example), then you should use the same hashing algorithm for anonymisation that the gem uses in order to allow joining of anonymised data across different database tables.
 
 The following method should be used in your code for anonymisation:
 

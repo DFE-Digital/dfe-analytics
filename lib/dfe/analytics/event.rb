@@ -11,7 +11,7 @@ module DfE
         update_entity
         delete_entity
         import_entity
-        analytics_initialise
+        initialise_analytics
       ].freeze
 
       def initialize

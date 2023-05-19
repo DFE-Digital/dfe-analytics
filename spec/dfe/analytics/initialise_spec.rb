@@ -12,7 +12,7 @@ RSpec.describe DfE::Analytics::Initialise do
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
-          'event_type' => 'analytics_initialise',
+          'event_type' => 'initialise_analytics',
           'data' => [
             { 'key' => 'analytics_version', 'value' => [DfE::Analytics::VERSION] },
             { 'key' => 'config',

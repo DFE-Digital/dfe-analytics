@@ -106,7 +106,6 @@ module DfE
       end
 
       DfE::Analytics::Initialise.trigger_initialise_event
-
     rescue ActiveRecord::PendingMigrationError
       Rails.logger.info('Database requires migration; DfE Analytics not initialized')
     rescue ActiveRecord::ActiveRecordError
@@ -185,6 +184,7 @@ module DfE
     end
 
     def self.anonymise(value)
+      # Google SQL equivalent of this is TO_HEX(SHA256(value))
       Digest::SHA2.hexdigest(value.to_s)
     end
 

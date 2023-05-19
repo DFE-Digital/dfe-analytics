@@ -13,15 +13,15 @@ module DfE
         return unless DfE::Analytics.enabled?
 
         initialise_event = DfE::Analytics::Event.new
-                                              .with_type('analytics_initialise')
-                                              .with_data(initialise_data)
+                                              .with_type('initialise_analytics')
+                                              .with_data(initialisation_data)
 
         DfE::Analytics::SendEvents.do([initialise_event.as_json])
       end
 
       private
 
-      def initialise_data
+      def initialisation_data
         {
           analytics_version: DfE::Analytics::VERSION,
           config: {
