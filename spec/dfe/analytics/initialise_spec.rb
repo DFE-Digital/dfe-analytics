@@ -16,7 +16,7 @@ RSpec.describe DfE::Analytics::Initialise do
           'data' => [
             { 'key' => 'analytics_version', 'value' => [DfE::Analytics::VERSION] },
             { 'key' => 'config',
-              'value' => ['{"anonymise_web_request_user_id":false}'] }
+              'value' => ['{"pseudonymise_web_request_user_id":false}'] }
           ]
         })])
     end

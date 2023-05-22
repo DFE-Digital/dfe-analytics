@@ -5,6 +5,14 @@ RSpec.describe DfE::Analytics do
     expect(DfE::Analytics::VERSION).not_to be nil
   end
 
+  it 'supports the pseudonymise method' do
+    expect(DfE::Analytics.pseudonymise('foo_bar')).to eq('4928cae8b37b3d1113f5e01e60c967df6c2b9e826dc7d91488d23a62fec715ba')
+  end
+
+  it 'supports the anonymise method for backwards compatibility' do
+    expect(DfE::Analytics.anonymise('foo_bar')).to eq('4928cae8b37b3d1113f5e01e60c967df6c2b9e826dc7d91488d23a62fec715ba')
+  end
+
   it 'has documentation entries for all the config options' do
     config_options = DfE::Analytics.config.members
 

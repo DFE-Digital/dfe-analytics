@@ -25,7 +25,7 @@ module DfE
         {
           analytics_version: DfE::Analytics::VERSION,
           config: {
-            anonymise_web_request_user_id: DfE::Analytics.config.anonymise_web_request_user_id
+            pseudonymise_web_request_user_id: DfE::Analytics.config.pseudonymise_web_request_user_id
           }
         }
       end

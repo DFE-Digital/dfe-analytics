@@ -2,7 +2,7 @@
 
 **👉 Send every web request and database update to BigQuery**
 
-**✋ Skip or anonymise fields containing PII**
+**✋ Skip or pseudonymise fields containing PII**. For an explanation of pseudonymisation, see [ICO Guidance](https://ico.org.uk/media/about-the-ico/consultations/4019579/chapter-3-anonymisation-guidance.pdf)
 
 **✌️  Configure and forget**
 
@@ -250,26 +250,26 @@ If a field other than `id` is required for the user identifier, then a custom us
 DfE::Analytics.config.user_identifier = proc { |user| user&.id }
 ```
 
-#### User ID anonymisation
+#### User ID pseudonymisation
 
-The `user_id` in the web request event will not be anonymised by default. This can be changed by updating the configuration option in `config/initializers/dfe_analytics.rb`:
+The `user_id` in the web request event will not be pseudonymised by default. This can be changed by updating the configuration option in `config/initializers/dfe_analytics.rb`:
 
 ```ruby
-DfE::Analytics.config.anonymise_web_request_user_id = false
+DfE::Analytics.config.pseudonymise_web_request_user_id = false
 ```
 
-Anonymisation of `user_id` would be required if the source field in the schema is in `analytics_pii.yml` so that analysts can join the IDs together. If the `user_id` is not in `analytics_pii.yml` but is in `analytics.yml` then `user_id` anonymisation would *not* be required so that the IDs could still be joined together.
+Pseudonymisation of `user_id` would be required if the source field in the schema is in `analytics_pii.yml` so that analysts can join the IDs together. If the `user_id` is not in `analytics_pii.yml` but is in `analytics.yml` then `user_id` pseudonymisation would *not* be required so that the IDs could still be joined together.
 
-### Data Anonymisation Algorithm
+### Data Pseudonymisation Algorithm
 
-Generally all PII data should be anonymised, including data that directly or indirect references PII, for example database IDs.
+Generally all PII data should be pseudonymised, including data that directly or indirect references PII, for example database IDs.
 
-The `dfe-analytics` gem also anonymises such data, if it is configured to do so. If you are anonymising database IDs in your code (in custom events for example), then you should use the same hashing algorithm for anonymisation that the gem uses in order to allow joining of anonymised data across different database tables.
+The `dfe-analytics` gem also pseudonymises such data, if it is configured to do so. If you are pseudonymising database IDs in your code (in custom events for example), then you should use the same hashing algorithm for pseudonymisation that the gem uses in order to allow joining of pseudonymised data across different database tables.
 
-The following method should be used in your code for anonymisation:
+The following method should be used in your code for pseudonymisation:
 
 ```ruby
-DfE::Analytics.anonymise(value)
+DfE::Analytics.pseudonymise(value)
 ```
 
 ### Adding specs
