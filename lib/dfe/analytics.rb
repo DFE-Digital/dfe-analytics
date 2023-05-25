@@ -104,8 +104,6 @@ module DfE
           model.include(DfE::Analytics::Entities)
         end
       end
-
-      DfE::Analytics::Initialise.trigger_initialise_event
     rescue ActiveRecord::PendingMigrationError
       Rails.logger.info('Database requires migration; DfE Analytics not initialized')
     rescue ActiveRecord::ActiveRecordError

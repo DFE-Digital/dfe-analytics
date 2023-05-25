@@ -21,4 +21,11 @@ RSpec.describe DfE::Analytics::Initialise do
         })])
     end
   end
+
+  describe '.initialise_event_sent=' do
+    it 'allows setting of the class variable' do
+      described_class.initialise_event_sent = true
+      expect(described_class.initialise_event_sent?).to eq(true)
+    end
+  end
 end

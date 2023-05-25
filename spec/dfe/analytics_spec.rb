@@ -184,12 +184,4 @@ RSpec.describe DfE::Analytics do
       end
     end
   end
-
-  it 'triggers the initialisation event' do
-    allow(DfE::Analytics::Initialise).to receive(:trigger_initialise_event)
-
-    DfE::Analytics.initialize!
-
-    expect(DfE::Analytics::Initialise).to have_received(:trigger_initialise_event)
-  end
 end
