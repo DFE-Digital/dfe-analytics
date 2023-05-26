@@ -4,6 +4,9 @@ module DfE
   module Analytics
     class SendEvents < AnalyticsJob
       def self.do(events)
+        # The initialise event is a one-off event that must be sent to BigQuery once only
+        DfE::Analytics::Initialise.trigger_initialise_event unless DfE::Analytics::Initialise.initialise_event_sent?
+
         events = events.map { |event| event.is_a?(Event) ? event.as_json : event }
 
         if DfE::Analytics.async?

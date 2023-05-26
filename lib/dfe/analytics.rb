@@ -12,6 +12,7 @@ require 'dfe/analytics/send_events'
 require 'dfe/analytics/load_entities'
 require 'dfe/analytics/load_entity_batch'
 require 'dfe/analytics/requests'
+require 'dfe/analytics/initialise'
 require 'dfe/analytics/version'
 require 'dfe/analytics/middleware/request_identity'
 require 'dfe/analytics/middleware/send_cached_page_request_event'
@@ -58,7 +59,7 @@ module DfE
         enable_analytics
         environment
         user_identifier
-        anonymise_web_request_user_id
+        pseudonymise_web_request_user_id
         rack_page_cached
       ]
 
@@ -68,20 +69,20 @@ module DfE
     def self.configure
       yield(config)
 
-      config.enable_analytics              ||= proc { true }
-      config.bigquery_table_name           ||= ENV['BIGQUERY_TABLE_NAME']
-      config.bigquery_project_id           ||= ENV['BIGQUERY_PROJECT_ID']
-      config.bigquery_dataset              ||= ENV['BIGQUERY_DATASET']
-      config.bigquery_api_json_key         ||= ENV['BIGQUERY_API_JSON_KEY']
-      config.bigquery_retries              ||= 3
-      config.bigquery_timeout              ||= 120
-      config.environment                   ||= ENV.fetch('RAILS_ENV', 'development')
-      config.log_only                      ||= false
-      config.async                         ||= true
-      config.queue                         ||= :default
-      config.user_identifier               ||= proc { |user| user&.id }
-      config.anonymise_web_request_user_id ||= false
-      config.rack_page_cached              ||= proc { |_rack_env| false }
+      config.enable_analytics                 ||= proc { true }
+      config.bigquery_table_name              ||= ENV['BIGQUERY_TABLE_NAME']
+      config.bigquery_project_id              ||= ENV['BIGQUERY_PROJECT_ID']
+      config.bigquery_dataset                 ||= ENV['BIGQUERY_DATASET']
+      config.bigquery_api_json_key            ||= ENV['BIGQUERY_API_JSON_KEY']
+      config.bigquery_retries                 ||= 3
+      config.bigquery_timeout                 ||= 120
+      config.environment                      ||= ENV.fetch('RAILS_ENV', 'development')
+      config.log_only                         ||= false
+      config.async                            ||= true
+      config.queue                            ||= :default
+      config.user_identifier                  ||= proc { |user| user&.id }
+      config.pseudonymise_web_request_user_id ||= false
+      config.rack_page_cached                 ||= proc { |_rack_env| false }
     end
 
     def self.initialize!
@@ -177,10 +178,15 @@ module DfE
       allowed_attributes = attributes.slice(*exportable_attrs&.map(&:to_s))
       obfuscated_attributes = attributes.slice(*exportable_pii_attrs&.map(&:to_s))
 
-      allowed_attributes.deep_merge(obfuscated_attributes.transform_values { |value| anonymise(value) })
+      allowed_attributes.deep_merge(obfuscated_attributes.transform_values { |value| pseudonymise(value) })
     end
 
     def self.anonymise(value)
+      pseudonymise(value)
+    end
+
+    def self.pseudonymise(value)
+      # Google SQL equivalent of this is TO_HEX(SHA256(value))
       Digest::SHA2.hexdigest(value.to_s)
     end
 

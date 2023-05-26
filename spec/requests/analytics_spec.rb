@@ -55,39 +55,98 @@ RSpec.describe 'Analytics flow', type: :request do
     Rails.application.routes_reloader.reload!
   end
 
-  it 'works end-to-end' do
-    request_event = { environment: 'test',
-                      event_type: 'web_request',
-                      request_method: 'POST',
-                      request_path: '/example/create' }
-    request_event_post = stub_analytics_event_submission.with(body: /web_request/)
+  describe 'end-to-end API calls' do
+    let!(:initialise_event_post) { stub_analytics_event_submission.with(body: /initialise_analytics/) }
+    let!(:request_event_post) { stub_analytics_event_submission.with(body: /request_path/) }
+    let!(:model_event_post) { stub_analytics_event_submission.with(body: /create_entity/) }
 
-    model_event = { environment: 'test',
-                    event_type: 'create_entity',
-                    entity_table_name: Candidate.table_name }
-    model_event_post = stub_analytics_event_submission.with(body: /create_entity/)
-
-    perform_enqueued_jobs do
-      post '/example/create'
+    let(:initialise_event) do
+      {
+        environment: 'test',
+        event_type: 'initialise_analytics'
+      }
     end
 
-    request_uuid = nil # we'll compare this across requests
+    let(:request_event) do
+      {
+        environment: 'test',
+        event_type: 'web_request',
+        request_method: 'POST',
+        request_path: '/example/create'
+      }
+    end
 
-    expect(request_event_post.with do |req|
-      body = JSON.parse(req.body)
-      payload = body['rows'].first['json']
-      expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(request_event.stringify_keys))
+    let(:model_event) do
+      {
+        environment: 'test',
+        event_type: 'create_entity',
+        entity_table_name: Candidate.table_name
+      }
+    end
 
-      request_uuid = payload['request_uuid']
-    end).to have_been_made
+    before do
+      DfE::Analytics::Initialise.initialise_event_sent = initialise_event_sent
 
-    expect(model_event_post.with do |req|
-      body = JSON.parse(req.body)
-      payload = body['rows'].first['json']
-      expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(model_event.stringify_keys))
+      perform_enqueued_jobs do
+        post '/example/create'
+      end
+    end
 
-      expect(payload['request_uuid']).to eq(request_uuid)
-    end).to have_been_made
+    context 'when initialise_analytics event NOT already sent' do
+      let(:initialise_event_sent) { false }
+
+      it 'calls the expected BigQuery APIs' do
+        request_uuid = nil # we'll compare this across requests
+
+        expect(initialise_event_post.with do |req|
+          body = JSON.parse(req.body)
+          payload = body['rows'].first['json']
+          expect(payload.except('occurred_at')).to match(a_hash_including(initialise_event.stringify_keys))
+        end).to have_been_made
+
+        expect(request_event_post.with do |req|
+          body = JSON.parse(req.body)
+          payload = body['rows'].first['json']
+          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(request_event.stringify_keys))
+
+          request_uuid = payload['request_uuid']
+        end).to have_been_made
+
+        expect(model_event_post.with do |req|
+          body = JSON.parse(req.body)
+          payload = body['rows'].first['json']
+          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(model_event.stringify_keys))
+
+          expect(payload['request_uuid']).to eq(request_uuid)
+        end).to have_been_made
+      end
+    end
+
+    context 'when initialise_analytics event already sent' do
+      let(:initialise_event_sent) { true }
+
+      it 'calls the expected BigQuery APIs' do
+        request_uuid = nil # we'll compare this across requests
+
+        expect(initialise_event_post).to_not have_been_made
+
+        expect(request_event_post.with do |req|
+          body = JSON.parse(req.body)
+          payload = body['rows'].first['json']
+          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(request_event.stringify_keys))
+
+          request_uuid = payload['request_uuid']
+        end).to have_been_made
+
+        expect(model_event_post.with do |req|
+          body = JSON.parse(req.body)
+          payload = body['rows'].first['json']
+          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(model_event.stringify_keys))
+
+          expect(payload['request_uuid']).to eq(request_uuid)
+        end).to have_been_made
+      end
+    end
   end
 
   context 'when a queue is specified' do

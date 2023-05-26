@@ -64,7 +64,7 @@ RSpec.describe DfE::Analytics::Entities do
       it 'sends events that are valid according to the schema' do
         Candidate.create
 
-        expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |payload|
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once do |payload|
           schema = DfE::Analytics::EventSchema.new.as_json
           schema_validator = JSONSchemaValidator.new(schema, payload.first)
 

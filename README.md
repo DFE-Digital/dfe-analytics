@@ -2,7 +2,7 @@
 
 **👉 Send every web request and database update to BigQuery**
 
-**✋ Skip or anonymise fields containing PII**
+**✋ Skip or pseudonymise fields containing PII**. For an explanation of pseudonymisation, see [ICO Guidance](https://ico.org.uk/media/about-the-ico/consultations/4019579/chapter-3-anonymisation-guidance.pdf)
 
 **✌️  Configure and forget**
 
@@ -250,15 +250,27 @@ If a field other than `id` is required for the user identifier, then a custom us
 DfE::Analytics.config.user_identifier = proc { |user| user&.id }
 ```
 
-#### User ID anonymisation
+#### User ID pseudonymisation
 
-The `user_id` in the web request event will not be anonymised by default. This can be changed by updating the configuration option in `config/initializers/dfe_analytics.rb`:
+The `user_id` in the web request event will not be pseudonymised by default. This can be changed by updating the configuration option in `config/initializers/dfe_analytics.rb`:
 
 ```ruby
-DfE::Analytics.config.anonymise_web_request_user_id = false
+DfE::Analytics.config.pseudonymise_web_request_user_id = false
 ```
 
-Anonymisation of `user_id` would be required if the source field in the schema is in `analytics_pii.yml` so that analysts can join the IDs together. If the `user_id` is not in `analytics_pii.yml` but is in `analytics.yml` then `user_id` anonymisation would *not* be required so that the IDs could still be joined together.
+Pseudonymisation of `user_id` would be required if the source field in the schema is in `analytics_pii.yml` so that analysts can join the IDs together. If the `user_id` is not in `analytics_pii.yml` but is in `analytics.yml` then `user_id` pseudonymisation would *not* be required so that the IDs could still be joined together.
+
+### Data Pseudonymisation Algorithm
+
+Generally all PII data should be pseudonymised, including data that directly or indirect references PII, for example database IDs.
+
+The `dfe-analytics` gem also pseudonymises such data, if it is configured to do so. If you are pseudonymising database IDs in your code (in custom events for example), then you should use the same hashing algorithm for pseudonymisation that the gem uses in order to allow joining of pseudonymised data across different database tables.
+
+The following method should be used in your code for pseudonymisation:
+
+```ruby
+DfE::Analytics.pseudonymise(value)
+```
 
 ### Adding specs
 
@@ -432,8 +444,11 @@ Please note that page caching is project specific and each project must carefull
 > 	It could be nice to have tests to prove that connectivity to GCP still works after an update, but we aren't setup for that yet.
 3. (Optional) Verify committed `CHANGELOG.md` changes and alter if necessary: `git show`
 4. Push the branch: `git push origin v${NEW_VERSION}-release`, e.g. `git push origin v1.3.0-release`
-5. Push the tags: `git push --tags`
-6. Cut a PR on GitHub with the label `version-release`, and merge once approved
+5. Cut a PR on GitHub with the label `version-release`, and wait for approval 
+6. Once the PR is approved push the tags, immediately prior to merging: `git push --tags`
+7. Merge the PR.
+
+IMPORTANT:  Pushing the tags will immediately make the release available even on a unmerged branch. Therefore, push the tags to Github only when the PR is approved and immediately prior to merging the PR.
 
 ## License
 

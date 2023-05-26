@@ -5,7 +5,14 @@ require 'active_support/values/time_zone'
 module DfE
   module Analytics
     class Event
-      EVENT_TYPES = %w[web_request create_entity update_entity delete_entity import_entity].freeze
+      EVENT_TYPES = %w[
+        web_request
+        create_entity
+        update_entity
+        delete_entity
+        import_entity
+        initialise_analytics
+      ].freeze
 
       def initialize
         time_zone = 'London'
@@ -24,9 +31,7 @@ module DfE
         allowed_types = EVENT_TYPES + DfE::Analytics.custom_events
         raise 'Invalid analytics event type' unless allowed_types.include?(type.to_s)
 
-        @event_hash.merge!(
-          event_type: type
-        )
+        @event_hash.merge!(event_type: type)
 
         self
       end
@@ -119,7 +124,7 @@ module DfE
       end
 
       def anonymised_user_agent_and_ip(rack_request)
-        DfE::Analytics.anonymise(rack_request.user_agent.to_s + rack_request.remote_ip.to_s) if rack_request.remote_ip.present?
+        DfE::Analytics.pseudonymise(rack_request.user_agent.to_s + rack_request.remote_ip.to_s) if rack_request.remote_ip.present?
       end
 
       def ensure_utf8(str)
@@ -128,7 +133,7 @@ module DfE
 
       def user_identifier_for(user)
         user_id = DfE::Analytics.user_identifier(user)
-        user_id = DfE::Analytics.anonymise(user_id) if user_id.present? && DfE::Analytics.config.anonymise_web_request_user_id
+        user_id = DfE::Analytics.pseudonymise(user_id) if user_id.present? && DfE::Analytics.config.pseudonymise_web_request_user_id
 
         user_id
       end
