@@ -128,11 +128,7 @@ RSpec.describe 'Analytics flow', type: :request do
       it 'calls the expected BigQuery APIs' do
         request_uuid = nil # we'll compare this across requests
 
-        expect(initialise_event_post.with do |req|
-          body = JSON.parse(req.body)
-          payload = body['rows'].first['json']
-          expect(payload.except('occurred_at')).to match(a_hash_including(initialise_event.stringify_keys))
-        end).to_not have_been_made
+        expect(initialise_event_post).to_not have_been_made
 
         expect(request_event_post.with do |req|
           body = JSON.parse(req.body)
