@@ -70,10 +70,10 @@ module DfE
       yield(config)
 
       config.enable_analytics                 ||= proc { true }
-      config.bigquery_table_name              ||= ENV['BIGQUERY_TABLE_NAME']
-      config.bigquery_project_id              ||= ENV['BIGQUERY_PROJECT_ID']
-      config.bigquery_dataset                 ||= ENV['BIGQUERY_DATASET']
-      config.bigquery_api_json_key            ||= ENV['BIGQUERY_API_JSON_KEY']
+      config.bigquery_table_name              ||= ENV.fetch('BIGQUERY_TABLE_NAME', nil)
+      config.bigquery_project_id              ||= ENV.fetch('BIGQUERY_PROJECT_ID', nil)
+      config.bigquery_dataset                 ||= ENV.fetch('BIGQUERY_DATASET', nil)
+      config.bigquery_api_json_key            ||= ENV.fetch('BIGQUERY_API_JSON_KEY', nil)
       config.bigquery_retries                 ||= 3
       config.bigquery_timeout                 ||= 120
       config.environment                      ||= ENV.fetch('RAILS_ENV', 'development')

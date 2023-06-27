@@ -31,22 +31,28 @@ module DfE
           response = DfE::Analytics.events_client.insert(events, ignore_unknown: true)
 
           unless response.success?
-            error_message = error_message_for(response.insert_errors)
+            event_count   = events.length
+            error_message = error_message_for(response, events)
 
             Rails.logger.error(error_message)
+
+            events.each.with_index(1) do |event, index|
+              Rails.logger.info("DfE::Analytics possible error processing event (#{index}/#{event_count}): #{event.inspect}")
+            end
 
             raise SendEventsError, error_message
           end
         end
       end
 
-      def error_message_for(insert_errors)
-        message = insert_errors
-          .flat_map(&:errors)
-          .map { |error| error.try(:message) || error['message'] }
+      def error_message_for(resp, events)
+        message =
+          resp
+          .error_rows
+          .map { |row| "row: #{row} errors: #{resp.errors_for(row)} index: #{resp.index_for(row)} event: #{events[resp.index_for(row)].inspect}" }
           .compact.join("\n")
 
-        "Could not insert all events:\n#{message}"
+        "Could not insert #{resp.error_count} event(s):\n#{message}"
       end
     end
 
