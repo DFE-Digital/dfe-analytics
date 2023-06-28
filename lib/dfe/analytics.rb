@@ -97,11 +97,12 @@ module DfE
       DfE::Analytics::Fields.check!
 
       entities_for_analytics.each do |entity|
-        model = model_for_entity(entity)
-        if model.include?(DfE::Analytics::Entities) && !@shown_deprecation_warning
-          Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{model.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
-        else
-          model.include(DfE::Analytics::Entities)
+        models_for_entity(entity).each do |m|
+          if m.include?(DfE::Analytics::Entities) && !@shown_deprecation_warning
+            Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{m.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
+          else
+            m.include(DfE::Analytics::Entities)
+          end
         end
       end
     rescue ActiveRecord::PendingMigrationError
@@ -162,7 +163,7 @@ module DfE
       entity_model_mapping.keys.map(&:to_sym)
     end
 
-    def self.model_for_entity(entity)
+    def self.models_for_entity(entity)
       entity_model_mapping.fetch(entity.to_s)
     end
 
@@ -214,7 +215,7 @@ module DfE
 
         ActiveRecord::Base.descendants
           .reject(&:abstract_class?)
-          .index_by(&:table_name)
+          .group_by(&:table_name)
           .except(*rails_tables)
       end
     end
