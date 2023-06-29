@@ -6,7 +6,7 @@ RSpec.describe 'DfE::Analytics fields' do
       New database field detected! You need to decide whether or not to send it
       to BigQuery. To send, add it to config/analytics.yml. To ignore, run:
 
-      bundle exec rails bigquery:regenerate_blocklist
+      bundle exec rails dfe:analytics:regenerate_blocklist
 
       New fields: #{unlisted_fields.inspect}
     HEREDOC
@@ -20,7 +20,7 @@ RSpec.describe 'DfE::Analytics fields' do
     failure_message = <<~HEREDOC
       Database field removed! Please remove it from analytics.yml and then run
 
-      bundle exec rails bigquery:regenerate_blocklist
+      bundle exec rails dfe:analytics:regenerate_blocklist
 
       Removed fields: #{surplus_fields.inspect}
     HEREDOC
