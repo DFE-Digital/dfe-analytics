@@ -39,7 +39,6 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
     end
 
     ex.run
-
   ensure
     Rails.application.routes_reloader.reload!
   end

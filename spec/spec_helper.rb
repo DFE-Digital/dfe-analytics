@@ -15,7 +15,7 @@ require 'dfe/analytics/testing/helpers'
 
 require_relative '../spec/support/json_schema_validator'
 
-if ::Rails::VERSION::MAJOR >= 7
+if Rails::VERSION::MAJOR >= 7
   require 'active_support/testing/tagged_logging'
 
   RSpec::Core::ExampleGroup.module_eval do

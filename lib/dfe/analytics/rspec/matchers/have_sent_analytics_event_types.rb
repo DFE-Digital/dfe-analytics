@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './helpers'
+require_relative 'helpers'
 
 RSpec::Matchers.define :have_sent_analytics_event_types do |*event_types|
   include DfE::Analytics::RSpec::Matchers::Helpers
