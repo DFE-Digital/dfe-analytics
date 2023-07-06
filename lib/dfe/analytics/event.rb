@@ -6,12 +6,7 @@ module DfE
   module Analytics
     class Event
       EVENT_TYPES = %w[
-        web_request
-        create_entity
-        update_entity
-        delete_entity
-        import_entity
-        initialise_analytics
+        web_request create_entity update_entity delete_entity import_entity initialise_analytics
       ].freeze
 
       def initialize
@@ -115,9 +110,13 @@ module DfE
 
       def hash_to_kv_pairs(hash)
         hash.map do |(key, values)|
-          values_as_json = Array.wrap(values).map do |value|
-            convert_value_to_json(value)
+          if Array.wrap(values).count(&:nil?).positive?
+            message = "event has missing values in data - event: #{@event_hash} key: #{key} values: #{values}"
+
+            Rails.logger.warn("DfE::Analytics #{message} - This indicates data problems in the app")
           end
+
+          values_as_json = Array.wrap(values).compact.map { |value| convert_value_to_json(value) }
 
           { 'key' => key, 'value' => values_as_json }
         end
