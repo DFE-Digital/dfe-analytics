@@ -60,7 +60,7 @@ RSpec.describe DfE::Analytics::SendEvents do
       end
 
       it 'logs the error message' do
-        expect(Rails.logger).to receive(:error).with(/Could not insert 1 event\(s\):/)
+        expect(Rails.logger).to receive(:error).with(/DfE::Analytics BigQuery API insert error for 1 event\(s\):/)
 
         perform
       rescue DfE::Analytics::SendEventsError

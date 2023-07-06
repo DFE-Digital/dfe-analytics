@@ -32,7 +32,7 @@ module DfE
 
           unless response.success?
             event_count   = events.length
-            error_message = error_message_for(response, events)
+            error_message = error_message_for(response)
 
             Rails.logger.error(error_message)
 
@@ -45,14 +45,14 @@ module DfE
         end
       end
 
-      def error_message_for(resp, events)
+      def error_message_for(resp)
         message =
           resp
           .error_rows
-          .map { |row| "row: #{row} errors: #{resp.errors_for(row)} index: #{resp.index_for(row)} event: #{events[resp.index_for(row)].inspect}" }
+          .map { |row| "index: #{resp.index_for(row)} error: #{resp.errors_for(row)} error_row: #{row}" }
           .compact.join("\n")
 
-        "Could not insert #{resp.error_count} event(s):\n#{message}"
+        "DfE::Analytics BigQuery API insert error for #{resp.error_rows.length} event(s): response error count: #{resp.error_count}\n#{message}"
       end
     end
 
