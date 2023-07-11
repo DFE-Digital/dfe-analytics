@@ -91,7 +91,7 @@ RSpec.describe DfE::Analytics::Event do
     end
 
     it 'logs a warning when stripping out nil values' do
-      expect(Rails.logger).to receive(:warn).with(/DfE::Analytics event has missing values in data/)
+      expect(Rails.logger).to receive(:warn).with(/DfE::Analytics an array field contains nulls/)
 
       event = described_class.new
       event.with_data(key: ['A', nil, nil]).as_json

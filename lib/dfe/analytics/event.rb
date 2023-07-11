@@ -110,8 +110,8 @@ module DfE
 
       def hash_to_kv_pairs(hash)
         hash.map do |(key, values)|
-          if Array.wrap(values).count(&:nil?).positive?
-            message = "event has missing values in data - event: #{@event_hash} key: #{key} values: #{values}"
+          if Array.wrap(values).any?(&:nil?)
+            message = "an array field contains nulls - event: #{@event_hash} key: #{key} values: #{values}"
 
             Rails.logger.warn("DfE::Analytics #{message} - This indicates data problems in the app")
           end
