@@ -1,11 +1,14 @@
 # Changelog
 
-## [v1.10.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.10.0) (2023-06-29)
+## [v1.10.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.10.1) (2023-07-17)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.9.0...v1.10.0)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.10.0...v1.10.1)
 
 **Merged pull requests:**
 
+- Remove null values from events [\#82](https://github.com/DFE-Digital/dfe-analytics/pull/82) ([asatwal](https://github.com/asatwal))
+- Do not attempt initialization when the user is changing the database [\#81](https://github.com/DFE-Digital/dfe-analytics/pull/81) ([duncanjbrown](https://github.com/duncanjbrown))
+- Update README.md [\#80](https://github.com/DFE-Digital/dfe-analytics/pull/80) ([duncanjbrown](https://github.com/duncanjbrown))
 - Add better error logging when calling BigQuery insert API on error [\#78](https://github.com/DFE-Digital/dfe-analytics/pull/78) ([asatwal](https://github.com/asatwal))
 - Support single table inheritance [\#77](https://github.com/DFE-Digital/dfe-analytics/pull/77) ([duncanjbrown](https://github.com/duncanjbrown))
 - Send config events [\#75](https://github.com/DFE-Digital/dfe-analytics/pull/75) ([asatwal](https://github.com/asatwal))
@@ -17,6 +20,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.10.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.10.0) (2023-06-29)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.9.0...v1.10.0)
 
 ## [v1.9.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.9.0) (2023-05-31)
 

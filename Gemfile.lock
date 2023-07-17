@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dfe-analytics (1.10.0)
+    dfe-analytics (1.10.1)
       google-cloud-bigquery (~> 1.38)
       request_store_rails (~> 2)
 
