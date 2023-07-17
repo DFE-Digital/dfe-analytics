@@ -46,6 +46,9 @@ Style/EachWithObject:
 
 AllCops:
   TargetRubyVersion: 2.7
+  StyleGuide:
+    Enabled: true
+    EnforcedStyle: gemspec
   NewCops: enable
   Exclude:
     - 'spec/dummy/db/schema.rb'

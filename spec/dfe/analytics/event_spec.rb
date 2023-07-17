@@ -84,6 +84,19 @@ RSpec.describe DfE::Analytics::Event do
       expect(output['data'].first['value']).to eq ['{"equality_and_diversity":{"ethnic_background":"Irish"}}']
     end
 
+    it 'strips out nil values' do
+      event = described_class.new
+      output = event.with_data(key: ['A', nil, 'B']).as_json
+      expect(output['data'].first['value']).to eq %w[A B]
+    end
+
+    it 'logs a warning when stripping out nil values' do
+      expect(Rails.logger).to receive(:warn).with(/DfE::Analytics an array field contains nulls/)
+
+      event = described_class.new
+      event.with_data(key: ['A', nil, nil]).as_json
+    end
+
     it 'handles objects that have JSON-friendly structures' do
       event = described_class.new
       output = event.with_data(as_json_object: has_as_json_class.new(:green, true)).as_json
