@@ -2,23 +2,22 @@
 
 **👉 Send every web request and database update to BigQuery**
 
-**✋ Skip or pseudonymise fields containing PII**. For an explanation of pseudonymisation, see [ICO Guidance](https://ico.org.uk/media/about-the-ico/consultations/4019579/chapter-3-anonymisation-guidance.pdf)
+**✋ Skip or pseudonymise fields containing PII**
 
 **✌️  Configure and forget**
 
-## Overview
+## Introduction
 
 This gem provides an _opinionated integration_ with Google Cloud Platform (GCP)
 BigQuery.
 
-Once it is set up, every web request and database update (as permitted by
-configuration) will flow to BigQuery.
+Once it is set up, every web request and database update, as permitted by
+configuration, will flow to BigQuery.
 
 It also provides a Rake task for backfilling BigQuery with entities created
-before you started sending events (see **Importing existing data** below), and
-another for keeping your field configuration up to date.
+before you started sending events.
 
-To set the gem up follow the steps in "Configuration", below.
+To set the gem up follow the steps in [Installation](#installation), below.
 
 ## See also
 
@@ -26,15 +25,17 @@ To set the gem up follow the steps in "Configuration", below.
 
 ## Names and jargon
 
-A Rails model is an analytics **Entity**. All models are entities, but not all
+A Rails model is an analytics **entity**. All models are entities, but not all
 entities are models — for example, an entity could be an association in a
-many-to-many join table.
+many-to-many join table. **Entities** share their names with database tables.
 
-A change to a entity (update, creation or deletion) is an analytics **Event**.
+A change to a entity (update, creation or deletion) is an analytics **event**.
 When an entity changes we send the entire new state of the entity as part of
 the event.
 
-A web request is also an analytics **Event**.
+A web request is an analytics **event**.
+
+You can also define custom **events**.
 
 ## Architecture
 
@@ -61,15 +62,16 @@ sequenceDiagram
 
 ## Dependencies
 
-A Rails app with `ActiveJob` configured.
+A Rails app. Whilst it's possible to use DfE::Analytics without ActiveJob, ActiveJob
+is recommended.
 
 ## Installation
 
-Before you can send data to BigQuery with `dfe-analytics` you'll need to setup
-your Google Cloud project. See the [setup Google Cloud setup guide](docs/google_cloud_bigquery_setup.md)
+Before you can send data to BigQuery with DfE::Analytics you'll need to setup
+your Google Cloud project. See the [Google Cloud setup guide](docs/google_cloud_bigquery_setup.md)
 for instructions on how to do that.
 
-### 1. Add the dfe-analytics to your app
+### 1. Add DfE::Analytics to your app
 
 The `dfe-analytics` gem hasn't been published to Rubygems yet, so it needs to be
 retrieved from GitHub. Check for the latest tagged version in GitHub and provide
@@ -86,12 +88,23 @@ then
 bundle install
 ```
 
-### 2. Get an API JSON key :key:
+and
 
-Depending on how your app environments are setup, we recommend you use the
-service account created for the `development` environment on your localhost to
-test integration with BigQuery. This requires that your project is setup in
-Google Cloud as per the instructions above.
+```bash
+bundle exec rails generate dfe:analytics:install
+```
+
+This will create some configuration files, including `config/initializers/dfe_analytics.rb`.
+
+While you’re setting things up, consider setting `config.async = false` and
+`config.log_only = true` to take ActiveJob and BigQuery out of the loop.
+
+### 2. Set up BigQuery credentials :key:
+
+Depending on how your app environments are set up, we recommend you use a
+service account created for the `development` environment to test your local
+machine's integration with BigQuery. This requires that your project is set up
+in Google Cloud as per [the instructions above](docs/google_cloud_bigquery_setup.md).
 
 1. Access the `development` service account you previously set up
 1. Go to the keys tab, click on "Add key" > "Create new key"
@@ -99,12 +112,8 @@ Google Cloud as per the instructions above.
 
 The full contents of this JSON file is your `BIGQUERY_API_JSON_KEY`.
 
-Use these steps to download a key to use in your deployed environment's secrets,
-
-### 3. Set up environment variables
-
-Putting the previous things together, to finish setting up `dfe-analytics`, you
-need these environment variables:
+Once you have the key, set the following environment variables for your Rails
+app.
 
 ```
 BIGQUERY_TABLE_NAME=events
@@ -113,13 +122,41 @@ BIGQUERY_DATASET=your-bigquery-dataset-name
 BIGQUERY_API_JSON_KEY=<contents of the JSON, make sure to strip or escape newlines>
 ```
 
-### 4. Configure BigQuery connection, feature flags etc
+If you're stuck with differently-named env vars, you can configure the names in
+`dfe_analytics.rb`.
 
-```bash
-bundle exec rails generate dfe:analytics:install
+### 3. Set up a queue
+
+Unless you are using the `config.async = false` setting (not recommended for
+production), events are sent to BigQuery via ActiveJob.
+
+Events are generated on each web request and database insert/update/delete
+query. Depending on the architecture of your application, many jobs
+could be enqueued as users interact with your application.
+
+Consider how this may impact the processing of the other jobs in your
+application. We recommend setting a dedicated custom queue name in
+`config/initializers/dfe_analytics.rb`:
+
+```ruby
+config.queue = :dfe_analytics
 ```
 
-and follow comments in `config/initializers/dfe_analytics.rb`.
+Please note that a custom queue will require the queue to be defined in your ActiveJob adapter configuration.
+
+Also consider setting the priority of the jobs according to your chosen ActiveJob adapter's conventions. For Sidekiq, your `config/sidekiq.yml` file might look like this:
+
+```yaml
+---
+:queues:
+  - default
+  - mailers
+  - dfe_analytics
+```
+
+High-traffic applications may require a dedicated worker.
+
+### 4. Send database events
 
 The `dfe:analytics:install` generator will also initialize some empty config files:
 
@@ -132,55 +169,90 @@ The `dfe:analytics:install` generator will also initialize some empty config fil
 
 **It is imperative that you perform a full check of those fields are being sent, and exclude those containing personally-identifiable information (PII) in `config/analytics_pii.yml`, in order to comply with the requirements of the [Data Protection Act 2018](https://www.gov.uk/data-protection), unless an exemption has been obtained.**
 
-### 5. Check your fields
 
-A good place to start is to run
+When you first install the gem, none of your fields will be listed in `analytics.yml`, so no data will be sent to BigQuery. To get started, generate a blocklist using this command:
 
 ```bash
 bundle exec rails dfe:analytics:regenerate_blocklist
 ```
 
-to populate `analytics_blocklist.yml`. Work through this file to move entries
-into `analytics.yml` and optionally also to `analytics_pii.yml`.
+Work through `analytics_blocklist.yml` to move entries into `analytics.yml` and
+optionally also to `analytics_pii.yml`.
 
-Finally, run
+When you boot your app, DfE::Analytics will raise an error if there are
+fields in your field configuration which are present in the database but
+missing from the config, or present in the config but missing from the
+database.
+
+If for any reason you get stuck with an error that you can't resolve, you can
+use the `SUPPRESS_DFE_ANALYTICS_INIT` env var to temporarily skip the startup
+check.
 
 ```bash
-bundle exec rails dfe:analytics:check
+SUPPRESS_DFE_ANALYTICS_INIT=true bundle exec rails c
 ```
 
-This will let you know whether there are any fields in your field configuration
-which are present in the database but missing from the config, or present in the
-config but missing from the database.
+Once `analytics.yml` and friends are populated, the associated models will be
+automatically instrumented to send updates to BigQuery via ActiveRecord
+callbacks.
 
-**It's recommended to run this task regularly - at least as often as you run
-database migrations. Consider enhancing db:migrate to run it automatically.**
 
-### 6. Enable callbacks
+### 5. Send web request events
 
-Mix in the following modules. It's recommended to include them at the
-highest possible level in the inheritance hierarchy of your controllers and
-models so that they are effective everywhere. A standard Rails application will
-have all controllers inheriting from `ApplicationController` and all models
-inheriting from `ApplicationRecord`, so these should be a good place to start.
+#### Web requests
 
-### 7. Configure queues
-
-Events are sent to BigQuery by your application's queueing backed via its ActiveJob adapter.
-
-Events are generated on each web request and database insert/update/delete query. Depending on the architecture of your application, potentially many jobs could be enqueued as users interact with your application.
-
-Consider how this may impact the processing of the other jobs in your application. Set a dedicated custom queue name rather than `:default` in `config/initializers/dfe_analytics.rb`:
+Including `DfE::Analytics::Requests` in your `ApplicationController` will cause
+it and all inheriting controllers to send web request events to BigQuery. (This
+is probably what you want).
 
 ```ruby
-DfE::Analytics.config.queue = :dfe_analytics
+class ApplicationController < ActionController::Base
+  include DfE::Analytics::Requests
+
+  # This method MAY be present in your controller, returning
+  # either nil or an object implementing an .id method.
+  #
+  # def current_user; end
+
+  # This method MAY be present in your controller. If so, it should
+  # return a string - return value will be attached to web_request events.
+  #
+  # def current_namespace; end
+end
 ```
 
-Please note that a custom queue will require the queue to be defined in your ActiveJob adapter configuration.
+Web request events will try to add a `user_id` to the event data sent to
+BigQuery. The `user_id` will only be populated if the controller defines a
+`current_user` method whose return value responds to `.id`.
 
-Also consider setting the priority of the jobs according to your chosen ActiveJob adapter's conventions.
+If a field other than `id` is required for the user identifier, then a custom
+user identifier proc can be defined in `config/initializers/dfe_analytics.rb`:
 
-### 8. Custom events
+```ruby
+DfE::Analytics.config.user_identifier = proc { |user| user&.uid }
+```
+
+### 6. Import existing data
+
+To load the current contents of your database into BigQuery, run
+
+```bash
+bundle exec rails dfe:analytics:import_all_entities
+```
+
+To reimport just one entity, run:
+
+```bash
+bundle exec rails dfe:analytics:import_entity[entity_name]
+```
+
+where `entity_name` is the name of the table you wish to import.
+
+**IMPORTANT**: if you have a lot of records, this will enqueue a lot of jobs.
+Consider not running an
+import when there is a lot of traffic on your service.
+
+## Custom events
 
 If you wish to send custom analytics event, create a file `config/analytics_custom_events.yml` containing an array of your custom events types under a `shared` key like:
 
@@ -207,76 +279,52 @@ Once all the events have been constructed, simply send them to your analytics:
 DfE::Analytics::SendEvents.do([event, event2, event3])
 ```
 
-#### Controllers
+## Pseudonymisation
 
-```ruby
-class ApplicationController < ActionController::Base
-  include DfE::Analytics::Requests
-
-  # This method MAY be present in your controller, returning
-  # either nil or an object implementing an .id method.
-  #
-  # def current_user; end
-
-  # This method MAY be present in your controller. If so, it should
-  # return a string - return value will be attached to web_request events.
-  #
-  # def current_namespace; end
-end
-```
-
-##### Models
-
-All models in your app will automatically send callbacks if their tables are
-listed in `analytics.yml`. This is a change from versions < v1.4 where it was
-necessary to manually mix in `DfE::Analytics::Entities`. This did not support
-sending events on `has_and_belongs_to_many` tables.
-
-While you’re setting things up consider setting the config options `async:
-false` and `log_only: true` to take ActiveJob and BigQuery (respectively) out
-of the loop.
-
-### 9. Web request event user identifier
-
-#### User identifier
-
-All web request events will add a `user_id` to the event data sent to BigQuery. The `user_id` will only be populated if the controller defines a `current_user` method and it responds to `id`, otherwise the `user_id` will be `nil`.
-
-#### Custom User Identifier
-
-If a field other than `id` is required for the user identifier, then a custom user identifier proc can be defined in `config/initializers/dfe_analytics.rb`:
-
-```ruby
-DfE::Analytics.config.user_identifier = proc { |user| user&.id }
-```
-
-#### User ID pseudonymisation
-
-The `user_id` in the web request event will not be pseudonymised by default. This can be changed by updating the configuration option in `config/initializers/dfe_analytics.rb`:
-
-```ruby
-DfE::Analytics.config.pseudonymise_web_request_user_id = false
-```
-
-Pseudonymisation of `user_id` would be required if the source field in the schema is in `analytics_pii.yml` so that analysts can join the IDs together. If the `user_id` is not in `analytics_pii.yml` but is in `analytics.yml` then `user_id` pseudonymisation would *not* be required so that the IDs could still be joined together.
+For an explanation of pseudonymisation, see [ICO Guidance](https://ico.org.uk/media/about-the-ico/consultations/4019579/chapter-3-anonymisation-guidance.pdf).
 
 ### Data Pseudonymisation Algorithm
 
-Generally all PII data should be pseudonymised, including data that directly or indirect references PII, for example database IDs.
+Generally all PII data should be pseudonymised, including data that directly or
+indirectly references PII, for example database IDs.
 
-The `dfe-analytics` gem also pseudonymises such data, if it is configured to do so. If you are pseudonymising database IDs in your code (in custom events for example), then you should use the same hashing algorithm for pseudonymisation that the gem uses in order to allow joining of pseudonymised data across different database tables.
+DfE::Analytics also pseudonymises such data, if the relevant fields
+appear in `analytics_pii.yml`. If you are pseudonymising
+database IDs in your code (in custom events for example), then you should use
+the same hashing algorithm for pseudonymisation that the gem uses, in order to
+allow joining of pseudonymised data across different database tables.
 
-The following method should be used in your code for pseudonymisation:
+To ensure values are consistently pseudonymised, use the following method
+whenever manually pseudonoymising:
 
 ```ruby
 DfE::Analytics.pseudonymise(value)
 ```
 
-### Adding specs
+### User ID pseudonymisation
 
-#### Testing modes
+The `user_id` in the web request event will not be pseudonymised by default.
+This can be changed by updating the configuration option in
+`config/initializers/dfe_analytics.rb`:
 
-The `dfe-analytics` Gem comes with a testing mode which prevents real analytics from being recorded when running tests.
+```ruby
+config.pseudonymise_web_request_user_id = true
+```
+
+**DO** pseudonymise web request `user_id`s if the corresponding field in
+the database is in `analytics_pii.yml`: this means the pseudonymised ID will show up
+identically for both web requests and database updates, so analysts can join them up.
+
+**DON'T** pseudonymise web request `user_id`s if the corresponding field in the
+database is only in `analytics.yml`. This would result in the web request
+version being pseudonymised and the database version not being pseudonymised,
+which means they can't be joined up.
+
+## Testing
+
+### Testing modes
+
+The gem comes with a testing mode which prevents real analytics from being recorded when running tests.
 
 ```ruby
 require 'dfe/analytics/testing'
@@ -286,12 +334,12 @@ DfE::Analytics::Testing.fake!
 DfE::Analytics::Testing.webmock!
 ```
 
-- `fake!` is the default mode, and this effectively stubs the BigQuery client meaning no requests are made.
-- `webmock!` makes the library act as normal, allowing you to write tests against mocked requests.
+- `fake!` is the default mode, and this stubs the BigQuery client meaning no requests are made
+- `webmock!` makes the library act as normal, allowing you to write tests against mocked requests
 
-#### Matchers
+### RSpec matcher
 
-The Gem also comes with an RSpec matcher that can be used to ensure that an integration exists in controllers and models. The RSpec matcher file needs to be required into specs, and provides two different styles of matchers to use:
+The Gem also comes with an RSpec matcher that can be used to ensure that an integration exists in controllers and models. The RSpec matcher file needs to be required into specs, and provides two different styles of matcher to use:
 
 ```ruby
 require 'dfe/analytics/rspec/matchers'
@@ -324,24 +372,6 @@ The different types of events that DfE Analytics send are:
 - `update_entity` - sent after an object is updated using model callbacks
 - `delete_entity` - sent after an object is deleted using model callbacks
 - `import_entity` - sent for each object imported using the DfE Analytics import rake tasks
-
-## Importing existing data
-
-Run
-
-```bash
-bundle exec rails dfe:analytics:import_all_entities
-```
-
-To reimport just one entity, run:
-
-```bash
-bundle exec rails dfe:analytics:import_entity[entity_name]
-```
-
-**IMPORTANT**:
-
-Do not run an import when there is a lot of traffic on the website. Consider running the import out of hours or when the traffic is minimal.
 
 ## Event debugging
 
@@ -409,11 +439,13 @@ The fields do match successfully, but note the the first comparison matches `id`
 
 ## Page Caching
 
-This section is applicable if your App uses standard Rails rack middleware page caching. For other forms of page caching please read the IMPORTANT note below. If your App does not cache any pages, you can skip this section.
+This section is applicable if your app uses standard Rails rack middleware page
+caching. For other forms of page caching please read the IMPORTANT note below.
+If your App does not cache any pages, you can skip this section.
 
-Any page visit in the App will result in a web request event being sent to BigQuery. The event is automatically sent by the Controller after action callback `trigger_request_event`. However, cached pages that are served from rack middleware return early and therefore do not execute any actions in the controller. This means that any cached page visits handled by rack middleware do NOT result in a web request event being sent to BigQuery.
+Any page visit in the app will result in a web request event being sent to BigQuery. The event is automatically sent by a Controller after action callback included along with `DfE::Analytics::Requests`. However, cached pages that are served from rack middleware return early and therefore do not execute any actions in the controller. This means that any cached page visits handled by rack middleware do NOT result in a web request event being sent to BigQuery.
 
-To overcome this issue the `dfe-analytics` gem allows the sending of web request events from rack middleware, before the cached page is served, through configuration.
+To overcome this issue the gem allows the sending of web request events from rack middleware, before the cached page is served.
 
 If a page is cached by rack middleware and served by `ActionDispatch::Static`, then a custom `rack_page_cached` proc must be defined in `config/initializers/dfe_analytics.rb`, that returns a boolean indicating whether the page is cached by rack.
 
