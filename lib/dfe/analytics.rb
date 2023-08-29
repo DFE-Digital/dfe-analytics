@@ -98,10 +98,11 @@ module DfE
 
       entities_for_analytics.each do |entity|
         models_for_entity(entity).each do |m|
-          if m.include?(DfE::Analytics::Entities) && !@shown_deprecation_warning
+          if m.include?(DfE::Analytics::Entities)
             Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{m.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
           else
             m.include(DfE::Analytics::Entities)
+            break
           end
         end
       end
