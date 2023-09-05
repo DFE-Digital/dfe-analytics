@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
-RSpec.describe DfE::Analytics::Initialise do
+RSpec.describe DfE::Analytics::InitialisationEvents do
   before do
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
+    described_class.trigger_initialisation_events
   end
 
-  describe 'trigger_initialise_event ' do
+  describe 'trigger_initialisation_events ' do
     it 'includes the expected attributes' do
-      described_class.trigger_initialise_event
-
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
           'event_type' => 'initialise_analytics',
@@ -22,10 +21,10 @@ RSpec.describe DfE::Analytics::Initialise do
     end
   end
 
-  describe '.initialise_event_sent=' do
+  describe '.initialisation_events_sent=' do
     it 'allows setting of the class variable' do
-      described_class.initialise_event_sent = true
-      expect(described_class.initialise_event_sent?).to eq(true)
+      described_class.initialisation_events_sent = true
+      expect(described_class.initialisation_events_sent?).to eq(true)
     end
   end
 end

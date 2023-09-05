@@ -85,7 +85,7 @@ RSpec.describe 'Analytics flow', type: :request do
     end
 
     before do
-      DfE::Analytics::Initialise.initialise_event_sent = initialise_event_sent
+      DfE::Analytics::InitialisationEvents.initialisation_events_sent = initialisation_events_sent
 
       perform_enqueued_jobs do
         post '/example/create'
@@ -93,7 +93,7 @@ RSpec.describe 'Analytics flow', type: :request do
     end
 
     context 'when initialise_analytics event NOT already sent' do
-      let(:initialise_event_sent) { false }
+      let(:initialisation_events_sent) { false }
 
       it 'calls the expected BigQuery APIs' do
         request_uuid = nil # we'll compare this across requests
@@ -123,7 +123,7 @@ RSpec.describe 'Analytics flow', type: :request do
     end
 
     context 'when initialise_analytics event already sent' do
-      let(:initialise_event_sent) { true }
+      let(:initialisation_events_sent) { true }
 
       it 'calls the expected BigQuery APIs' do
         request_uuid = nil # we'll compare this across requests
