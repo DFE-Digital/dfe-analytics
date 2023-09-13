@@ -14,15 +14,12 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
   before do
     allow(DfE::Analytics::EntityTableCheckJob).to receive(:perform_later)
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
-
     allow(DfE::Analytics).to receive(:allowlist).and_return({
     Candidate.table_name.to_sym => %w[id]
     })
-
     allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
     Candidate.table_name.to_sym => %w[]
     })
-
     allow(Rails.logger).to receive(:info)
   end
 
@@ -34,7 +31,6 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       table_data = Candidate.order(id: :asc)
       concatenated_table_data = table_data.map { |data| data.attributes.to_json }.join
       checksum = Digest::SHA256.hexdigest(concatenated_table_data)
-
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
@@ -60,11 +56,12 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       expect(enqueued_job[:at].to_i).to be_within(2).of(expected_time)
     end
 
-    it 'logs the entity name and row count ' do
+    it 'logs the entity name and row count' do
       Candidate.create(id: 123)
       described_class.new.perform
 
-      expect(Rails.logger).to have_received(:info).with("Processing data for #{Candidate.table_name} with row count #{Candidate.count}")
+      expect(Rails.logger).to have_received(:info)
+      .with("Processing data for #{Candidate.table_name} with row count #{Candidate.count}")
     end
   end
 end
