@@ -13,10 +13,10 @@ module DfE
                                                             .with_type('entity_table_check')
                                                             .with_entity_table_name(model.table_name)
                                                             .with_data(entity_table_check_data(model))
-                                                            .as_json   
+                                                            .as_json
             DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
-            Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}") 
-          end  
+            Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}")
+          end
         end
         reschedule_job
       end
