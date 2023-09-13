@@ -36,7 +36,7 @@ module DfE
           DfE::Analytics::SendEvents.perform_now([initialise_analytics_event])
         end
 
-        # DfE::Analytics::EntityTableCheckJob.perform_later
+        DfE::Analytics::EntityTableCheckJob.perform_later
 
         @@initialisation_events_sent = true # rubocop:disable Style:ClassVars
       end

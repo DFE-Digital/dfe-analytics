@@ -3,6 +3,7 @@
 RSpec.describe DfE::Analytics::InitialisationEvents do
   before do
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
+    allow(DfE::Analytics::EntityTableCheckJob).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
     described_class.trigger_initialisation_events
   end
@@ -18,6 +19,10 @@ RSpec.describe DfE::Analytics::InitialisationEvents do
               'value' => ['{"pseudonymise_web_request_user_id":false}'] }
           ]
         })])
+    end
+
+    it 'calls the entity_table_check_job' do
+      expect(DfE::Analytics::EntityTableCheckJob).to have_received(:perform_later)
     end
   end
 
