@@ -35,7 +35,7 @@ module DfE
 
       def checksum(model)
         table_data = model.order(id: :asc)
-        concatenated_table_data = table_data.map { |data| data.attributes.to_json }.join
+        concatenated_table_data = table_data.pluck(:id).join
         Digest::SHA256.hexdigest(concatenated_table_data)
       end
     end

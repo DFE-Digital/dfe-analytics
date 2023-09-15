@@ -29,7 +29,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     it 'sends the entity_table_check event to BigQuery' do
       [123, 124, 125].map { |id| Candidate.create(id: id) }
       table_data = Candidate.order(id: :asc)
-      concatenated_table_data = table_data.map { |data| data.attributes.to_json }.join
+      concatenated_table_data = table_data.pluck(:id).join
       checksum = Digest::SHA256.hexdigest(concatenated_table_data)
       described_class.new.perform
 
