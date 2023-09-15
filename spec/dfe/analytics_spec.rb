@@ -1,200 +1,187 @@
-RSpec.describe 'Analytics flow', type: :request do
-  with_model :Candidate do
-    table do |t|
-      t.string :email_address
-      t.string :first_name
-      t.string :last_name
+# frozen_string_literal: true
+
+RSpec.describe DfE::Analytics do
+  it 'has a version number' do
+    expect(DfE::Analytics::VERSION).not_to be nil
+  end
+
+  it 'supports the pseudonymise method' do
+    expect(DfE::Analytics.pseudonymise('foo_bar')).to eq('4928cae8b37b3d1113f5e01e60c967df6c2b9e826dc7d91488d23a62fec715ba')
+  end
+
+  it 'supports the anonymise method for backwards compatibility' do
+    expect(DfE::Analytics.anonymise('foo_bar')).to eq('4928cae8b37b3d1113f5e01e60c967df6c2b9e826dc7d91488d23a62fec715ba')
+  end
+
+  it 'has documentation entries for all the config options' do
+    config_options = DfE::Analytics.config.members
+
+    config_options.each do |option|
+      expect(I18n.t("dfe.analytics.config.#{option}.description")).not_to match(/translation missing/)
+      expect(I18n.t("dfe.analytics.config.#{option}.default")).not_to match(/translation missing/)
     end
   end
 
-  before do
-    controller = Class.new(ApplicationController) do
-      include DfE::Analytics::Requests
+  describe 'when no database connection is available' do
+    it 'recovers and logs' do
+      allow(ActiveRecord::Base).to receive(:connection).and_raise(ActiveRecord::ConnectionNotEstablished)
+      expect(Rails.logger).to receive(:info).with(/No database connection/)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
 
-      def index
-        render plain: 'Index page'
-      end
+  describe 'when migrations are pending' do
+    it 'recovers and logs' do
+      allow(DfE::Analytics::Fields).to receive(:check!).and_raise(ActiveRecord::PendingMigrationError)
 
-      def create
-        Candidate.create(
-          email_address: 'a@b.com',
-          first_name: 'Mr',
-          last_name: 'Knox'
+      expect(Rails.logger).to receive(:info).with(/Database requires migration/)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
+
+  describe 'when ActiveRecord is not loaded' do
+    it 'recovers and logs' do
+      hide_const('ActiveRecord')
+
+      expect(Rails.logger).to receive(:info).with(/ActiveRecord not loaded/)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
+
+  describe 'field checks on initialization' do
+    # field validity is computed from allowlist, blocklist and database. See
+    # Analytics::Fields for more details
+
+    with_model :Candidate do
+      table
+    end
+
+    context 'when the field lists are valid' do
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return(
+          Candidate.table_name.to_sym => ['id']
         )
+      end
 
-        render plain: ''
+      it 'raises no error' do
+        expect { DfE::Analytics.initialize! }.not_to raise_error
       end
     end
 
-    stub_const('TestController', controller)
+    context 'when a field list is invalid' do
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return({ invalid: [:fields] })
+      end
 
-    allow(DfE::Analytics).to receive(:enabled?).and_return(true)
-
-    allow(DfE::Analytics).to receive(:allowlist).and_return({
-      Candidate.table_name.to_sym => %w[id email_address]
-    })
-
-    # autogenerate a compliant blocklist
-    allow(DfE::Analytics).to receive(:blocklist).and_return(DfE::Analytics::Fields.generate_blocklist)
-
-    DfE::Analytics.initialize!
-
-    Rails.application.routes.draw do
-      post '/example/create' => 'test#create'
-      get '/example/' => 'test#index'
+      it 'raises an error' do
+        expect { DfE::Analytics.initialize! }.to raise_error(DfE::Analytics::ConfigurationError)
+      end
     end
   end
 
-  around do |ex|
-    DfE::Analytics::Testing.webmock! do
-      ex.run
+  describe 'auto-inclusion of model callbacks' do
+    context 'when a model has not included DfE::Analytics::Entities' do
+      with_model :Candidate do
+        table
+      end
+
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return(
+          Candidate.table_name.to_sym => ['id']
+        )
+      end
+
+      it 'includes it' do
+        expect(Candidate.include?(DfE::Analytics::Entities)).to be false
+
+        DfE::Analytics.initialize!
+
+        expect(Candidate.include?(DfE::Analytics::Entities)).to be true
+      end
+    end
+
+    context 'when models have already included DfE::Analytics::Entities' do
+      with_model :Candidate do
+        table
+
+        model do
+          include DfE::Analytics::Entities
+        end
+      end
+
+      with_model :School do
+        table
+
+        model do
+          include DfE::Analytics::Entities
+        end
+      end
+
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return(
+          Candidate.table_name.to_sym => ['id'],
+          School.table_name.to_sym => ['id']
+        )
+      end
+
+      it 'logs deprecation warnings' do
+        allow(Rails.logger).to receive(:info).and_call_original
+
+        DfE::Analytics.initialize!
+
+        expect(Rails.logger).to have_received(:info).twice.with(/DEPRECATION WARNING/)
+      end
     end
   end
 
-  after do
-    Rails.application.routes_reloader.reload!
+  it 'raises a configuration error on missing config values' do
+    with_analytics_config(bigquery_project_id: nil) do
+      DfE::Analytics::Testing.webmock! do
+        expect { DfE::Analytics.events_client }.to raise_error(DfE::Analytics::ConfigurationError)
+      end
+    end
   end
 
-  describe 'end-to-end API calls' do
-    let!(:initialise_event_post) { stub_analytics_event_submission.with(body: /initialise_analytics/) }
-    let!(:request_event_post) { stub_analytics_event_submission.with(body: /request_path/) }
-    let!(:model_event_post) { stub_analytics_event_submission.with(body: /create_entity/) }
-    # let!(:entity_table_check_event_post) { stub_analytics_event_submission.with(body: /entity_table_check/) }
+  describe '#entities_for_analytics' do
+    with_model :Candidate do
+      table
 
-    let(:initialise_event) do
-      {
-        environment: 'test',
-        event_type: 'initialise_analytics'
-      }
+      model do
+        include DfE::Analytics::Entities
+      end
     end
-
-    let(:request_event) do
-      {
-        environment: 'test',
-        event_type: 'web_request',
-        request_method: 'POST',
-        request_path: '/example/create'
-      }
-    end
-
-    let(:model_event) do
-      {
-        environment: 'test',
-        event_type: 'create_entity',
-        entity_table_name: Candidate.table_name
-      }
-    end
-
-    # let(:entity_table_check_event) do
-    #   {
-    #     environment: 'test',
-    #     event_type: 'entity_table_check',
-    #     entity_table_name: Candidate.table_name
-    #   }
-    # end
 
     before do
-      DfE::Analytics::InitialisationEvents.initialisation_events_sent = initialisation_events_sent
-
-      perform_enqueued_jobs do
-        post '/example/create'
-      end
+      allow(DfE::Analytics).to receive(:allowlist).and_return({
+        Candidate.table_name.to_sym => %i[id]
+      })
     end
 
-    context 'when initialise_analytics event NOT already sent' do
-      let(:initialisation_events_sent) { false }
-
-      it 'calls the expected BigQuery APIs' do
-        request_uuid = nil # we'll compare this across requests
-
-        expect(initialise_event_post.with do |req|
-          body = JSON.parse(req.body)
-          payload = body['rows'].first['json']
-          expect(payload.except('occurred_at')).to match(a_hash_including(initialise_event.stringify_keys))
-        end).to have_been_made
-
-        # expect(entity_table_check_event_post.with do |req|
-        #   body = JSON.parse(req.body)
-        #   payload = body['rows'].first['json']
-        #   expect(payload.except('occurred_at')).to match(a_hash_including(entity_table_check_event.stringify_keys))
-        # end).to have_been_made
-
-        expect(request_event_post.with do |req|
-          body = JSON.parse(req.body)
-          payload = body['rows'].first['json']
-          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(request_event.stringify_keys))
-
-          request_uuid = payload['request_uuid']
-        end).to have_been_made
-
-        expect(model_event_post.with do |req|
-          body = JSON.parse(req.body)
-          payload = body['rows'].first['json']
-          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(model_event.stringify_keys))
-
-          expect(payload['request_uuid']).to eq(request_uuid)
-        end).to have_been_made
-      end
-    end
-
-    context 'when initialise_analytics event already sent' do
-      let(:initialisation_events_sent) { true }
-
-      it 'calls the expected BigQuery APIs' do
-        request_uuid = nil # we'll compare this across requests
-
-        expect(initialise_event_post).to_not have_been_made
-
-        # expect(entity_table_check_event_post).to_not have_been_made
-
-        expect(request_event_post.with do |req|
-          body = JSON.parse(req.body)
-          payload = body['rows'].first['json']
-          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(request_event.stringify_keys))
-
-          request_uuid = payload['request_uuid']
-        end).to have_been_made
-
-        expect(model_event_post.with do |req|
-          body = JSON.parse(req.body)
-          payload = body['rows'].first['json']
-          expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(model_event.stringify_keys))
-
-          expect(payload['request_uuid']).to eq(request_uuid)
-        end).to have_been_made
-      end
+    it 'returns the entities in the allowlist' do
+      expect(DfE::Analytics.entities_for_analytics).to eq [Candidate.table_name.to_sym]
     end
   end
 
-  context 'when a queue is specified' do
-    it 'uses the specified queue' do
-      with_analytics_config(queue: :my_custom_queue) do
-        expect do
-          get '/example'
-        end.to have_enqueued_job.on_queue(:my_custom_queue)
+  describe '#user_identifier' do
+    let(:user_class) { Struct.new(:id) }
+    let(:id) { rand(1000) }
+    let(:user) { user_class.new(id) }
+
+    it 'calls the user_identifier configation' do
+      expect(described_class.user_identifier(user)).to eq id
+    end
+
+    context 'with a customised user_identifier proc' do
+      let(:user_class) { Struct.new(:identifier) }
+
+      before do
+        allow(described_class.config).to receive(:user_identifier)
+                                           .and_return(->(user) { user.identifier })
       end
-    end
-  end
 
-  context 'when no queue is specified' do
-    it 'uses the default queue' do
-      expect do
-        get '/example'
-      end.to have_enqueued_job.on_queue(:default)
-    end
-  end
-
-  context 'when a non-UTF-8-encoded User Agent is supplied' do
-    it 'coerces it to UTF-8' do
-      stub_analytics_event_submission.with(body: /web_request/)
-
-      string = "\xbf\xef"
-
-      expect do
-        perform_enqueued_jobs do
-          get '/example', headers: { 'User-Agent' => string }
-        end
-      end.not_to raise_error
+      it 'delegates to the provided proc' do
+        expect(described_class.user_identifier(user)).to eq id
+      end
     end
   end
 end
