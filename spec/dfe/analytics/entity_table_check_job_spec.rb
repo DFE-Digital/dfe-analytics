@@ -24,7 +24,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
   end
 
   describe '#perform' do
-    let(:wait_time) { 24.hours }
+    let(:wait_time) { Date.tomorrow.midnight }
 
     it 'sends the entity_table_check event to BigQuery' do
       [123, 124, 125].map { |id| Candidate.create(id: id) }
@@ -45,11 +45,11 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     end
 
     it 'reschedules the job to the expected wait time' do
-      expected_time = (Time.current + wait_time).to_i
+      expected_time = Date.tomorrow.midnight.to_i
       described_class.new.perform
 
       assert_enqueued_with(job: described_class) do
-        described_class.set(wait: wait_time).perform_later
+        described_class.set(wait_until: wait_time).perform_later
       end
 
       enqueued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.last

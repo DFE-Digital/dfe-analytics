@@ -4,7 +4,7 @@ module DfE
   module Analytics
     # Reschedules to run every 24hours
     class EntityTableCheckJob < AnalyticsJob
-      WAIT_TIME = 24.hours
+      WAIT_TIME = Date.tomorrow.midnight
 
       def perform
         DfE::Analytics.entities_for_analytics.each do |entity_name|
@@ -18,6 +18,7 @@ module DfE
             Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}")
           end
         end
+      ensure
         reschedule_job
       end
 
@@ -29,7 +30,7 @@ module DfE
       end
 
       def reschedule_job
-        self.class.set(wait: WAIT_TIME).perform_later
+        self.class.set(wait_until: WAIT_TIME).perform_later
       end
 
       def checksum(model)
