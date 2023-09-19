@@ -21,16 +21,19 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     Candidate.table_name.to_sym => %w[]
     })
     allow(Rails.logger).to receive(:info)
+    allow(Time).to receive(:now).and_return(time_now)
   end
 
   describe '#perform' do
     let(:wait_time) { Date.tomorrow.midnight }
+    let(:time_now) { Time.new(2023, 9, 19, 12, 0, 0) }
+    let(:time_zone) { 'London' }
+    let(:formatted_time) { time_now.in_time_zone(time_zone).iso8601(6) }
 
     it 'sends the entity_table_check event to BigQuery' do
       [123, 124, 125].map { |id| Candidate.create(id: id) }
-      table_data = Candidate.order(id: :asc)
-      concatenated_table_data = table_data.pluck(:id).join
-      checksum = Digest::SHA256.hexdigest(concatenated_table_data)
+      table_ids = Candidate.order(id: :asc).pluck(:id).join
+      checksum = Digest::SHA256.hexdigest(table_ids)
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
@@ -39,7 +42,8 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
           'event_type' => 'entity_table_check',
           'data' => [
             { 'key' => 'number_of_rows', 'value' => [Candidate.count] },
-            { 'key' => 'checksum', 'value' => [checksum] }
+            { 'key' => 'checksum', 'value' => [checksum] },
+            { 'key' => 'timestamp', 'value' => [formatted_time] }
           ]
       })])
     end

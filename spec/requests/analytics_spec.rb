@@ -37,6 +37,8 @@ RSpec.describe 'Analytics flow', type: :request do
     # autogenerate a compliant blocklist
     allow(DfE::Analytics).to receive(:blocklist).and_return(DfE::Analytics::Fields.generate_blocklist)
 
+    allow_any_instance_of(DfE::Analytics::EntityTableCheckJob).to receive(:reschedule_job)
+
     DfE::Analytics.initialize!
 
     Rails.application.routes.draw do
@@ -117,7 +119,7 @@ RSpec.describe 'Analytics flow', type: :request do
           body = JSON.parse(req.body)
           payload = body['rows'].first['json']
           expect(payload.except('occurred_at')).to match(a_hash_including(entity_table_check_event.stringify_keys))
-        end).to have_been_made.at_least_once
+        end).to have_been_made
 
         expect(request_event_post.with do |req|
           body = JSON.parse(req.body)

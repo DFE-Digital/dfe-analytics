@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require 'active_support/values/time_zone'
+
 module DfE
   module Analytics
     # Reschedules to run every 24hours
     class EntityTableCheckJob < AnalyticsJob
       WAIT_TIME = Date.tomorrow.midnight
+      TIME_ZONE = 'London'
 
       def perform
         DfE::Analytics.entities_for_analytics.each do |entity_name|
@@ -25,7 +28,8 @@ module DfE
       def entity_table_check_data(model)
         {
           number_of_rows: model.count,
-          checksum: checksum(model)
+          checksum: checksum_data(model)[:checksum],
+          timestamp: checksum_data(model)[:timestamp]
         }
       end
 
@@ -33,10 +37,12 @@ module DfE
         self.class.set(wait_until: WAIT_TIME).perform_later
       end
 
-      def checksum(model)
-        table_data = model.order(id: :asc)
-        concatenated_table_data = table_data.pluck(:id).join
-        Digest::SHA256.hexdigest(concatenated_table_data)
+      def checksum_data(model)
+        table_ids = model.order(id: :asc).pluck(:id).join
+        {
+          checksum: Digest::SHA256.hexdigest(table_ids),
+          timestamp: Time.now.in_time_zone(TIME_ZONE).iso8601(6)
+        }
       end
     end
   end
