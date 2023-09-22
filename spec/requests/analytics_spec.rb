@@ -4,6 +4,7 @@ RSpec.describe 'Analytics flow', type: :request do
       t.string :email_address
       t.string :first_name
       t.string :last_name
+      t.datetime :updated_at
     end
   end
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_support/values/time_zone'
+require 'yaml'
 
 module DfE
   module Analytics
@@ -22,14 +23,16 @@ module DfE
           end
         end
       ensure
-        reschedule_job
+        reschedule_job if allow_reschedule?
       end
 
       def entity_table_check_data(model)
+        checksum_calculated_at = Time.now.in_time_zone(TIME_ZONE).iso8601(6)
+        table_ids = model.where('updated_at < ?', Time.parse(checksum_calculated_at))
         {
-          number_of_rows: model.count,
-          checksum: checksum_data(model)[:checksum],
-          timestamp: checksum_data(model)[:timestamp]
+          row_count: table_ids.size,
+          checksum: Digest::SHA256.hexdigest(table_ids.order(updated_at: :asc).pluck(:id).join),
+          checksum_calculated_at: checksum_calculated_at
         }
       end
 
@@ -37,12 +40,9 @@ module DfE
         self.class.set(wait_until: WAIT_TIME).perform_later
       end
 
-      def checksum_data(model)
-        table_ids = model.order(id: :asc).pluck(:id).join
-        {
-          checksum: Digest::SHA256.hexdigest(table_ids),
-          timestamp: Time.now.in_time_zone(TIME_ZONE).iso8601(6)
-        }
+      def allow_reschedule?
+        config = YAML.load_file(Rails.root.join('config', 'analytics_config.yml'))
+        config['enable_entity_table_check_job']
       end
     end
   end

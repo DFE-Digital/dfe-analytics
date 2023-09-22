@@ -8,6 +8,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       t.string :email_address
       t.string :first_name
       t.string :last_name
+      t.datetime :updated_at
     end
   end
 
@@ -28,12 +29,12 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     let(:wait_time) { Date.tomorrow.midnight }
     let(:time_now) { Time.new(2023, 9, 19, 12, 0, 0) }
     let(:time_zone) { 'London' }
-    let(:formatted_time) { time_now.in_time_zone(time_zone).iso8601(6) }
+    let(:checksum_calculated_at) { time_now.in_time_zone(time_zone).iso8601(6) }
 
     it 'sends the entity_table_check event to BigQuery' do
       [123, 124, 125].map { |id| Candidate.create(id: id) }
-      table_ids = Candidate.order(id: :asc).pluck(:id).join
-      checksum = Digest::SHA256.hexdigest(table_ids)
+      table_ids = Candidate.where('updated_at < ?', Time.parse(checksum_calculated_at))
+      checksum = Digest::SHA256.hexdigest(table_ids.order(updated_at: :asc).pluck(:id).join)
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
@@ -41,9 +42,31 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
           'entity_table_name' => Candidate.table_name,
           'event_type' => 'entity_table_check',
           'data' => [
-            { 'key' => 'number_of_rows', 'value' => [Candidate.count] },
+            { 'key' => 'row_count', 'value' => [table_ids.size] },
             { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'timestamp', 'value' => [formatted_time] }
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] }
+          ]
+      })])
+    end
+
+    it 'does not send the event if updated_at is greater than checksum_calculated_at' do
+      checksum_calculated_at = Time.parse(time_now.in_time_zone(time_zone).iso8601(6))
+      Candidate.create(id: '123', updated_at: checksum_calculated_at - 2.hours)
+      Candidate.create(id: '124', updated_at: checksum_calculated_at - 5.hours)
+      Candidate.create(id: '125', updated_at: checksum_calculated_at + 5.hours)
+
+      table_ids = Candidate.where('updated_at < ?', checksum_calculated_at)
+      checksum = Digest::SHA256.hexdigest(table_ids.order(updated_at: :asc).pluck(:id).join)
+      described_class.new.perform
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+          'entity_table_name' => Candidate.table_name,
+          'event_type' => 'entity_table_check',
+          'data' => [
+            { 'key' => 'row_count', 'value' => [table_ids.size] },
+            { 'key' => 'checksum', 'value' => [checksum] },
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] }
           ]
       })])
     end
