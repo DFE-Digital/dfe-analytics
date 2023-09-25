@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module DfE
+  # require 'pry'
   module Analytics
     # DfE Analytics initialisation events
     # - Event should only be sent once, but NOT on startup as this causes errors on some services
@@ -36,8 +37,8 @@ module DfE
           DfE::Analytics::SendEvents.perform_now([initialise_analytics_event])
         end
 
-        DfE::Analytics::EntityTableCheckJob.perform_later
-
+        DfE::Analytics::EntityTableCheckJob.perform_later if DfE::Analytics.entity_table_checks_enabled?
+        
         @@initialisation_events_sent = true # rubocop:disable Style:ClassVars
       end
 
@@ -47,7 +48,8 @@ module DfE
         {
           analytics_version: DfE::Analytics::VERSION,
           config: {
-            pseudonymise_web_request_user_id: DfE::Analytics.config.pseudonymise_web_request_user_id
+            pseudonymise_web_request_user_id: DfE::Analytics.config.pseudonymise_web_request_user_id,
+            entity_table_checks_enabled: DfE::Analytics.config.entity_table_checks_enabled
           }
         }
       end

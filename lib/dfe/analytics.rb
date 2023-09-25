@@ -62,6 +62,7 @@ module DfE
         user_identifier
         pseudonymise_web_request_user_id
         rack_page_cached
+        entity_table_checks_enabled
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -84,6 +85,7 @@ module DfE
       config.user_identifier                  ||= proc { |user| user&.id }
       config.pseudonymise_web_request_user_id ||= false
       config.rack_page_cached                 ||= proc { |_rack_env| false }
+      config.entity_table_checks_enabled      ||= false
     end
 
     def self.initialize!
@@ -230,6 +232,10 @@ module DfE
 
     def self.rack_page_cached?(rack_env)
       config.rack_page_cached.call(rack_env)
+    end
+
+    def self.entity_table_checks_enabled?
+      config.entity_table_checks_enabled
     end
   end
 end

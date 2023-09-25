@@ -23,7 +23,7 @@ module DfE
           end
         end
       ensure
-        reschedule_job if allow_reschedule?
+        reschedule_job
       end
 
       def entity_table_check_data(model)
@@ -38,11 +38,6 @@ module DfE
 
       def reschedule_job
         self.class.set(wait_until: WAIT_TIME).perform_later
-      end
-
-      def allow_reschedule?
-        config = YAML.load_file(Rails.root.join('config', 'analytics_config.yml'))
-        config['enable_entity_table_check_job']
       end
     end
   end
