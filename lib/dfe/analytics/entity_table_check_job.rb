@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'active_support/values/time_zone'
-require 'yaml'
 
 module DfE
   module Analytics
@@ -28,10 +27,14 @@ module DfE
 
       def entity_table_check_data(model)
         checksum_calculated_at = Time.now.in_time_zone(TIME_ZONE).iso8601(6)
-        table_ids = model.where('updated_at < ?', Time.parse(checksum_calculated_at))
+        table_ids =
+          model
+          .where('updated_at < ?', Time.parse(checksum_calculated_at))
+          .order(updated_at: :asc)
+          .pluck(:id)
         {
-          row_count: table_ids.size,
-          checksum: Digest::SHA256.hexdigest(table_ids.order(updated_at: :asc).pluck(:id).join),
+          row_count: table_ids.count,
+          checksum: Digest::SHA256.hexdigest(table_ids.join),
           checksum_calculated_at: checksum_calculated_at
         }
       end

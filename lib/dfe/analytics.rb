@@ -61,8 +61,8 @@ module DfE
         environment
         user_identifier
         pseudonymise_web_request_user_id
-        rack_page_cached
         entity_table_checks_enabled
+        rack_page_cached
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -84,8 +84,8 @@ module DfE
       config.queue                            ||= :default
       config.user_identifier                  ||= proc { |user| user&.id }
       config.pseudonymise_web_request_user_id ||= false
-      config.rack_page_cached                 ||= proc { |_rack_env| false }
       config.entity_table_checks_enabled      ||= false
+      config.rack_page_cached                 ||= proc { |_rack_env| false }
     end
 
     def self.initialize!

@@ -33,8 +33,8 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
     it 'sends the entity_table_check event to BigQuery' do
       [123, 124, 125].map { |id| Candidate.create(id: id) }
-      table_ids = Candidate.where('updated_at < ?', Time.parse(checksum_calculated_at))
-      checksum = Digest::SHA256.hexdigest(table_ids.order(updated_at: :asc).pluck(:id).join)
+      table_ids = Candidate.where('updated_at < ?', Time.parse(checksum_calculated_at)).order(updated_at: :asc).pluck(:id)
+      checksum = Digest::SHA256.hexdigest(table_ids.join)
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
@@ -55,8 +55,8 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       Candidate.create(id: '124', updated_at: checksum_calculated_at - 5.hours)
       Candidate.create(id: '125', updated_at: checksum_calculated_at + 5.hours)
 
-      table_ids = Candidate.where('updated_at < ?', checksum_calculated_at)
-      checksum = Digest::SHA256.hexdigest(table_ids.order(updated_at: :asc).pluck(:id).join)
+      table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
+      checksum = Digest::SHA256.hexdigest(table_ids.join)
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)

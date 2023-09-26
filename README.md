@@ -322,6 +322,15 @@ database is only in `analytics.yml`. This would result in the web request
 version being pseudonymised and the database version not being pseudonymised,
 which means they can't be joined up.
 
+### Entity Table Check Job
+
+The entity table check job will run every night and sends data to verify that the latest version of an entity table in BigQuery matches the database. The job is defaulted to false but can be changed by updating the configuration option in
+`config/initializers/dfe_analytics.rb`:
+
+```ruby
+config.entity_table_checks_enabled = true
+```
+
 ## Testing
 
 ### Testing modes

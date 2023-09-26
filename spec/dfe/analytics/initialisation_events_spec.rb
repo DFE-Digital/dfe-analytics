@@ -3,7 +3,7 @@
 RSpec.describe DfE::Analytics::InitialisationEvents do
   before do
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
-    allow(DfE::Analytics).to receive(:entity_table_checks_enabled?).and_return(true)
+    allow(DfE::Analytics.config).to receive(:entity_table_checks_enabled).and_return(true)
     allow(DfE::Analytics::EntityTableCheckJob).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
     described_class.trigger_initialisation_events
@@ -17,7 +17,7 @@ RSpec.describe DfE::Analytics::InitialisationEvents do
           'data' => [
             { 'key' => 'analytics_version', 'value' => [DfE::Analytics::VERSION] },
             { 'key' => 'config',
-              'value' => ['{"pseudonymise_web_request_user_id":false,"entity_table_checks_enabled":false}'] }
+              'value' => ['{"pseudonymise_web_request_user_id":false,"entity_table_checks_enabled":true}'] }
           ]
         })])
     end
