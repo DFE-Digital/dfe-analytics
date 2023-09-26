@@ -64,7 +64,7 @@ RSpec.describe 'Analytics flow', type: :request do
     let!(:initialise_event_post) { stub_analytics_event_submission.with(body: /initialise_analytics/) }
     let!(:request_event_post) { stub_analytics_event_submission.with(body: /request_path/) }
     let!(:model_event_post) { stub_analytics_event_submission.with(body: /create_entity/) }
-    let!(:entity_table_check_event_post) { stub_analytics_event_submission.with(body: /entity_table_check/) }
+    let!(:entity_table_check_event_post) { stub_analytics_event_submission.with(body: /"event_type":"entity_table_check"/) }
 
     let(:initialise_event) do
       {
