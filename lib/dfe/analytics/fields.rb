@@ -61,7 +61,7 @@ module DfE
       def self.database
         DfE::Analytics.all_entities_in_application
           .reduce({}) do |list, entity|
-            attrs = DfE::Analytics.models_for_entity(entity).flat_map(&:attribute_names)
+            attrs = DfE::Analytics.models_for_entity(entity).flat_map(&:attribute_names).uniq
             list[entity] = attrs
 
             list
