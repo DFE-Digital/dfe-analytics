@@ -80,6 +80,12 @@ RSpec.describe DfE::Analytics::Fields do
         expect(fields).to include('id')
         expect(fields).not_to include('email_address')
       end
+
+      it 'does not include duplicate fields when the model uses single table inheritance' do
+        stub_const('Child', Class.new(Candidate))
+        fields = described_class.generate_blocklist[Candidate.table_name.to_sym]
+        expect(fields).to eq(fields.uniq)
+      end
     end
 
     describe '.surplus_fields' do
