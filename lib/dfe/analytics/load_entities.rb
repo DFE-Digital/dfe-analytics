@@ -17,7 +17,14 @@ module DfE
             next
           end
 
-          unless model.primary_key.to_sym == :id
+          primary_key = model.primary_key
+
+          if primary_key.nil?
+            Rails.logger.info("Not processing #{@entity_name} as it does not have a primary key")
+            next
+          end
+
+          unless primary_key.to_sym == :id
             Rails.logger.info("Not processing #{@entity_name} as we do not support non-id primary keys")
             next
           end
