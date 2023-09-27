@@ -196,7 +196,6 @@ Once `analytics.yml` and friends are populated, the associated models will be
 automatically instrumented to send updates to BigQuery via ActiveRecord
 callbacks.
 
-
 ### 5. Send web request events
 
 #### Web requests
@@ -251,6 +250,9 @@ where `entity_name` is the name of the table you wish to import.
 **IMPORTANT**: if you have a lot of records, this will enqueue a lot of jobs.
 Consider not running an
 import when there is a lot of traffic on your service.
+
+An entity will only be loaded if it has a primary key. For some entities, such as join tables,
+it might be necessary to add a primary key to the table and to update the relevant `analytics.yml`, prior to running the import.
 
 ## Custom events
 

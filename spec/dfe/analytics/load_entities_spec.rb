@@ -19,6 +19,16 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
+  with_model :ModelWithoutPrimaryKey do
+    table id: false do |t|
+      t.string :custom_key
+    end
+
+    model do |m|
+      m.primary_key = nil
+    end
+  end
+
   before do
     allow(DfE::Analytics).to receive(:allowlist).and_return({
       Candidate.table_name.to_sym => ['email_address']
@@ -77,5 +87,12 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
     expect { described_class.new(entity_name: ModelWithCustomPrimaryKey.table_name).run }.not_to raise_error
     expect(Rails.logger).to have_received(:info).with(/we do not support non-id primary keys/)
+  end
+
+  it 'does not fail with models whose primary key is nil' do
+    ModelWithoutPrimaryKey.create
+
+    expect { described_class.new(entity_name: ModelWithoutPrimaryKey.table_name).run }.not_to raise_error
+    expect(Rails.logger).to have_received(:info).with(/Not processing #{ModelWithoutPrimaryKey.table_name} as it does not have a primary key/)
   end
 end
