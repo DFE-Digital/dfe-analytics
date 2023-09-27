@@ -57,6 +57,10 @@ en:
           description: |
             Whether to pseudonymise the user_id field in the web request event.
           default: false
+        entity_table_checks_enabled:
+          description: |
+            Whether to run entity table checksum job.
+          default: false    
         rack_page_cached:
           description: |
             A proc which will be called with the rack env, and which should

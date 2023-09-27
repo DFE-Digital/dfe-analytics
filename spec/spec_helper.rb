@@ -38,7 +38,7 @@ RSpec.configure do |config|
 
   config.around do |example|
     ActiveRecord::Base.connection.migration_context.migrate
-    DfE::Analytics::Initialise.initialise_event_sent = true
+    DfE::Analytics::InitialisationEvents.initialisation_events_sent = true
     example.run
   end
 

@@ -12,7 +12,8 @@ require 'dfe/analytics/send_events'
 require 'dfe/analytics/load_entities'
 require 'dfe/analytics/load_entity_batch'
 require 'dfe/analytics/requests'
-require 'dfe/analytics/initialise'
+require 'dfe/analytics/entity_table_check_job'
+require 'dfe/analytics/initialisation_events'
 require 'dfe/analytics/version'
 require 'dfe/analytics/middleware/request_identity'
 require 'dfe/analytics/middleware/send_cached_page_request_event'
@@ -60,6 +61,7 @@ module DfE
         environment
         user_identifier
         pseudonymise_web_request_user_id
+        entity_table_checks_enabled
         rack_page_cached
       ]
 
@@ -82,6 +84,7 @@ module DfE
       config.queue                            ||= :default
       config.user_identifier                  ||= proc { |user| user&.id }
       config.pseudonymise_web_request_user_id ||= false
+      config.entity_table_checks_enabled      ||= false
       config.rack_page_cached                 ||= proc { |_rack_env| false }
     end
 
@@ -229,6 +232,10 @@ module DfE
 
     def self.rack_page_cached?(rack_env)
       config.rack_page_cached.call(rack_env)
+    end
+
+    def self.entity_table_checks_enabled?
+      config.entity_table_checks_enabled
     end
   end
 end
