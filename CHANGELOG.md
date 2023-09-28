@@ -1,11 +1,15 @@
 # Changelog
 
-## [v1.10.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.10.1) (2023-07-17)
+## [v1.11.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.0) (2023-09-28)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.10.0...v1.10.1)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.10.1...v1.11.0)
 
 **Merged pull requests:**
 
+- Add log message for entities without primary\_key, update README.rb [\#87](https://github.com/DFE-Digital/dfe-analytics/pull/87) ([ericaporter](https://github.com/ericaporter))
+- Prevent duplicate fields in blocklist when using STI [\#86](https://github.com/DFE-Digital/dfe-analytics/pull/86) ([ethax-ross](https://github.com/ethax-ross))
+- Nightly checksum and checksum mismatch detection assertion [\#85](https://github.com/DFE-Digital/dfe-analytics/pull/85) ([ericaporter](https://github.com/ericaporter))
+- Fix single table inheritance deprecation warning bug [\#84](https://github.com/DFE-Digital/dfe-analytics/pull/84) ([vassyz](https://github.com/vassyz))
 - Remove null values from events [\#82](https://github.com/DFE-Digital/dfe-analytics/pull/82) ([asatwal](https://github.com/asatwal))
 - Do not attempt initialization when the user is changing the database [\#81](https://github.com/DFE-Digital/dfe-analytics/pull/81) ([duncanjbrown](https://github.com/duncanjbrown))
 - Update README.md [\#80](https://github.com/DFE-Digital/dfe-analytics/pull/80) ([duncanjbrown](https://github.com/duncanjbrown))
@@ -20,6 +24,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.10.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.10.1) (2023-07-17)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.10.0...v1.10.1)
 
 ## [v1.10.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.10.0) (2023-06-29)
 
