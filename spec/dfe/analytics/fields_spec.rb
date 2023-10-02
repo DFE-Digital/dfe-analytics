@@ -5,6 +5,7 @@ RSpec.describe DfE::Analytics::Fields do
         t.string :email_address
         t.string :first_name
         t.string :last_name
+        t.integer :user_id
       end
     end
 
@@ -12,6 +13,7 @@ RSpec.describe DfE::Analytics::Fields do
     let(:existing_blocklist) { { Candidate.table_name.to_sym => ['id'] } }
 
     before do
+      Candidate.ignored_columns = %w[user_id]
       allow(DfE::Analytics).to receive(:allowlist).and_return(existing_allowlist)
       allow(DfE::Analytics).to receive(:blocklist).and_return(existing_blocklist)
     end
