@@ -22,6 +22,7 @@ require 'dfe/analytics/railtie'
 module DfE
   module Analytics
     class ConfigurationError < StandardError; end
+    require 'pry'
 
     def self.events_client
       @events_client ||= begin
@@ -196,6 +197,7 @@ module DfE
     end
 
     def self.entity_model_mapping
+      binding.pry
       # ActiveRecord::Base.descendants will collect every model in the
       # application, including internal models Rails uses to represent
       # has_and_belongs_to_many relationships without their own models. We map

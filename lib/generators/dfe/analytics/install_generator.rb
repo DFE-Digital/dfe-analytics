@@ -1,11 +1,11 @@
 module DfE
   module Analytics
-    require 'pry'
+    # require 'pry'
     class InstallGenerator < ::Rails::Generators::Base
       namespace 'dfe:analytics:install'
 
       def install
-        binding.pry
+        # binding.pry
         create_file 'config/initializers/dfe_analytics.rb', <<~FILE
           DfE::Analytics.configure do |config|
           #{indent(config_options.map(&:strip).join("\n\n").gsub(/# $/, '#').chomp.chomp, 2)}
