@@ -1,5 +1,6 @@
 module DfE
   module Analytics
+    require 'pry'
     # Tools to check and update configuration for model fields sent via
     # DfE::Analytics
     module Fields
@@ -69,6 +70,7 @@ module DfE
       end
 
       def self.generate_blocklist
+        binding.pry
         diff_between(database, allowlist)
       end
 
