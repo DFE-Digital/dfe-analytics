@@ -1,6 +1,5 @@
 module DfE
   module Analytics
-    # require 'pry'
     class InstallGenerator < ::Rails::Generators::Base
       namespace 'dfe:analytics:install'
 

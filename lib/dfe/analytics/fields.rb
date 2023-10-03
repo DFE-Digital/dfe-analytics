@@ -1,5 +1,6 @@
 module DfE
   module Analytics
+    require 'pry'
     # Tools to check and update configuration for model fields sent via
     # DfE::Analytics
     module Fields
@@ -59,6 +60,7 @@ module DfE
       end
 
       def self.database
+        binding.pry
         DfE::Analytics.all_entities_in_application
           .reduce({}) do |list, entity|
             attrs = DfE::Analytics.models_for_entity(entity).flat_map(&:attribute_names).uniq
