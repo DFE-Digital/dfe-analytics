@@ -197,7 +197,6 @@ module DfE
     end
 
     def self.entity_model_mapping
-      # binding.pry
       # ActiveRecord::Base.descendants will collect every model in the
       # application, including internal models Rails uses to represent
       # has_and_belongs_to_many relationships without their own models. We map
