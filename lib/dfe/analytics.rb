@@ -173,6 +173,7 @@ module DfE
     end
 
     def self.extract_model_attributes(model, attributes = nil)
+      binding.pry
       # if no list of attrs specified, consider all attrs belonging to this model
       attributes ||= model.attributes
       table_name = model.class.table_name
