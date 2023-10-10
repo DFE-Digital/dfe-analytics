@@ -6,13 +6,20 @@ RSpec.describe DfE::Analytics::Entities do
 
   with_model :Candidate do
     table do |t|
+      t.string :type
       t.string :email_address
       t.string :last_name
       t.string :first_name
+      t.string :user_id
+      t.boolean :degree
     end
   end
 
   before do
+    stub_const('Teacher', Class.new(Candidate))
+    stub_const('Assistant', Class.new(Candidate))
+    Teacher.ignored_columns = %w[user_id]
+    Assistant.ignored_columns = %w[user_id degree]
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
 
@@ -127,6 +134,46 @@ RSpec.describe DfE::Analytics::Entities do
           .with([a_hash_including({ 'event_type' => 'create_entity' })])
       end
     end
+
+    context 'when there is an ignored_column on the entity' do
+      let(:interesting_fields) { %w[email_address first_name user_id degree] }
+
+      it 'is included in the payload as a null value' do
+        Candidate.create(id: 123, first_name: 'Adrienne', email_address: 'adrienne@example.com', user_id: '45', degree: true)
+        Teacher.create(id: 124, first_name: 'Brianne', email_address: 'brianne@example.com', degree: true)
+        Assistant.create(id: 125, first_name: 'Taryn', email_address: 'taryn@example.com')
+
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+          .with([a_hash_including({
+                'data' => [
+                  { 'key' => 'email_address', 'value' => ['adrienne@example.com'] },
+                  { 'key' => 'first_name', 'value' => ['Adrienne'] },
+                  { 'key' => 'user_id', 'value' => ['45'] },
+                  { 'key' => 'degree', 'value' => ['true'] }
+                ]
+              })])
+
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+          .with([a_hash_including({
+                'data' => [
+                  { 'key' => 'email_address', 'value' => ['brianne@example.com'] },
+                  { 'key' => 'first_name', 'value' => ['Brianne'] },
+                  { 'key' => 'user_id', 'value' => [] },
+                  { 'key' => 'degree', 'value' => ['true'] }
+                ]
+              })])
+
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+              'data' => [
+                { 'key' => 'email_address', 'value' => ['taryn@example.com'] },
+                { 'key' => 'first_name', 'value' => ['Taryn'] },
+                { 'key' => 'user_id', 'value' => [] },
+                { 'key' => 'degree', 'value' => [] }
+              ]
+            })])
+      end
+    end
   end
 
   describe 'update_entity events' do
@@ -153,9 +200,9 @@ RSpec.describe DfE::Analytics::Entities do
         entity.update(last_name: 'GB')
 
         expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
-          .with a_hash_including({
-            'event_type' => 'update_entity'
-          })
+        .with([a_hash_including({
+          'event_type' => 'update_entity'
+        })])
       end
 
       it 'sends events that are valid according to the schema' do
@@ -179,9 +226,9 @@ RSpec.describe DfE::Analytics::Entities do
         entity.update(first_name: 'Persephone')
 
         expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
-          .with a_hash_including({
-            'event_type' => 'update_entity'
-          })
+        .with([a_hash_including({
+          'event_type' => 'update_entity'
+        })])
       end
     end
   end
