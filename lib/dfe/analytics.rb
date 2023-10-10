@@ -189,7 +189,7 @@ module DfE
 
     def self.add_ignored_columns_to_attributes(model, attributes)
       ignored_columns = model.class.ignored_columns
-      return attributes unless ignored_columns && !ignored_columns.empty?
+      return attributes if ignored_columns.blank?
 
       nil_values_hash = ignored_columns.to_h { |key| [key, nil] }
       attributes.merge!(nil_values_hash)
