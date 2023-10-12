@@ -1,11 +1,12 @@
 # Changelog
 
-## [v1.11.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.0) (2023-09-28)
+## [v1.11.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.1) (2023-10-12)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.10.1...v1.11.0)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.0...v1.11.1)
 
 **Merged pull requests:**
 
+- Add ignored\_columns to attributes [\#90](https://github.com/DFE-Digital/dfe-analytics/pull/90) ([ericaporter](https://github.com/ericaporter))
 - Add log message for entities without primary\_key, update README.rb [\#87](https://github.com/DFE-Digital/dfe-analytics/pull/87) ([ericaporter](https://github.com/ericaporter))
 - Prevent duplicate fields in blocklist when using STI [\#86](https://github.com/DFE-Digital/dfe-analytics/pull/86) ([ethax-ross](https://github.com/ethax-ross))
 - Nightly checksum and checksum mismatch detection assertion [\#85](https://github.com/DFE-Digital/dfe-analytics/pull/85) ([ericaporter](https://github.com/ericaporter))
@@ -24,6 +25,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.11.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.0) (2023-09-28)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.10.1...v1.11.0)
 
 ## [v1.10.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.10.1) (2023-07-17)
 
