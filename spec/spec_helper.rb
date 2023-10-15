@@ -61,7 +61,7 @@ RSpec.configure do |config|
 
   config.before do
     DfE::Analytics.instance_variable_set(:@entity_model_mapping, nil)
-    DfE::Analytics.instance_variable_set(:@events_client, nil)
+    # DfE::Analytics.instance_variable_set(:@events_client, nil)
   end
 
   config.expect_with :rspec do |c|
