@@ -20,7 +20,7 @@ task :prepare_release, %i[version] do |_, args|
 
   v_version = "v#{version}"
 
-  sh 'github_changelog_generator', '--no-verbose', '--future-release', v_version, '--exclude-labels', 'version-release'
+  sh 'github_changelog_generator', '--no-verbose', '--future-release', v_version
 
   sh 'git', 'commit', '-a', '-m', v_version
 
