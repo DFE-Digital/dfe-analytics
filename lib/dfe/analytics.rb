@@ -97,7 +97,7 @@ module DfE
 
       raise ActiveRecord::PendingMigrationError if ActiveRecord::Base.connection.migration_context.needs_migration?
 
-      DfE::Analytics::Fields.check!
+      # DfE::Analytics::Fields.check!
 
       entities_for_analytics.each do |entity|
         models_for_entity(entity).each do |m|
