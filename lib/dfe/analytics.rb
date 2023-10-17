@@ -89,11 +89,15 @@ module DfE
     end
 
     def self.initialize!
-      binding.pry
 
       unless defined?(ActiveRecord)
         # bail if we don't have AR at all
         Rails.logger.info('ActiveRecord not loaded; DfE Analytics not initialized')
+        return
+      end
+
+      unless File.exist?(Rails.root.join('config/initializers/dfe_analytics.rb'))
+        Rails.logger.info('Warning: DfE Analytics is not set up. Run `bundle exec rails generate dfe:analytics:install')
         return
       end
 
