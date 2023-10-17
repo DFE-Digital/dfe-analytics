@@ -89,7 +89,6 @@ module DfE
     end
 
     def self.initialize!
-
       unless defined?(ActiveRecord)
         # bail if we don't have AR at all
         Rails.logger.info('ActiveRecord not loaded; DfE Analytics not initialized')
