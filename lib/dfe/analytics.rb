@@ -95,8 +95,10 @@ module DfE
         return
       end
 
-      unless File.exist?(Rails.root.join('config/initializers/dfe_analytics.rb'))
-        Rails.logger.info('Warning: DfE Analytics is not set up. Run `bundle exec rails generate dfe:analytics:install')
+      unless Rails.env.production? || File.exist?(Rails.root.join('config/initializers/dfe_analytics.rb'))
+        message = "Warning: DfE Analytics is not set up. Run: 'bundle exec rails generate dfe:analytics:install'"
+        Rails.logger.info(message)
+        puts message
         return
       end
 
