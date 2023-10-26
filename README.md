@@ -324,11 +324,21 @@ which means they can't be joined up.
 
 ### Entity Table Check Job
 
-The entity table check job will run every night and sends data to verify that the latest version of an entity table in BigQuery matches the database. The job is defaulted to false but can be changed by updating the configuration option in
-`config/initializers/dfe_analytics.rb`:
+If you have *Sidekiq* and *Sidekiq-Cron* installed, you might want to enable the *Entity Table Check Job* to verify that the latest version of an entity table in Big Query matches the database. Ideally the job would be scheduled to run every night.
+
+To enable the Entity Table Check Job, update the configuration option in `config/initializers/dfe_analytics.rb`:
 
 ```ruby
 config.entity_table_checks_enabled = true
+```
+
+Once enabled, you can set up the Sidekiq-Cron job using the following configuration:
+
+```
+entity_table_check_job:
+  cron: "0 0 * * *", #Every day at midnight
+  class: "DfE::Analytics::EntityTableCheckJob",
+  queue: default
 ```
 
 ## Testing

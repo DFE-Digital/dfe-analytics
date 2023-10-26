@@ -36,7 +36,7 @@ module DfE
           DfE::Analytics::SendEvents.perform_now([initialise_analytics_event])
         end
 
-        DfE::Analytics::EntityTableCheckJob.perform_later if DfE::Analytics.entity_table_checks_enabled?
+        DfE::Analytics::EntityTableCheckJob.perform_async if defined?(Sidekiq) && DfE::Analytics.entity_table_checks_enabled?
 
         @@initialisation_events_sent = true # rubocop:disable Style:ClassVars
       end

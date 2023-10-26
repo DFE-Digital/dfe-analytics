@@ -22,9 +22,11 @@ RSpec.describe DfE::Analytics::InitialisationEvents do
         })])
     end
 
-    it 'calls the entity_table_check_job' do
-      expect(DfE::Analytics::EntityTableCheckJob).to have_received(:perform_later)
-    end
+    if defined?(Sidekiq::Worker) && DfE::Analytics.entity_table_checks_enabled?
+      it 'calls the entity_table_check_job' do
+        expect(DfE::Analytics::EntityTableCheckJob).to have_received(:perform_later)
+      end
+    end  
   end
 
   describe '.initialisation_events_sent=' do

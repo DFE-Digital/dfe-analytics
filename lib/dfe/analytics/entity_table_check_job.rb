@@ -4,9 +4,10 @@ require 'active_support/values/time_zone'
 
 module DfE
   module Analytics
-    # Reschedules to run every 24hours
+    # Reschedules with sidekiq_cron to run every 24hours
     class EntityTableCheckJob < AnalyticsJob
-      WAIT_TIME = Date.tomorrow.midnight
+      include Sidekiq::Worker if defined?(Sidekiq::Worker)
+
       TIME_ZONE = 'London'
 
       def perform
@@ -17,12 +18,10 @@ module DfE
                                                             .with_entity_table_name(model.table_name)
                                                             .with_data(entity_table_check_data(model))
                                                             .as_json
-            DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
+            DfE::Analytics::SendEvents.perform_async([entity_table_check_event])
             Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}")
           end
         end
-      ensure
-        reschedule_job
       end
 
       def entity_table_check_data(model)
@@ -37,10 +36,6 @@ module DfE
           checksum: Digest::SHA256.hexdigest(table_ids.join),
           checksum_calculated_at: checksum_calculated_at
         }
-      end
-
-      def reschedule_job
-        self.class.set(wait_until: WAIT_TIME).perform_later
       end
     end
   end
