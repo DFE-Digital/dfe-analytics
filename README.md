@@ -336,7 +336,7 @@ Once enabled, you can set up the Sidekiq-Cron job using the following configurat
 
 ```
 entity_table_check_job:
-  cron: "0 0 * * *", #Every day at midnight
+  cron: "0 0 * * *", #e.g. every day at midnight
   class: "DfE::Analytics::EntityTableCheckJob",
   queue: default
 ```
