@@ -26,7 +26,7 @@ RSpec.describe DfE::Analytics::InitialisationEvents do
       it 'calls the entity_table_check_job' do
         expect(DfE::Analytics::EntityTableCheckJob).to have_received(:perform_later)
       end
-    end  
+    end
   end
 
   describe '.initialisation_events_sent=' do

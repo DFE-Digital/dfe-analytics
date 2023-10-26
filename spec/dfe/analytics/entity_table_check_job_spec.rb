@@ -3,7 +3,7 @@
 RSpec.describe DfE::Analytics::EntityTableCheckJob do
   # only runs if Sidekiq is installed and entity_table_check is enabled
   if defined?(Sidekiq::Worker) && DfE::Analytics.entity_table_checks_enabled?
-  
+
     include ActiveJob::TestHelper
 
     with_model :Candidate do

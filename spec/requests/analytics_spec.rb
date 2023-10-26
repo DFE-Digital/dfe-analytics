@@ -126,7 +126,7 @@ RSpec.describe 'Analytics flow', type: :request do
             expect(payload.except('occurred_at')).to match(a_hash_including(entity_table_check_event.stringify_keys))
           end).to have_been_made
         end
-        
+
         expect(request_event_post.with do |req|
           body = JSON.parse(req.body)
           payload = body['rows'].first['json']
