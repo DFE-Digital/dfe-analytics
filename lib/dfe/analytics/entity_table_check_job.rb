@@ -5,7 +5,7 @@ require 'active_support/values/time_zone'
 module DfE
   module Analytics
     # Reschedules with sidekiq_cron to run every 24hours
-    class EntityTableCheckJob < AnalyticsJob
+    class EntityTableCheckJob
       include Sidekiq::Worker if defined?(Sidekiq::Worker)
 
       TIME_ZONE = 'London'
