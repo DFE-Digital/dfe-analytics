@@ -95,6 +95,13 @@ module DfE
         return
       end
 
+      unless Rails.env.production? || File.exist?(Rails.root.join('config/initializers/dfe_analytics.rb'))
+        message = "Warning: DfE Analytics is not set up. Run: 'bundle exec rails generate dfe:analytics:install'"
+        Rails.logger.info(message)
+        puts message
+        return
+      end
+
       raise ActiveRecord::PendingMigrationError if ActiveRecord::Base.connection.migration_context.needs_migration?
 
       DfE::Analytics::Fields.check!
