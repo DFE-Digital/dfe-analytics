@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'active_support/values/time_zone'
+require 'pry'
 
 module DfE
   module Analytics
+    binding.pry
     # Reschedules with sidekiq_cron to run every 24hours
     class EntityTableCheckJob
       include Sidekiq::Worker if defined?(Sidekiq::Worker)
