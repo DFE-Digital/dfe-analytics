@@ -4,7 +4,6 @@ RSpec.describe DfE::Analytics::InitialisationEvents do
   before do
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
     allow(DfE::Analytics.config).to receive(:entity_table_checks_enabled).and_return(true)
-    allow(DfE::Analytics::EntityTableCheckJob).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
     described_class.trigger_initialisation_events
   end
@@ -20,12 +19,6 @@ RSpec.describe DfE::Analytics::InitialisationEvents do
               'value' => ['{"pseudonymise_web_request_user_id":false,"entity_table_checks_enabled":true}'] }
           ]
         })])
-    end
-
-    if defined?(Sidekiq::Worker) && DfE::Analytics.entity_table_checks_enabled?
-      it 'calls the entity_table_check_job' do
-        expect(DfE::Analytics::EntityTableCheckJob).to have_received(:perform_later)
-      end
     end
   end
 

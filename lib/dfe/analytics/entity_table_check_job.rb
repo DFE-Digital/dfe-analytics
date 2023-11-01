@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require 'active_support/values/time_zone'
-require 'pry'
 
 module DfE
   module Analytics
-    binding.pry
     # Reschedules with sidekiq_cron to run every 24hours
     class EntityTableCheckJob
       include Sidekiq::Worker if defined?(Sidekiq::Worker)
@@ -13,6 +11,8 @@ module DfE
       TIME_ZONE = 'London'
 
       def perform
+        return unless DfE::Analytics.entity_table_checks_enabled?
+
         DfE::Analytics.entities_for_analytics.each do |entity_name|
           DfE::Analytics.models_for_entity(entity_name).each do |model|
             entity_table_check_event = DfE::Analytics::Event.new
