@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics::EntityTableCheckJob do
-  
   include ActiveJob::TestHelper
 
   with_model :Candidate do
