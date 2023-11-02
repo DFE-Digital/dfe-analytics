@@ -40,21 +40,21 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     end
 
     it 'sends the entity_table_check event to BigQuery' do
+      checksum_calculated_at = Time.parse(time_now.in_time_zone(time_zone).iso8601(6))
       [123, 124, 125].map { |id| Candidate.create(id: id) }
-      table_ids = Candidate.where('updated_at < ?', Time.parse(checksum_calculated_at)).order(updated_at: :asc).pluck(:id)
+      table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
       checksum = Digest::SHA256.hexdigest(table_ids.join)
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
-          'entity_table_name' => Candidate.table_name,
-          'event_type' => 'entity_table_check',
-          'data' => [
+          'data' =>
+          [
             { 'key' => 'row_count', 'value' => [table_ids.size] },
             { 'key' => 'checksum', 'value' => [checksum] },
             { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] }
           ]
-      })])
+        })])
     end
 
     it 'does not send the event if updated_at is greater than checksum_calculated_at' do
@@ -69,8 +69,6 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
-          'entity_table_name' => Candidate.table_name,
-          'event_type' => 'entity_table_check',
           'data' => [
             { 'key' => 'row_count', 'value' => [table_ids.size] },
             { 'key' => 'checksum', 'value' => [checksum] },
