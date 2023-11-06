@@ -324,7 +324,7 @@ which means they can't be joined up.
 
 ### Entity Table Check Job
 
-If you have *Sidekiq* and *Sidekiq-Cron* installed, you might want to enable the *Entity Table Check Job* to verify that the latest version of an entity table in Big Query matches the database. Ideally the job would be scheduled to run every night.
+If you are using a background processing tool or scheduler (such as Sidekiq, Sidekiq-Cron, Resque, Delayed Job or other alternatives), you may want to configure the Entity Table Check Job. This job is designed to ensure the latest version of an entity table in BigQuery is in sync with the database. It is advisable to schedule this job to run on a nightly basis for consistent data verification.
 
 To enable the Entity Table Check Job, update the configuration option in `config/initializers/dfe_analytics.rb`:
 
@@ -332,7 +332,7 @@ To enable the Entity Table Check Job, update the configuration option in `config
 config.entity_table_checks_enabled = true
 ```
 
-Once enabled, you can set up the Sidekiq-Cron job using the following configuration:
+Once enabled, you will need to configure the job according to the syntax and settings of your chosen background processor or scheduler. Below is an example using Sidekiq-Cron, but similar settings apply for other systems like Resque-Scheduler or Delayed Job's recurring jobs:
 
 ```
 entity_table_check_job:

@@ -14,7 +14,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
   before do
     DfE::Analytics.config.entity_table_checks_enabled = true
-    allow(DfE::Analytics::SendEvents).to receive(:perform_async)
+    allow(DfE::Analytics::SendEvents).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:allowlist).and_return({
     Candidate.table_name.to_sym => %w[id]
     })
@@ -36,7 +36,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
       described_class.new.perform
 
-      expect(DfE::Analytics::SendEvents).not_to have_received(:perform_async)
+      expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
     end
 
     it 'sends the entity_table_check event to BigQuery' do
@@ -45,7 +45,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       checksum = Digest::SHA256.hexdigest(table_ids.join)
       described_class.new.perform
 
-      expect(DfE::Analytics::SendEvents).to have_received(:perform_async)
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
           'entity_table_name' => Candidate.table_name,
           'event_type' => 'entity_table_check',
@@ -67,7 +67,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       checksum = Digest::SHA256.hexdigest(table_ids.join)
       described_class.new.perform
 
-      expect(DfE::Analytics::SendEvents).to have_received(:perform_async)
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
           'entity_table_name' => Candidate.table_name,
           'event_type' => 'entity_table_check',
