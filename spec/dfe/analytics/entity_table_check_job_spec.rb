@@ -43,7 +43,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       checksum_calculated_at = Time.parse(time_now.in_time_zone(time_zone).iso8601(6))
       [123, 124, 125].map { |id| Candidate.create(id: id) }
       table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
-      checksum = Digest::SHA256.hexdigest(table_ids.join)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
@@ -64,7 +64,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
       Candidate.create(id: '125', updated_at: checksum_calculated_at + 5.hours)
 
       table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
-      checksum = Digest::SHA256.hexdigest(table_ids.join)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
       described_class.new.perform
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
