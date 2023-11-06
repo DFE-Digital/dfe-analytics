@@ -26,20 +26,18 @@ module DfE
 
       def entity_table_check_data(model)
         adapter_name = ActiveRecord::Base.connection.adapter_name.downcase
-        return_unless_postgres_in_production?(adapter_name)
+
+        if adapter_name != 'postgresql' && Rails.env.production?
+          Rails.logger.info('DfE::Analytics: Entity checksum: Only Postgres databases supported on PRODUCTION')
+          return
+        end
+
         row_count, checksum, checksum_calculated_at = fetch_checksum_data(model, adapter_name)
         {
           row_count: row_count,
           checksum: checksum,
           checksum_calculated_at: checksum_calculated_at
         }
-      end
-
-      def return_unless_postgres_in_production?(adapter_name)
-        if !(adapter_name == 'postgresql') && Rails.env.production?
-          Rails.logger.info('DfE::Analytics: Entity checksum: Only Postgres databases supported on PRODUCTION')
-          return
-        end
       end
 
       def fetch_checksum_data(model, adapter_name)
