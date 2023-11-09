@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'active_support/values/time_zone'
-require 'pry'
 
 module DfE
   module Analytics
@@ -65,15 +64,16 @@ module DfE
       end
 
       def fetch_postgresql_checksum_data(model, checksum_calculated_at)
+        sanitized_table_name = ActiveRecord::Base.connection.quote_table_name(model.table_name)
         checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
         checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
             MD5(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.UPDATED_AT )) as checksum
           FROM (
-            SELECT #{model.table_name}.id::TEXT as ID,
-                   #{model.table_name}.updated_at as UPDATED_AT
-            FROM #{model.table_name}
-            WHERE #{model.table_name}.updated_at < #{checksum_calculated_at_sanitized}
+            SELECT #{sanitized_table_name}.id::TEXT as ID,
+                   #{sanitized_table_name}.updated_at as UPDATED_AT
+            FROM #{sanitized_table_name}
+            WHERE #{sanitized_table_name}.updated_at < #{checksum_calculated_at_sanitized}
           ) CHECKSUM_TABLE
         SQL
 
