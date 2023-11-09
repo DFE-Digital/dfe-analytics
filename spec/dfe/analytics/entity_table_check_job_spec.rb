@@ -29,7 +29,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     let(:wait_time) { Date.tomorrow.midnight }
     let(:time_now) { Time.new(2023, 9, 19, 12, 0, 0) }
     let(:time_zone) { 'London' }
-    let(:checksum_calculated_at) { time_now.in_time_zone(time_zone).iso8601(6) }
+    let(:checksum_calculated_at) { ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone('London') }
 
     it 'does not run if entity table check is disabled' do
       DfE::Analytics.config.entity_table_checks_enabled = false
@@ -40,7 +40,6 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     end
 
     it 'sends the entity_table_check event to BigQuery' do
-      checksum_calculated_at = Time.parse(time_now.in_time_zone(time_zone).iso8601(6))
       [123, 124, 125].map { |id| Candidate.create(id: id) }
       table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
@@ -58,7 +57,6 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     end
 
     it 'does not send the event if updated_at is greater than checksum_calculated_at' do
-      checksum_calculated_at = Time.parse(time_now.in_time_zone(time_zone).iso8601(6))
       Candidate.create(id: '123', updated_at: checksum_calculated_at - 2.hours)
       Candidate.create(id: '124', updated_at: checksum_calculated_at - 5.hours)
       Candidate.create(id: '125', updated_at: checksum_calculated_at + 5.hours)
