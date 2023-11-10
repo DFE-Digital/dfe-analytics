@@ -35,11 +35,11 @@ module DfE
         checksum_calculated_at = fetch_current_timestamp_in_time_zone
 
         row_count, checksum = fetch_checksum_data(model, adapter_name, checksum_calculated_at)
-        {
-          row_count: row_count,
-          checksum: checksum,
-          checksum_calculated_at: checksum_calculated_at
-        }
+          { 
+            row_count: row_count, 
+            checksum: checksum, 
+            checksum_calculated_at: checksum_calculated_at 
+          }
       end
 
       def supported_adapter_and_environment?(adapter_name)
@@ -52,7 +52,7 @@ module DfE
 
       def fetch_current_timestamp_in_time_zone
         result = ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp')
-        result.first['current_timestamp'].in_time_zone(TIME_ZONE)
+        result.first['current_timestamp'].in_time_zone(TIME_ZONE).iso8601(6)
       end
 
       def fetch_checksum_data(model, adapter_name, checksum_calculated_at)
@@ -68,7 +68,7 @@ module DfE
         checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
         checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
-            MD5(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.UPDATED_AT )) as checksum
+            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.UPDATED_AT), '')) as checksum
           FROM (
             SELECT #{sanitized_table_name}.id::TEXT as ID,
                    #{sanitized_table_name}.updated_at as UPDATED_AT
