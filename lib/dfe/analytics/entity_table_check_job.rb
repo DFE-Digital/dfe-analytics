@@ -35,11 +35,11 @@ module DfE
         checksum_calculated_at = fetch_current_timestamp_in_time_zone
 
         row_count, checksum = fetch_checksum_data(model, adapter_name, checksum_calculated_at)
-          { 
-            row_count: row_count, 
-            checksum: checksum, 
-            checksum_calculated_at: checksum_calculated_at 
-          }
+        {
+          row_count: row_count,
+          checksum: checksum,
+          checksum_calculated_at: checksum_calculated_at
+        }
       end
 
       def supported_adapter_and_environment?(adapter_name)
@@ -68,7 +68,7 @@ module DfE
         checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
         checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
-            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.UPDATED_AT), '')) as checksum
+            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.UPDATED_AT ASC), '')) as checksum
           FROM (
             SELECT #{sanitized_table_name}.id::TEXT as ID,
                    #{sanitized_table_name}.updated_at as UPDATED_AT
