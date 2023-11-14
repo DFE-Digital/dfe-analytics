@@ -13,7 +13,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
   end
 
   before do
-    allow(DfE::Analytics::EntityTableCheckJob).to receive(:perform_later)
+    DfE::Analytics.config.entity_table_checks_enabled = true
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:allowlist).and_return({
     Candidate.table_name.to_sym => %w[id]
@@ -30,6 +30,14 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     let(:time_now) { Time.new(2023, 9, 19, 12, 0, 0) }
     let(:time_zone) { 'London' }
     let(:checksum_calculated_at) { time_now.in_time_zone(time_zone).iso8601(6) }
+
+    it 'does not run if entity table check is disabled' do
+      DfE::Analytics.config.entity_table_checks_enabled = false
+
+      described_class.new.perform
+
+      expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
+    end
 
     it 'sends the entity_table_check event to BigQuery' do
       [123, 124, 125].map { |id| Candidate.create(id: id) }
@@ -69,18 +77,6 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
             { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] }
           ]
       })])
-    end
-
-    it 'reschedules the job to the expected wait time' do
-      expected_time = Date.tomorrow.midnight.to_i
-      described_class.new.perform
-
-      assert_enqueued_with(job: described_class) do
-        described_class.set(wait_until: wait_time).perform_later
-      end
-
-      enqueued_job = ActiveJob::Base.queue_adapter.enqueued_jobs.last
-      expect(enqueued_job[:at].to_i).to be_within(2).of(expected_time)
     end
 
     it 'logs the entity name and row count' do

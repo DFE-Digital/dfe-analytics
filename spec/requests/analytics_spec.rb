@@ -38,10 +38,6 @@ RSpec.describe 'Analytics flow', type: :request do
     # autogenerate a compliant blocklist
     allow(DfE::Analytics).to receive(:blocklist).and_return(DfE::Analytics::Fields.generate_blocklist)
 
-    allow(DfE::Analytics.config).to receive(:entity_table_checks_enabled).and_return(true)
-
-    allow_any_instance_of(DfE::Analytics::EntityTableCheckJob).to receive(:reschedule_job)
-
     DfE::Analytics.initialize!
 
     Rails.application.routes.draw do
@@ -64,7 +60,6 @@ RSpec.describe 'Analytics flow', type: :request do
     let!(:initialise_event_post) { stub_analytics_event_submission.with(body: /initialise_analytics/) }
     let!(:request_event_post) { stub_analytics_event_submission.with(body: /request_path/) }
     let!(:model_event_post) { stub_analytics_event_submission.with(body: /create_entity/) }
-    let!(:entity_table_check_event_post) { stub_analytics_event_submission.with(body: /"event_type":"entity_table_check"/) }
 
     let(:initialise_event) do
       {
@@ -90,14 +85,6 @@ RSpec.describe 'Analytics flow', type: :request do
       }
     end
 
-    let(:entity_table_check_event) do
-      {
-        environment: 'test',
-        event_type: 'entity_table_check',
-        entity_table_name: Candidate.table_name
-      }
-    end
-
     before do
       DfE::Analytics::InitialisationEvents.initialisation_events_sent = initialisation_events_sent
 
@@ -116,12 +103,6 @@ RSpec.describe 'Analytics flow', type: :request do
           body = JSON.parse(req.body)
           payload = body['rows'].first['json']
           expect(payload.except('occurred_at')).to match(a_hash_including(initialise_event.stringify_keys))
-        end).to have_been_made
-
-        expect(entity_table_check_event_post.with do |req|
-          body = JSON.parse(req.body)
-          payload = body['rows'].first['json']
-          expect(payload.except('occurred_at')).to match(a_hash_including(entity_table_check_event.stringify_keys))
         end).to have_been_made
 
         expect(request_event_post.with do |req|
@@ -149,8 +130,6 @@ RSpec.describe 'Analytics flow', type: :request do
         request_uuid = nil # we'll compare this across requests
 
         expect(initialise_event_post).to_not have_been_made
-
-        expect(entity_table_check_event_post).to_not have_been_made
 
         expect(request_event_post.with do |req|
           body = JSON.parse(req.body)

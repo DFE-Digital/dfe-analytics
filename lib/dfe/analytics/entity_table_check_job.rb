@@ -4,12 +4,13 @@ require 'active_support/values/time_zone'
 
 module DfE
   module Analytics
-    # Reschedules to run every 24hours
+    # To ensure BigQuery is in sync with the database
     class EntityTableCheckJob < AnalyticsJob
-      WAIT_TIME = Date.tomorrow.midnight
       TIME_ZONE = 'London'
 
       def perform
+        return unless DfE::Analytics.entity_table_checks_enabled?
+
         DfE::Analytics.entities_for_analytics.each do |entity_name|
           DfE::Analytics.models_for_entity(entity_name).each do |model|
             entity_table_check_event = DfE::Analytics::Event.new
@@ -21,8 +22,6 @@ module DfE
             Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}")
           end
         end
-      ensure
-        reschedule_job
       end
 
       def entity_table_check_data(model)
@@ -37,10 +36,6 @@ module DfE
           checksum: Digest::SHA256.hexdigest(table_ids.join),
           checksum_calculated_at: checksum_calculated_at
         }
-      end
-
-      def reschedule_job
-        self.class.set(wait_until: WAIT_TIME).perform_later
       end
     end
   end
