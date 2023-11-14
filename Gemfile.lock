@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dfe-analytics (1.11.1)
+    dfe-analytics (1.11.2)
       google-cloud-bigquery (~> 1.38)
       request_store_rails (~> 2)
 
@@ -139,7 +139,7 @@ GEM
       rake (>= 10.0)
     globalid (1.1.0)
       activesupport (>= 5.0)
-    google-apis-bigquery_v2 (0.59.0)
+    google-apis-bigquery_v2 (0.60.0)
       google-apis-core (>= 0.11.0, < 2.a)
     google-apis-core (0.11.1)
       addressable (~> 2.5, >= 2.5.1)
