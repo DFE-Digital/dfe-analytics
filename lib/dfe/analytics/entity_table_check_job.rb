@@ -12,15 +12,15 @@ module DfE
         return unless DfE::Analytics.entity_table_checks_enabled?
 
         DfE::Analytics.entities_for_analytics.each do |entity_name|
-          DfE::Analytics.models_for_entity(entity_name).each do |model|
-            entity_table_check_event = build_event_for(model)
-            DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
-            Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}")
-          end
+          entity_table_check_event = build_event_for(entity_name)
+          DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
         end
       end
 
-      def build_event_for(model)
+      def build_event_for(entity_name)
+        model = DfE::Analytics.models_for_entity(entity_name).last
+        Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}") 
+
         DfE::Analytics::Event.new
           .with_type('entity_table_check')
           .with_entity_table_name(model.table_name)
