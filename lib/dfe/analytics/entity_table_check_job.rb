@@ -19,7 +19,7 @@ module DfE
 
       def build_event_for(entity_name)
         model = DfE::Analytics.models_for_entity(entity_name).last
-        Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}") 
+        Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}")
 
         DfE::Analytics::Event.new
           .with_type('entity_table_check')
