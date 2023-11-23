@@ -7,6 +7,7 @@ module DfE
     # To ensure BigQuery is in sync with the database
     class EntityTableCheckJob < AnalyticsJob
       TIME_ZONE = 'London'
+      require 'pry'
 
       def perform
         return unless DfE::Analytics.entity_table_checks_enabled?
@@ -14,13 +15,13 @@ module DfE
         DfE::Analytics.entities_for_analytics.each do |entity_name|
           entity_table_check_event = build_event_for(entity_name)
           DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
+          log_entity_processing(entity_table_check_event, entity_name)
         end
       end
 
       def build_event_for(entity_name)
         model = DfE::Analytics.models_for_entity(entity_name).last
-        Rails.logger.info("Processing data for #{model.table_name} with row count #{model.count}")
-
+        
         DfE::Analytics::Event.new
           .with_type('entity_table_check')
           .with_entity_table_name(model.table_name)
@@ -88,6 +89,11 @@ module DfE
           .order(updated_at: :asc)
           .pluck(:id)
         [table_ids.count, Digest::MD5.hexdigest(table_ids.join)]
+      end
+
+      def log_entity_processing(entity_table_check_event, entity_name)
+        row_count = entity_table_check_event["data"].find { |item| item["key"] == "row_count" }["value"].first
+        Rails.logger.info("DfE::Analytics Processing entity: #{entity_name}: Row count: #{row_count}")
       end
     end
   end
