@@ -21,7 +21,7 @@ module DfE
 
       def build_event_for(entity_name)
         model = DfE::Analytics.models_for_entity(entity_name).last
-        
+
         DfE::Analytics::Event.new
           .with_type('entity_table_check')
           .with_entity_table_name(model.table_name)
@@ -92,7 +92,7 @@ module DfE
       end
 
       def log_entity_processing(entity_table_check_event, entity_name)
-        row_count = entity_table_check_event["data"].find { |item| item["key"] == "row_count" }["value"].first
+        row_count = entity_table_check_event['data'].find { |item| item['key'] == 'row_count' }['value'].first
         Rails.logger.info("DfE::Analytics Processing entity: #{entity_name}: Row count: #{row_count}")
       end
     end
