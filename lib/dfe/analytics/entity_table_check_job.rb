@@ -7,35 +7,39 @@ module DfE
     # To ensure BigQuery is in sync with the database
     class EntityTableCheckJob < AnalyticsJob
       TIME_ZONE = 'London'
-      require 'pry'
 
       def perform
         return unless DfE::Analytics.entity_table_checks_enabled?
 
-        DfE::Analytics.entities_for_analytics.each do |entity_name|
-          entity_table_check_event = build_event_for(entity_name)
+        DfE::Analytics.entities_for_analytics.each do |entity|
+          entity_table_check_event = build_event_for(entity)
           DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
-          log_entity_processing(entity_table_check_event, entity_name)
         end
       end
 
-      def build_event_for(entity_name)
-        model = DfE::Analytics.models_for_entity(entity_name).last
+      def build_event_for(entity)
+        unless DfE::Analytics.models_for_entity(entity).any?
+          Rails.logger.info("DfE::Analytics NOT Processing entity: #{entity} - No associated models")
+          return {}
+        end
+
 
         DfE::Analytics::Event.new
           .with_type('entity_table_check')
-          .with_entity_table_name(model.table_name)
-          .with_data(entity_table_check_data(model))
+          .with_entity_table_name(entity)
+          .with_data(entity_table_check_data(entity))
           .as_json
       end
 
-      def entity_table_check_data(model)
+      def entity_table_check_data(entity)
         adapter_name = ActiveRecord::Base.connection.adapter_name.downcase
         return unless supported_adapter_and_environment?(adapter_name)
 
+        model = DfE::Analytics.models_for_entity(entity).last
         checksum_calculated_at = fetch_current_timestamp_in_time_zone
 
         row_count, checksum = fetch_checksum_data(model, adapter_name, checksum_calculated_at)
+        Rails.logger.info("DfE::Analytics Processing entity: #{entity}: Row count: #{row_count}")
         {
           row_count: row_count,
           checksum: checksum,
@@ -57,6 +61,7 @@ module DfE
       end
 
       def fetch_checksum_data(model, adapter_name, checksum_calculated_at)
+        
         if adapter_name == 'postgresql'
           fetch_postgresql_checksum_data(model, checksum_calculated_at)
         else
@@ -65,7 +70,7 @@ module DfE
       end
 
       def fetch_postgresql_checksum_data(model, checksum_calculated_at)
-        sanitized_table_name = ActiveRecord::Base.connection.quote_table_name(model.table_name)
+        sanitized_table_name = ActiveRecord::Base.connection.quote_table_name(model)
         checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
         checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
@@ -89,11 +94,6 @@ module DfE
           .order(updated_at: :asc)
           .pluck(:id)
         [table_ids.count, Digest::MD5.hexdigest(table_ids.join)]
-      end
-
-      def log_entity_processing(entity_table_check_event, entity_name)
-        row_count = entity_table_check_event['data'].find { |item| item['key'] == 'row_count' }['value'].first
-        Rails.logger.info("DfE::Analytics Processing entity: #{entity_name}: Row count: #{row_count}")
       end
     end
   end

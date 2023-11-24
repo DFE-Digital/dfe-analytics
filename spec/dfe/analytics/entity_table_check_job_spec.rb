@@ -3,8 +3,6 @@
 RSpec.describe DfE::Analytics::EntityTableCheckJob do
   include ActiveJob::TestHelper
 
-  require 'pry'
-
   with_model :Candidate do
     table do |t|
       t.string :email_address
@@ -95,8 +93,8 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
     it 'logs the entity name and row count' do
       Candidate.create(id: 123)
-      entity_name = Candidate.table_name.to_sym
-      expected_message = "DfE::Analytics Processing entity: #{entity_name}: Row count: #{Candidate.count}"
+      entity = Candidate.table_name.to_sym
+      expected_message = "DfE::Analytics Processing entity: #{entity}: Row count: #{Candidate.count}"
 
       described_class.new.perform
 
