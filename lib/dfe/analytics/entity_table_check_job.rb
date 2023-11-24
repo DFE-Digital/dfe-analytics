@@ -10,17 +10,18 @@ module DfE
 
       def perform
         return unless DfE::Analytics.entity_table_checks_enabled?
+        return unless supported_adapter_and_environment?
 
         DfE::Analytics.entities_for_analytics.each do |entity|
           entity_table_check_event = build_event_for(entity)
-          DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
+          DfE::Analytics::SendEvents.perform_later([entity_table_check_event]) if entity_table_check_event.present?
         end
       end
 
       def build_event_for(entity)
         unless DfE::Analytics.models_for_entity(entity).any?
           Rails.logger.info("DfE::Analytics NOT Processing entity: #{entity} - No associated models")
-          return {}
+          return
         end
 
         DfE::Analytics::Event.new
@@ -30,14 +31,14 @@ module DfE
           .as_json
       end
 
-      def entity_table_check_data(entity)
-        adapter_name = ActiveRecord::Base.connection.adapter_name.downcase
-        return unless supported_adapter_and_environment?(adapter_name)
+      def adapter_name
+        @adapter_name ||= ActiveRecord::Base.connection.adapter_name.downcase
+      end
 
-        model = DfE::Analytics.models_for_entity(entity).last
+      def entity_table_check_data(entity)
         checksum_calculated_at = fetch_current_timestamp_in_time_zone
 
-        row_count, checksum = fetch_checksum_data(model, adapter_name, checksum_calculated_at)
+        row_count, checksum = fetch_checksum_data(entity, checksum_calculated_at)
         Rails.logger.info("DfE::Analytics Processing entity: #{entity}: Row count: #{row_count}")
         {
           row_count: row_count,
@@ -46,12 +47,12 @@ module DfE
         }
       end
 
-      def supported_adapter_and_environment?(adapter_name)
-        if adapter_name != 'postgresql' && Rails.env.production?
-          Rails.logger.info('DfE::Analytics: Entity checksum: Only Postgres databases supported on PRODUCTION')
-          return false
-        end
-        true
+      def supported_adapter_and_environment?
+        return true if adapter_name == 'postgresql' || !Rails.env.production?
+
+        Rails.logger.info('DfE::Analytics: Entity checksum: Only Postgres databases supported on PRODUCTION')
+
+        false
       end
 
       def fetch_current_timestamp_in_time_zone
@@ -59,25 +60,26 @@ module DfE
         result.first['current_timestamp'].in_time_zone(TIME_ZONE).iso8601(6)
       end
 
-      def fetch_checksum_data(model, adapter_name, checksum_calculated_at)
+      def fetch_checksum_data(entity, checksum_calculated_at)
+        table_name_sanitized = ActiveRecord::Base.connection.quote_table_name(entity)
+        checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
+
         if adapter_name == 'postgresql'
-          fetch_postgresql_checksum_data(model, checksum_calculated_at)
+          fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
         else
-          fetch_generic_checksum_data(model, checksum_calculated_at)
+          fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
         end
       end
 
-      def fetch_postgresql_checksum_data(model, checksum_calculated_at)
-        sanitized_table_name = ActiveRecord::Base.connection.quote_table_name(model)
-        checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
+      def fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
         checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
             MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.UPDATED_AT ASC), '')) as checksum
           FROM (
-            SELECT #{sanitized_table_name}.id::TEXT as ID,
-                   #{sanitized_table_name}.updated_at as UPDATED_AT
-            FROM #{sanitized_table_name}
-            WHERE #{sanitized_table_name}.updated_at < #{checksum_calculated_at_sanitized}
+            SELECT #{table_name_sanitized}.id::TEXT as ID,
+                   #{table_name_sanitized}.updated_at as UPDATED_AT
+            FROM #{table_name_sanitized}
+            WHERE #{table_name_sanitized}.updated_at < #{checksum_calculated_at_sanitized}
           ) CHECKSUM_TABLE
         SQL
 
@@ -85,12 +87,15 @@ module DfE
         [result['row_count'].to_i, result['checksum']]
       end
 
-      def fetch_generic_checksum_data(model, checksum_calculated_at)
-        table_ids =
-          model
-          .where('updated_at < ?', checksum_calculated_at)
-          .order(updated_at: :asc)
-          .pluck(:id)
+      def fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
+        checksum_sql_query = <<-SQL
+          SELECT #{table_name_sanitized}.ID
+          FROM #{table_name_sanitized}
+          WHERE #{table_name_sanitized}.UPDATED_AT < #{checksum_calculated_at_sanitized}
+          ORDER BY #{table_name_sanitized}.UPDATED_AT ASC
+        SQL
+
+        table_ids = ActiveRecord::Base.connection.execute(checksum_sql_query).pluck('id')
         [table_ids.count, Digest::MD5.hexdigest(table_ids.join)]
       end
     end
