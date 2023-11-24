@@ -23,7 +23,6 @@ module DfE
           return {}
         end
 
-
         DfE::Analytics::Event.new
           .with_type('entity_table_check')
           .with_entity_table_name(entity)
@@ -61,7 +60,6 @@ module DfE
       end
 
       def fetch_checksum_data(model, adapter_name, checksum_calculated_at)
-        
         if adapter_name == 'postgresql'
           fetch_postgresql_checksum_data(model, checksum_calculated_at)
         else
