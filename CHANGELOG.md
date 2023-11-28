@@ -1,11 +1,12 @@
 # Changelog
 
-## [v1.11.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.2) (2023-11-17)
+## [v1.11.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.2) (2023-11-28)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.1...v1.11.2)
 
 **Merged pull requests:**
 
+- Update entity\_check\_job to loop through entities only [\#98](https://github.com/DFE-Digital/dfe-analytics/pull/98) ([ericaporter](https://github.com/ericaporter))
 - Update lookup to SQL if postgres db [\#96](https://github.com/DFE-Digital/dfe-analytics/pull/96) ([ericaporter](https://github.com/ericaporter))
 - Update scheduling for Entity Table Check Job [\#94](https://github.com/DFE-Digital/dfe-analytics/pull/94) ([ericaporter](https://github.com/ericaporter))
 - Fix for DfE::Analytics crashing on installation [\#93](https://github.com/DFE-Digital/dfe-analytics/pull/93) ([ericaporter](https://github.com/ericaporter))
