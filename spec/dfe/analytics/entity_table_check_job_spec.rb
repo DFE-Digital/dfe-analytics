@@ -31,6 +31,9 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     let(:time_zone) { 'London' }
     let(:checksum_calculated_at) { ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone('London').iso8601(6) }
 
+    before { Timecop.freeze(checksum_calculated_at) }
+    after { Timecop.return }
+
     it 'does not run if entity table check is disabled' do
       DfE::Analytics.config.entity_table_checks_enabled = false
 
@@ -93,10 +96,11 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
     it 'logs the entity name and row count' do
       Candidate.create(id: 123)
+      expected_message = "DfE::Analytics Processing entity: #{Candidate.table_name}: Row count: #{Candidate.count}"
+
       described_class.new.perform
 
-      expect(Rails.logger).to have_received(:info)
-      .with("Processing data for #{Candidate.table_name} with row count #{Candidate.count}")
+      expect(Rails.logger).to have_received(:info).with(expected_message)
     end
   end
 end

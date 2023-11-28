@@ -6,6 +6,7 @@ ENV['RAILS_SERVE_STATIC_FILES'] = 'true'
 
 require_relative '../spec/dummy/config/environment'
 require 'debug'
+require 'timecop'
 require 'rspec/rails'
 require 'webmock/rspec'
 require 'json-schema'
