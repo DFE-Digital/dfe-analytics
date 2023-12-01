@@ -335,10 +335,10 @@ config.entity_table_checks_enabled = true
 Once enabled, you will need to configure the job according to the syntax and settings of your chosen background processor or scheduler. Below is an example using Sidekiq-Cron, but similar settings apply for other systems like Resque-Scheduler or Delayed Job's recurring jobs:
 
 ```
-entity_table_check_job:
-  cron: "0 0 * * *", #e.g. every day at midnight
-  class: "DfE::Analytics::EntityTableCheckJob",
-  queue: default
+send_entity_table_checks_to_bigquery:
+  cron: "30 0 * * *"  # Every day at 00:30.
+  class: "DfE::Analytics::EntityTableCheckJob"
+  queue: dfe_analytics
 ```
 
 ## Testing
