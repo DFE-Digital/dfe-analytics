@@ -1,11 +1,12 @@
 # Changelog
 
-## [v1.11.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.2) (2023-11-28)
+## [v1.11.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.3) (2023-12-01)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.1...v1.11.2)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.2...v1.11.3)
 
 **Merged pull requests:**
 
+- Correct docs for Sidekiq CRON and fix release tag v1.11.2 [\#100](https://github.com/DFE-Digital/dfe-analytics/pull/100) ([asatwal](https://github.com/asatwal))
 - Update entity\_check\_job to loop through entities only [\#98](https://github.com/DFE-Digital/dfe-analytics/pull/98) ([ericaporter](https://github.com/ericaporter))
 - Update lookup to SQL if postgres db [\#96](https://github.com/DFE-Digital/dfe-analytics/pull/96) ([ericaporter](https://github.com/ericaporter))
 - Update scheduling for Entity Table Check Job [\#94](https://github.com/DFE-Digital/dfe-analytics/pull/94) ([ericaporter](https://github.com/ericaporter))
@@ -29,6 +30,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.11.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.2) (2023-11-14)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.1...v1.11.2)
 
 ## [v1.11.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.1) (2023-10-12)
 
