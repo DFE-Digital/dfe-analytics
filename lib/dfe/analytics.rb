@@ -181,7 +181,6 @@ module DfE
     def self.extract_model_attributes(model, attributes = nil)
       # if no list of attrs specified, consider all attrs belonging to this model
       attributes ||= model.attributes
-      add_ignored_columns_to_attributes(model, attributes) if model.class.ignored_columns.any?
       table_name = model.class.table_name
 
       exportable_attrs = allowlist[table_name.to_sym].presence || []
@@ -192,14 +191,6 @@ module DfE
       obfuscated_attributes = attributes.slice(*exportable_pii_attrs&.map(&:to_s))
 
       allowed_attributes.deep_merge(obfuscated_attributes.transform_values { |value| pseudonymise(value) })
-    end
-
-    def self.add_ignored_columns_to_attributes(model, attributes)
-      ignored_columns = model.class.ignored_columns
-      return attributes if ignored_columns.blank?
-
-      nil_values_hash = ignored_columns.to_h { |key| [key, nil] }
-      attributes.merge!(nil_values_hash)
     end
 
     def self.anonymise(value)
