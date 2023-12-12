@@ -6,6 +6,8 @@ module DfE
   module Analytics
     # To ensure BigQuery is in sync with the database
     class EntityTableCheckJob < AnalyticsJob
+      include Sidekiq::Worker
+      
       TIME_ZONE = 'London'
 
       def perform
