@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_support/values/time_zone'
+require 'pry'
 
 module DfE
   module Analytics
@@ -65,21 +66,35 @@ module DfE
         checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
 
         if adapter_name == 'postgresql'
-          fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
+          fetch_postgresql_checksum_data(entity, table_name_sanitized, checksum_calculated_at_sanitized)
         else
-          fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
+          fetch_generic_checksum_data(entity, table_name_sanitized, checksum_calculated_at_sanitized)
         end
       end
 
-      def fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
+      def determine_order_column(entity)
+        if ActiveRecord::Base.connection.column_exists?(entity, :updated_at)
+          'UPDATED_AT'
+        elsif ActiveRecord::Base.connection.column_exists?(entity, :created_at)
+          'CREATED_AT'
+        else
+          'ID'
+        end
+      end
+
+      def fetch_postgresql_checksum_data(entity, table_name_sanitized, checksum_calculated_at_sanitized)
+        return [0, ''] unless ActiveRecord::Base.connection.column_exists?(entity, :id)
+
+        order_column = determine_order_column(entity)
+
         checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
-            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.UPDATED_AT ASC), '')) as checksum
+            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_column} ASC), '')) as checksum
           FROM (
             SELECT #{table_name_sanitized}.id::TEXT as ID,
-                   #{table_name_sanitized}.updated_at as UPDATED_AT
+                   #{table_name_sanitized}.#{order_column} as #{order_column}
             FROM #{table_name_sanitized}
-            WHERE #{table_name_sanitized}.updated_at < #{checksum_calculated_at_sanitized}
+            WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}
           ) CHECKSUM_TABLE
         SQL
 
@@ -87,12 +102,16 @@ module DfE
         [result['row_count'].to_i, result['checksum']]
       end
 
-      def fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized)
+      def fetch_generic_checksum_data(entity, table_name_sanitized, checksum_calculated_at_sanitized)
+        return [0, ''] unless ActiveRecord::Base.connection.column_exists?(entity, :id)
+
+        order_column = determine_order_column(entity)
+
         checksum_sql_query = <<-SQL
           SELECT #{table_name_sanitized}.ID
           FROM #{table_name_sanitized}
-          WHERE #{table_name_sanitized}.UPDATED_AT < #{checksum_calculated_at_sanitized}
-          ORDER BY #{table_name_sanitized}.UPDATED_AT ASC
+          WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}
+          ORDER BY #{table_name_sanitized}.#{order_column} ASC
         SQL
 
         table_ids = ActiveRecord::Base.connection.execute(checksum_sql_query).pluck('id')
