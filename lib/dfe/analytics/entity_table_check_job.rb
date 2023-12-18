@@ -13,12 +13,16 @@ module DfE
         return unless supported_adapter_and_environment?
 
         DfE::Analytics.entities_for_analytics.each do |entity|
-          entity_table_check_event = build_event_for(entity)
+          next unless id_column_exists_for_entity?(entity)
+
+          order_column = determine_order_column(entity)
+
+          entity_table_check_event = build_event_for(entity, order_column)
           DfE::Analytics::SendEvents.perform_later([entity_table_check_event]) if entity_table_check_event.present?
         end
       end
 
-      def build_event_for(entity)
+      def build_event_for(entity, order_column)
         unless DfE::Analytics.models_for_entity(entity).any?
           Rails.logger.info("DfE::Analytics NOT Processing entity: #{entity} - No associated models")
           return
@@ -27,7 +31,7 @@ module DfE
         DfE::Analytics::Event.new
           .with_type('entity_table_check')
           .with_entity_table_name(entity)
-          .with_data(entity_table_check_data(entity))
+          .with_data(entity_table_check_data(entity, order_column))
           .as_json
       end
 
@@ -35,15 +39,16 @@ module DfE
         @adapter_name ||= ActiveRecord::Base.connection.adapter_name.downcase
       end
 
-      def entity_table_check_data(entity)
+      def entity_table_check_data(entity, order_column)
         checksum_calculated_at = fetch_current_timestamp_in_time_zone
 
-        row_count, checksum = fetch_checksum_data(entity, checksum_calculated_at)
+        row_count, checksum = fetch_checksum_data(entity, checksum_calculated_at, order_column)
         Rails.logger.info("DfE::Analytics Processing entity: #{entity}: Row count: #{row_count}")
         {
           row_count: row_count,
           checksum: checksum,
-          checksum_calculated_at: checksum_calculated_at
+          checksum_calculated_at: checksum_calculated_at,
+          order_column: order_column
         }
       end
 
@@ -60,18 +65,23 @@ module DfE
         result.first['current_timestamp'].in_time_zone(TIME_ZONE).iso8601(6)
       end
 
-      def fetch_checksum_data(entity, checksum_calculated_at)
-        return [0, ''] unless ActiveRecord::Base.connection.column_exists?(entity, :id)
-
+      def fetch_checksum_data(entity, checksum_calculated_at, order_column)
         table_name_sanitized = ActiveRecord::Base.connection.quote_table_name(entity)
         checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
-        order_column = determine_order_column(entity)
 
         if adapter_name == 'postgresql'
           fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
         else
           fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
         end
+      end
+
+      def id_column_exists_for_entity?(entity)
+        return true if ActiveRecord::Base.connection.column_exists?(entity, :id)
+
+        Rails.logger.info("DfE::Analytics: Entity checksum: ID column missing in #{entity} - Skipping checks")
+
+        false
       end
 
       def determine_order_column(entity)
