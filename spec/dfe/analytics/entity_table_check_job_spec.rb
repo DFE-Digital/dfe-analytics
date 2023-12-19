@@ -30,6 +30,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     let(:time_now) { Time.new(2023, 9, 19, 12, 0, 0) }
     let(:time_zone) { 'London' }
     let(:checksum_calculated_at) { ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone('London').iso8601(6) }
+    let(:order_column) { 'UPDATED_AT' }
 
     before { Timecop.freeze(checksum_calculated_at) }
     after { Timecop.return }
@@ -54,7 +55,8 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
           [
             { 'key' => 'row_count', 'value' => [table_ids.size] },
             { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] }
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'order_column', 'value' => [order_column] }
           ]
         })])
     end
@@ -74,7 +76,8 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
           'data' => [
             { 'key' => 'row_count', 'value' => [table_ids.size] },
             { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] }
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'order_column', 'value' => [order_column] }
           ]
       })])
     end
@@ -89,7 +92,8 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
           'data' => [
             { 'key' => 'row_count', 'value' => [0] },
             { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] }
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'order_column', 'value' => [order_column] }
           ]
       })])
     end
