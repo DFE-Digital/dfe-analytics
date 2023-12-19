@@ -1,14 +1,17 @@
 # Changelog
 
-## [v1.11.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.3) (2023-12-01)
+## [v1.11.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.4) (2023-12-19)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.2...v1.11.3)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.3...v1.11.4)
 
 **Merged pull requests:**
 
+- Checksum ordered by update [\#102](https://github.com/DFE-Digital/dfe-analytics/pull/102) ([ericaporter](https://github.com/ericaporter))
 - Correct docs for Sidekiq CRON and fix release tag v1.11.2 [\#100](https://github.com/DFE-Digital/dfe-analytics/pull/100) ([asatwal](https://github.com/asatwal))
+- Remove fix for ignored columns [\#99](https://github.com/DFE-Digital/dfe-analytics/pull/99) ([ericaporter](https://github.com/ericaporter))
 - Update entity\_check\_job to loop through entities only [\#98](https://github.com/DFE-Digital/dfe-analytics/pull/98) ([ericaporter](https://github.com/ericaporter))
 - Update lookup to SQL if postgres db [\#96](https://github.com/DFE-Digital/dfe-analytics/pull/96) ([ericaporter](https://github.com/ericaporter))
+- Update deprecated exponentially\_longer method [\#95](https://github.com/DFE-Digital/dfe-analytics/pull/95) ([vassyz](https://github.com/vassyz))
 - Update scheduling for Entity Table Check Job [\#94](https://github.com/DFE-Digital/dfe-analytics/pull/94) ([ericaporter](https://github.com/ericaporter))
 - Fix for DfE::Analytics crashing on installation [\#93](https://github.com/DFE-Digital/dfe-analytics/pull/93) ([ericaporter](https://github.com/ericaporter))
 - Add ignored\_columns to attributes [\#90](https://github.com/DFE-Digital/dfe-analytics/pull/90) ([ericaporter](https://github.com/ericaporter))
@@ -30,6 +33,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.11.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.3) (2023-12-01)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.2...v1.11.3)
 
 ## [v1.11.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.2) (2023-11-14)
 
