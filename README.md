@@ -497,15 +497,16 @@ Please note that page caching is project specific and each project must carefull
 
 ## Releasing
 
-1. Checkout a release branch: `git checkout -b v${NEW_VERSION}-release`, e.g. `git checkout -b v1.3.0-release`
-2. Bump the version and generate the CHANGELOG.md. This will commit and tag changes: `rake prepare_release[minor]`
-> **NB**: Any updated dependencies will reflect in the `Gemfile.lock`. This only affects the local dev env, and only require that specs pass.
-> 	It could be nice to have tests to prove that connectivity to GCP still works after an update, but we aren't setup for that yet.
-3. (Optional) Verify committed `CHANGELOG.md` changes and alter if necessary: `git show`
-4. Push the branch: `git push origin v${NEW_VERSION}-release`, e.g. `git push origin v1.3.0-release`
-5. Cut a PR on GitHub with the label `version-release`, and wait for approval 
-6. Once the PR is approved push the tags, immediately prior to merging: `git push --tags`
-7. Merge the PR.
+1. Merge all changes to be included in the release into the main branch and run a `git pull` on your local main branch
+2. Checkout a release branch: `git checkout -b v${NEW_VERSION}-release`, e.g. `git checkout -b v1.3.0-release`
+3. Whilst on the release branch, bump the version and generate the CHANGELOG.md. This will commit and tag changes: `rake prepare_release[minor]`
+> **NB**: Any updated dependencies will reflect in the `Gemfile.lock`. This only affects the local dev env, and only require that specs pass
+>   It could be nice to have tests to prove that connectivity to GCP still works after an update, but we aren't setup for that yet
+4. Verify committed `CHANGELOG.md` changes and alter if necessary: `git show`
+5. Push the branch: `git push origin v${NEW_VERSION}-release`, e.g. `git push origin v1.3.0-release`
+6. Raise a version release PR on GitHub with the label `version-release`, and wait for approval
+7. Once the PR has been approved, and prior to merging, push the tags: `git push --tags`
+8. Merge the version release PR into main
 
 IMPORTANT:  Pushing the tags will immediately make the release available even on a unmerged branch. Therefore, push the tags to Github only when the PR is approved and immediately prior to merging the PR.
 
