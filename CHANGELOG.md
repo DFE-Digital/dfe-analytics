@@ -1,11 +1,12 @@
 # Changelog
 
-## [v1.11.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.4) (2023-12-19)
+## [v1.11.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.5) (2023-12-20)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.3...v1.11.4)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.4...v1.11.5)
 
 **Merged pull requests:**
 
+- Update deploy / release instructions [\#104](https://github.com/DFE-Digital/dfe-analytics/pull/104) ([ericaporter](https://github.com/ericaporter))
 - Checksum ordered by update [\#102](https://github.com/DFE-Digital/dfe-analytics/pull/102) ([ericaporter](https://github.com/ericaporter))
 - Correct docs for Sidekiq CRON and fix release tag v1.11.2 [\#100](https://github.com/DFE-Digital/dfe-analytics/pull/100) ([asatwal](https://github.com/asatwal))
 - Remove fix for ignored columns [\#99](https://github.com/DFE-Digital/dfe-analytics/pull/99) ([ericaporter](https://github.com/ericaporter))
@@ -33,6 +34,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.11.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.4) (2023-12-19)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.3...v1.11.4)
 
 ## [v1.11.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.3) (2023-12-01)
 
