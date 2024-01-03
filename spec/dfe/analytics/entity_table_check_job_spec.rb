@@ -16,7 +16,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     DfE::Analytics.config.entity_table_checks_enabled = true
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:allowlist).and_return({
-    Candidate.table_name.to_sym => %w[id]
+    Candidate.table_name.to_sym => %w[id updated_at]
     })
     allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
     Candidate.table_name.to_sym => %w[]
