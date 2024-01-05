@@ -13,9 +13,11 @@ module DfE
         return unless supported_adapter_and_environment?
 
         DfE::Analytics.entities_for_analytics.each do |entity|
+          columns = DfE::Analytics.allowlist[entity]
           next unless id_column_exists_for_entity?(entity)
+          next unless order_column_exposed_for_entity?(entity, columns)
 
-          order_column = determine_order_column(entity)
+          order_column = determine_order_column(entity, columns)
 
           entity_table_check_event = build_event_for(entity, order_column)
           DfE::Analytics::SendEvents.perform_later([entity_table_check_event]) if entity_table_check_event.present?
@@ -76,11 +78,7 @@ module DfE
         end
       end
 
-      def determine_order_column(entity)
-        columns = DfE::Analytics.allowlist[entity]
-
-        return unless order_column_exists_for_entity?(entity, columns)
-
+      def determine_order_column(entity, columns)
         if ActiveRecord::Base.connection.column_exists?(entity, :updated_at) && columns.include?('updated_at')
           'UPDATED_AT'
         elsif ActiveRecord::Base.connection.column_exists?(entity, :created_at) && columns.include?('created_at')
@@ -98,10 +96,10 @@ module DfE
         false
       end
 
-      def order_column_exists_for_entity?(_entity, columns)
+      def order_column_exposed_for_entity?(entity, columns)
         return true if columns.include?('updated_at') || columns.include?('created_at')
 
-        Rails.logger.info('DfE::Analytics: Entity checksum: Order columns missing in analytics.yml - Skipping checks')
+        Rails.logger.info("DfE::Analytics Processing entity: Order columns missing in analytics.yml for #{entity} - Skipping checks")
 
         false
       end
