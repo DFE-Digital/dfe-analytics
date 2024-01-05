@@ -109,7 +109,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     end
 
     it 'sends the entity_table_check event to BigQuery' do
-      [123, 124, 125].map { |id| Candidate.create(id: id) }
+      [130, 131, 132].map { |id| Candidate.create(id: id) }
       table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
       described_class.new.perform
@@ -164,7 +164,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
     end
 
     it 'logs the entity name and row count' do
-      Candidate.create(id: 123)
+      Candidate.create(id: 129)
       expected_message = "DfE::Analytics Processing entity: #{Candidate.table_name}: Row count: #{Candidate.count}"
 
       described_class.new.perform
