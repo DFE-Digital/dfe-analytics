@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/dfe/analytics/shared/checksum_logic'
+
 RSpec.describe DfE::Analytics::EntityTableCheckJob do
   include ActiveJob::TestHelper
 
