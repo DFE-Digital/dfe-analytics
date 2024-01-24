@@ -12,6 +12,7 @@ module DfE
 
         columns = DfE::Analytics.allowlist[entity_name]
         return unless order_column_exposed_for_entity?(entity_name, columns)
+
         order_column = determine_order_column(entity_name, columns)
 
         send_import_entity_table_check_event(entity_name, import_entity_id, order_column)

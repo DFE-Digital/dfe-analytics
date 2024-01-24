@@ -23,9 +23,8 @@ RSpec.describe DfE::Analytics::EntityProcessor do
     before do
       allow(DfE::Analytics::SendEvents).to receive(:perform_later)
       allow(DfE::Analytics).to receive(:allowlist).and_return({
-    Candidate.table_name.to_sym => %w[email_address updated_at],
-    Application.table_name.to_sym => %w[type created_at],
-    })
+    Candidate.table_name.to_sym => %w[email_address updated_at]
+})
     end
 
     it 'sends an import_entity_table_check event' do
@@ -35,14 +34,14 @@ RSpec.describe DfE::Analytics::EntityProcessor do
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later).once do |payload|
         schema = DfE::Analytics::EventSchema.new.as_json
         schema_validator = JSONSchemaValidator.new(schema, payload)
-  
+
         expect(schema_validator).to be_valid, schema_validator.failure_message
-  
+
         event_hash = payload.first
 
-        expect(event_hash["event_type"]).to eq('import_entity_table_check')
-        expect(event_hash["entity_table_name"]).to eq(entity_name.to_s)
-        expect(event_hash["event_tags"]).to include(import_entity_id)
+        expect(event_hash['event_type']).to eq('import_entity_table_check')
+        expect(event_hash['entity_table_name']).to eq(entity_name.to_s)
+        expect(event_hash['event_tags']).to include(import_entity_id)
       end
     end
   end
