@@ -55,7 +55,7 @@ module DfE
       end
 
       def supported_adapter_and_environment?
-        return true if adapter_name == 'postgresql' || !Rails.env.production?
+        return true if ['postgresql', 'postgis'].include?(adapter_name) || !Rails.env.production?
 
         Rails.logger.info('DfE::Analytics: Entity checksum: Only Postgres databases supported on PRODUCTION')
 
@@ -71,7 +71,7 @@ module DfE
         table_name_sanitized = ActiveRecord::Base.connection.quote_table_name(entity)
         checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
 
-        if adapter_name == 'postgresql'
+        if ['postgresql', 'postgis'].include?(adapter_name)
           fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
         else
           fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
