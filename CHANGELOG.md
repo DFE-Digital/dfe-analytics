@@ -1,11 +1,13 @@
 # Changelog
 
-## [v1.11.6](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.6) (2024-01-08)
+## [v1.11.7](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.7) (2024-01-29)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.5...v1.11.6)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.6...v1.11.7)
 
 **Merged pull requests:**
 
+- Update conditional to handle 'postgis' db [\#109](https://github.com/DFE-Digital/dfe-analytics/pull/109) ([ericaporter](https://github.com/ericaporter))
+- Release v1.11.6 [\#107](https://github.com/DFE-Digital/dfe-analytics/pull/107) ([ericaporter](https://github.com/ericaporter))
 - Ensure order by column is in analytics.yml [\#106](https://github.com/DFE-Digital/dfe-analytics/pull/106) ([ericaporter](https://github.com/ericaporter))
 - release v1.11.5 [\#105](https://github.com/DFE-Digital/dfe-analytics/pull/105) ([ericaporter](https://github.com/ericaporter))
 - Update deploy / release instructions [\#104](https://github.com/DFE-Digital/dfe-analytics/pull/104) ([ericaporter](https://github.com/ericaporter))
@@ -36,6 +38,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.11.6](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.6) (2024-01-08)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.5...v1.11.6)
 
 ## [v1.11.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.5) (2023-12-20)
 
