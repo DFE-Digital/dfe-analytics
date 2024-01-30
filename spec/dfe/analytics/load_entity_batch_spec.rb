@@ -16,21 +16,21 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
   end
 
   describe '#perform' do
-    import_entity_id = Time.now.strftime('%Y%m%d%H%M%S')
+    entity_tag = Time.now.strftime('%Y%m%d%H%M%S')
     let(:model_class) { 'Candidate' }
-    before { Timecop.freeze(import_entity_id) }
+    before { Timecop.freeze(entity_tag) }
     after { Timecop.return }
 
     it 'adds an event_tag to all events for a given import in the format YYYYMMDDHHMMSS' do
       c = Candidate.create(email_address: '12345678910')
       c2 = Candidate.create(email_address: '12345678910')
-      described_class.new.perform(model_class, [c.id, c2.id], import_entity_id)
+      described_class.new.perform(model_class, [c.id, c2.id], entity_tag)
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_now) do |events|
         events.each do |event|
           event_hash = event.instance_variable_get(:@event_hash)
           expect(event_hash[:event_type]).to eq('import_entity')
-          expect(event_hash[:event_tags]).to eq(import_entity_id)
+          expect(event_hash[:event_tags]).to eq(entity_tag)
         end
       end
     end
@@ -41,7 +41,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
         c2 = Candidate.create(email_address: '12345678910')
         stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 250)
 
-        described_class.perform_now('Candidate', [c.id, c2.id], import_entity_id)
+        described_class.perform_now('Candidate', [c.id, c2.id], entity_tag)
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_now).twice
       end
@@ -52,7 +52,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
       c2 = Candidate.create(email_address: '12345678910')
       stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 500)
 
-      described_class.perform_now('Candidate', [c.id, c2.id], import_entity_id)
+      described_class.perform_now('Candidate', [c.id, c2.id], entity_tag)
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_now).once
     end
@@ -61,7 +61,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
       # Rails 6.1rc1 added support for deserializing Class and Module params
       c = Candidate.create(email_address: 'foo@example.com')
 
-      described_class.perform_now('Candidate', [c.id], import_entity_id)
+      described_class.perform_now('Candidate', [c.id], entity_tag)
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_now).once
     end
@@ -71,7 +71,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
         # backwards compatability with existing enqueued jobs
         c = Candidate.create(email_address: 'foo@example.com')
 
-        described_class.perform_now(Candidate, [c.id], import_entity_id)
+        described_class.perform_now(Candidate, [c.id], entity_tag)
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_now).once
       end

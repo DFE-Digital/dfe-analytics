@@ -12,7 +12,7 @@ module DfE
 
       attr_reader :entity_name
 
-      def run(import_entity_id)
+      def run(entity_tag:)
         DfE::Analytics.models_for_entity(entity_name).map do |model|
           unless model.any?
             Rails.logger.info("No entities to process for #{entity_name}")
@@ -38,7 +38,7 @@ module DfE
           model.in_batches(of: BQ_BATCH_ROWS) do |relation|
             batch_count += 1
             ids = relation.pluck(:id)
-            DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids, import_entity_id)
+            DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids, entity_tag)
           end
           Rails.logger.info "Enqueued #{batch_count} batches of #{BQ_BATCH_ROWS} #{entity_name} records for importing to BigQuery"
         end

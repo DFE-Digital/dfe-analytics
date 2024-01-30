@@ -54,11 +54,11 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
-  let(:import_entity_id) { '20230101123000' }
+  let(:entity_tag) { '20230101123000' }
 
   it 'sends an entity’s fields to BQ' do
     Candidate.create(email_address: 'known@address.com')
-    described_class.new(entity_name: Candidate.table_name).run(import_entity_id)
+    described_class.new(entity_name: Candidate.table_name).run(entity_tag: entity_tag)
 
     # import process
     expect(DfE::Analytics::SendEvents).to have_received(:perform_now).once do |payload|
@@ -79,7 +79,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
     3.times { Candidate.create }
 
-    described_class.new(entity_name: Candidate.table_name).run(import_entity_id)
+    described_class.new(entity_name: Candidate.table_name).run(entity_tag: entity_tag)
 
     expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(2).times
   end
@@ -87,14 +87,14 @@ RSpec.describe DfE::Analytics::LoadEntities do
   it 'does not fail with models whose primary key is not :id' do
     ModelWithCustomPrimaryKey.create
 
-    expect { described_class.new(entity_name: ModelWithCustomPrimaryKey.table_name).run(import_entity_id) }.not_to raise_error
+    expect { described_class.new(entity_name: ModelWithCustomPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
     expect(Rails.logger).to have_received(:info).with(/we do not support non-id primary keys/)
   end
 
   it 'does not fail with models whose primary key is nil' do
     ModelWithoutPrimaryKey.create
 
-    expect { described_class.new(entity_name: ModelWithoutPrimaryKey.table_name).run(import_entity_id) }.not_to raise_error
+    expect { described_class.new(entity_name: ModelWithoutPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
     expect(Rails.logger).to have_received(:info).with(/Not processing #{ModelWithoutPrimaryKey.table_name} as it does not have a primary key/)
   end
 end
