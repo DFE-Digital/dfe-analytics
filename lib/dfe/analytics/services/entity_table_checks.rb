@@ -6,7 +6,6 @@ module DfE
       # The EntityTableChecks class is responsible for performing checks
       # and calculations on a given entity's database table
       class EntityTableChecks
-        require 'pry'
         include ServicePattern
 
         TIME_ZONE = 'London'.freeze
@@ -59,7 +58,7 @@ module DfE
 
         def order_column_exposed_for_entity?(entity_name, columns)
           return false if columns.nil?
-          return true if columns.include?('updated_at') || columns.include?('created_at')
+          return true if columns.any? { |column| %w[updated_at created_at id].include?(column) }
 
           Rails.logger.info("DfE::Analytics Processing entity: Order columns missing in analytics.yml for #{entity_name} - Skipping checks")
 
@@ -67,10 +66,12 @@ module DfE
         end
 
         def determine_order_column(entity_name, columns)
-          if ActiveRecord::Base.connection.column_exists?(@entity_name, :updated_at) && columns.include?('updated_at')
+          if ActiveRecord::Base.connection.column_exists?(entity_name, :updated_at) && columns.include?('updated_at')
             'UPDATED_AT'
-          elsif ActiveRecord::Base.connection.column_exists?(@entity_name, :created_at) && columns.include?('created_at')
+          elsif ActiveRecord::Base.connection.column_exists?(entity_name, :created_at) && columns.include?('created_at')
             'CREATED_AT'
+          elsif ActiveRecord::Base.connection.column_exists?(entity_name, :id) && columns.include?('id')
+            'ID'
           else
             Rails.logger.info("DfE::Analytics: Entity checksum: Order column missing in #{entity_name}")
           end
@@ -101,14 +102,16 @@ module DfE
         end
 
         def fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
+          where_clause = build_where_clause(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
+
           checksum_sql_query = <<-SQL
             SELECT COUNT(*) as row_count,
-              MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_column} ASC), '')) as checksum
+              MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_column.downcase} ASC), '')) as checksum
             FROM (
               SELECT #{table_name_sanitized}.id::TEXT as ID,
-                     #{table_name_sanitized}.#{order_column} as #{order_column}
+                     #{table_name_sanitized}.#{order_column.downcase} as #{order_column.downcase}
               FROM #{table_name_sanitized}
-              WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}
+              #{where_clause}
             ) CHECKSUM_TABLE
           SQL
 
@@ -117,15 +120,23 @@ module DfE
         end
 
         def fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
+          where_clause = build_where_clause(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
+
           checksum_sql_query = <<-SQL
             SELECT #{table_name_sanitized}.ID
             FROM #{table_name_sanitized}
-            WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}
+            #{where_clause}
             ORDER BY #{table_name_sanitized}.#{order_column} ASC
           SQL
 
           table_ids = ActiveRecord::Base.connection.execute(checksum_sql_query).pluck('id')
           [table_ids.count, Digest::MD5.hexdigest(table_ids.join)]
+        end
+
+        def build_where_clause(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
+          return '' unless %w[CREATED_AT UPDATED_AT].include?(order_column)
+
+          "WHERE #{table_name_sanitized}.#{order_column.downcase} < #{checksum_calculated_at_sanitized}"
         end
 
         def send_entity_table_check_event(entity_name, entity_type, entity_tag, order_column)

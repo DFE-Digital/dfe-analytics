@@ -31,6 +31,12 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
   end
 
+  with_model :Department do
+    table do |t|
+      t.string :name
+    end
+  end
+
   with_model :Institution do
     table do |t|
       t.string :name
@@ -45,7 +51,8 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     Candidate.table_name.to_sym => %w[updated_at],
     Application.table_name.to_sym => %w[type created_at],
     Course.table_name.to_sym => %w[name duration],
-    Institution.table_name.to_sym => %w[name address]
+    Department.table_name.to_sym => %w[name],
+    Institution.table_name.to_sym => %w[id name address]
     })
     allow(Rails.logger).to receive(:info)
     allow(Time).to receive(:now).and_return(time_now)
@@ -60,6 +67,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     let(:institution_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('institution') } }
     let(:application_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('application') } }
     let(:candidate_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('candidate') } }
+    let(:department_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('department') } }
     let(:entity_type) { 'entity_table_check' }
 
     before { Timecop.freeze(checksum_calculated_at) }
@@ -78,9 +86,9 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
 
     it 'returns unless the order column is exposed for the entity' do
-      expected_message = "DfE::Analytics Processing entity: Order columns missing in analytics.yml for #{institution_entity} - Skipping checks"
+      expected_message = "DfE::Analytics Processing entity: Order columns missing in analytics.yml for #{department_entity} - Skipping checks"
 
-      expect(described_class.call(entity_name: institution_entity, entity_type: entity_type, entity_tag: nil)).to be_nil
+      expect(described_class.call(entity_name: department_entity, entity_type: entity_type, entity_tag: nil)).to be_nil
       expect(Rails.logger).to have_received(:info).with(expected_message)
     end
 
@@ -162,6 +170,50 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
             { 'key' => 'order_column', 'value' => [order_column] }
           ]
       })])
+    end
+
+    it 'sends different event data based on entity_type' do
+      described_class.call(entity_name: candidate_entity, entity_type: 'import_entity_table_check', entity_tag: nil)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |events|
+        expect(events.first['event_type']).to eq('import_entity_table_check')
+      end
+    end
+
+    it 'adds an event_tag to all events for a given import in the format YYYYMMDDHHMMSS' do
+      entity_tag = Time.now.strftime('%Y%m%d%H%M%S')
+      Candidate.create(id: '324')
+      Candidate.create(id: '325')
+      described_class.call(entity_name: candidate_entity, entity_type: 'import_entity_table_check', entity_tag: entity_tag)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |events|
+        expect(events.first['event_type']).to eq('import_entity_table_check')
+        expect(events.first['event_tags']).to eq(entity_tag)
+      end
+    end
+
+    it 'orders by id if created_at and updated_at are missing for Institution' do
+      order_column = 'ID'
+
+      ['Institute A', 'Institute B', 'Institute C'].each { |name| Institution.create(name: name, address: 'Some address') }
+
+      institution_entities = DfE::Analytics.entities_for_analytics.select { |entity| entity.to_s.include?('institution') }
+
+      table_ids = Institution.order(id: :asc).pluck(:id)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
+
+      institution_entities.each do |entity|
+        described_class.call(entity_name: entity, entity_type: entity_type, entity_tag: nil)
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+          .with([a_hash_including({
+            'data' => [
+              { 'key' => 'row_count', 'value' => [table_ids.size] },
+              { 'key' => 'checksum', 'value' => [checksum] },
+              { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+              { 'key' => 'order_column', 'value' => [order_column] }
+            ]
+          })])
+      end
     end
   end
 end
