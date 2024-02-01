@@ -209,6 +209,33 @@ RSpec.describe DfE::Analytics::Event do
     end
   end
 
+  describe 'with_request_details using parameter filter' do
+    subject do
+      request = fake_request(
+        query_string: 'some_param=123&some_other_param=456'
+      )
+
+      described_class.new
+        .with_request_details(request)
+        .as_json['request_query']
+    end
+
+    before do
+      allow(DfE::Analytics).to receive(:web_request_event_filter).and_return(
+        ActiveSupport::ParameterFilter.new([:some_param])
+      )
+      allow(DfE::Analytics).to receive(:filter_web_request_events?).and_return(true)
+    end
+
+    it 'filters specified parameter values' do
+      expect(subject).to include({ 'key' => 'some_param', 'value' => ['[FILTERED]'] })
+    end
+
+    it 'does not filter unspecified parameter values' do
+      expect(subject).to include({ 'key' => 'some_other_param', 'value' => ['456'] })
+    end
+  end
+
   def fake_request(overrides = {})
     attrs = {
       uuid: '123',

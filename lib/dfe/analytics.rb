@@ -18,6 +18,7 @@ require 'dfe/analytics/version'
 require 'dfe/analytics/middleware/request_identity'
 require 'dfe/analytics/middleware/send_cached_page_request_event'
 require 'dfe/analytics/railtie'
+require 'active_support/parameter_filter'
 
 module DfE
   module Analytics
@@ -63,6 +64,8 @@ module DfE
         pseudonymise_web_request_user_id
         entity_table_checks_enabled
         rack_page_cached
+        filter_web_request_events
+        web_request_event_filter
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -86,6 +89,8 @@ module DfE
       config.pseudonymise_web_request_user_id ||= false
       config.entity_table_checks_enabled      ||= false
       config.rack_page_cached                 ||= proc { |_rack_env| false }
+      config.filter_web_request_events        ||= false
+      config.web_request_event_filter         ||= ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters)
     end
 
     def self.initialize!
@@ -243,6 +248,14 @@ module DfE
 
     def self.entity_table_checks_enabled?
       config.entity_table_checks_enabled
+    end
+
+    def self.filter_web_request_events?
+      config.filter_web_request_events
+    end
+
+    def self.web_request_event_filter
+      config.web_request_event_filter
     end
   end
 end

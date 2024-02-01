@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 require 'active_support/values/time_zone'
+require 'dfe/analytics/query_string_utilities'
 
 module DfE
   module Analytics
     class Event
+      include QueryStringUtilities
+
       EVENT_TYPES = %w[
         web_request create_entity update_entity delete_entity import_entity initialise_analytics entity_table_check
       ].freeze
@@ -37,7 +40,7 @@ module DfE
           request_user_agent: ensure_utf8(rack_request.user_agent),
           request_method: rack_request.method,
           request_path: ensure_utf8(rack_request.path),
-          request_query: hash_to_kv_pairs(Rack::Utils.parse_query(rack_request.query_string)),
+          request_query: hash_to_kv_pairs(query_string_to_hash(rack_request.query_string)),
           request_referer: ensure_utf8(rack_request.referer),
           anonymised_user_agent_and_ip: anonymised_user_agent_and_ip(rack_request)
         )
