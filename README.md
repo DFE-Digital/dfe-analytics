@@ -231,6 +231,14 @@ user identifier proc can be defined in `config/initializers/dfe_analytics.rb`:
 DfE::Analytics.config.user_identifier = proc { |user| user&.uid }
 ```
 
+#### Filtering PII from web request query string data
+
+Query strings may be filtered using the same `Rails.application.config.filter_parameters`
+configuration you'd normally use to prevent PII leakage to logs and error handling services.
+
+To enable this option, ensure the attributes to filter are specified in `Rails.application.config.filter_parameters`.
+Then enable filtering with `DfE::Analytics.config.filter_web_request_events = true`.
+
 ### 6. Import existing data
 
 To load the current contents of your database into BigQuery, run
