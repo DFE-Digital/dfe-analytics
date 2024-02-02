@@ -3,10 +3,12 @@ require_relative '../shared/service_pattern'
 module DfE
   module Analytics
     module Services
+      # Calculates a checksum and row count for a specified entity 
+      # and order column in a PostgreSQL database
       class PostgresChecksumCalculator
         include ServicePattern
 
-        ALLOWED_ORDER_COLUMNS = ['CREATED_AT', 'UPDATED_AT'].freeze
+        ALLOWED_ORDER_COLUMNS = %w[CREATED_AT UPDATED_AT].freeze
 
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity

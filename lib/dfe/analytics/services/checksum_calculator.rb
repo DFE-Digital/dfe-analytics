@@ -3,6 +3,8 @@ require_relative '../shared/service_pattern'
 module DfE
   module Analytics
     module Services
+      # Based on the database adapter, delegates the checksum calculation
+      # to either a postgres or a generic checksum calculator
       class ChecksumCalculator
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity
