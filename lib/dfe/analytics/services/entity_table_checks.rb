@@ -4,8 +4,7 @@ require_relative '../services/checksum_calculator'
 module DfE
   module Analytics
     module Services
-      # The EntityTableChecks class is responsible for performing checks
-      # and calculations on a given entity's database table
+      # Performs checks and calculations on an entity's database table
       class EntityTableChecks
         include ServicePattern
 
@@ -15,6 +14,7 @@ module DfE
           @entity_name = entity_name
           @entity_type = entity_type
           @entity_tag = entity_tag
+          @connection = ActiveRecord::Base.connection
         end
 
         def call
@@ -30,10 +30,10 @@ module DfE
 
         private
 
-        attr_reader :entity_name, :entity_type, :entity_tag
+        attr_reader :entity_name, :entity_type, :entity_tag, :connection
 
         def adapter_name
-          @adapter_name ||= ActiveRecord::Base.connection.adapter_name.downcase
+          @adapter_name ||= connection.adapter_name.downcase
         end
 
         def supported_adapter_and_environment?
@@ -45,12 +45,12 @@ module DfE
         end
 
         def fetch_current_timestamp_in_time_zone
-          result = ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp')
+          result = connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp')
           result.first['current_timestamp'].in_time_zone(TIME_ZONE).iso8601(6)
         end
 
         def id_column_exists_for_entity?(entity_name)
-          return true if ActiveRecord::Base.connection.column_exists?(entity_name, :id)
+          return true if connection.column_exists?(entity_name, :id)
 
           Rails.logger.info("DfE::Analytics: Entity checksum: ID column missing in #{entity_name} - Skipping checks")
 
@@ -67,11 +67,11 @@ module DfE
         end
 
         def determine_order_column(entity_name, columns)
-          if ActiveRecord::Base.connection.column_exists?(entity_name, :updated_at) && columns.include?('updated_at')
+          if connection.column_exists?(entity_name, :updated_at) && columns.include?('updated_at')
             'UPDATED_AT'
-          elsif ActiveRecord::Base.connection.column_exists?(entity_name, :created_at) && columns.include?('created_at')
+          elsif connection.column_exists?(entity_name, :created_at) && columns.include?('created_at')
             'CREATED_AT'
-          elsif ActiveRecord::Base.connection.column_exists?(entity_name, :id) && columns.include?('id')
+          elsif connection.column_exists?(entity_name, :id) && columns.include?('id')
             'ID'
           else
             Rails.logger.info("DfE::Analytics: Entity checksum: Order column missing in #{entity_name}")

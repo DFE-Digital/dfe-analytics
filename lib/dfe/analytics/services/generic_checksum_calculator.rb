@@ -3,7 +3,7 @@ require_relative '../shared/service_pattern'
 module DfE
   module Analytics
     module Services
-      # Calculates a checksum and row count for a specified entity 
+      # Calculates a checksum and row count for a specified entity
       # and order column in a generic database
       class GenericChecksumCalculator
         include ServicePattern
