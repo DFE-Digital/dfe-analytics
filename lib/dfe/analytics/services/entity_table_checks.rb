@@ -1,5 +1,6 @@
 require_relative '../shared/service_pattern'
-# rubocop:disable Metrics/ClassLength
+require_relative '../services/checksum_calculator'
+
 module DfE
   module Analytics
     module Services
@@ -36,7 +37,7 @@ module DfE
         end
 
         def supported_adapter_and_environment?
-          return true if @adapter_name == 'postgresql' || !Rails.env.production?
+          return true if %w[postgresql postgis].include?(adapter_name) || !Rails.env.production?
 
           Rails.logger.info('DfE::Analytics: Entity checksum: Only Postgres databases supported on PRODUCTION')
 
@@ -80,7 +81,9 @@ module DfE
         def entity_table_check_data(entity_name, order_column)
           checksum_calculated_at = fetch_current_timestamp_in_time_zone
 
-          row_count, checksum = fetch_checksum_data(entity_name, checksum_calculated_at, order_column)
+          checksum_result = DfE::Analytics::Services::ChecksumCalculator.new(entity_name, order_column, checksum_calculated_at).call
+          row_count, checksum = checksum_result
+
           Rails.logger.info("DfE::Analytics Processing entity: #{entity_name}: Row count: #{row_count}")
           {
             row_count: row_count,
@@ -88,55 +91,6 @@ module DfE
             checksum_calculated_at: checksum_calculated_at,
             order_column: order_column
           }
-        end
-
-        def fetch_checksum_data(entity, checksum_calculated_at, order_column)
-          table_name_sanitized = ActiveRecord::Base.connection.quote_table_name(entity)
-          checksum_calculated_at_sanitized = ActiveRecord::Base.connection.quote(checksum_calculated_at)
-
-          if adapter_name == 'postgresql'
-            fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
-          else
-            fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
-          end
-        end
-
-        def fetch_postgresql_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
-          where_clause = build_where_clause(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
-
-          checksum_sql_query = <<-SQL
-            SELECT COUNT(*) as row_count,
-              MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_column.downcase} ASC), '')) as checksum
-            FROM (
-              SELECT #{table_name_sanitized}.id::TEXT as ID,
-                     #{table_name_sanitized}.#{order_column.downcase} as #{order_column.downcase}
-              FROM #{table_name_sanitized}
-              #{where_clause}
-            ) CHECKSUM_TABLE
-          SQL
-
-          result = ActiveRecord::Base.connection.execute(checksum_sql_query).first
-          [result['row_count'].to_i, result['checksum']]
-        end
-
-        def fetch_generic_checksum_data(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
-          where_clause = build_where_clause(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
-
-          checksum_sql_query = <<-SQL
-            SELECT #{table_name_sanitized}.ID
-            FROM #{table_name_sanitized}
-            #{where_clause}
-            ORDER BY #{table_name_sanitized}.#{order_column} ASC
-          SQL
-
-          table_ids = ActiveRecord::Base.connection.execute(checksum_sql_query).pluck('id')
-          [table_ids.count, Digest::MD5.hexdigest(table_ids.join)]
-        end
-
-        def build_where_clause(table_name_sanitized, checksum_calculated_at_sanitized, order_column)
-          return '' unless %w[CREATED_AT UPDATED_AT].include?(order_column)
-
-          "WHERE #{table_name_sanitized}.#{order_column.downcase} < #{checksum_calculated_at_sanitized}"
         end
 
         def send_entity_table_check_event(entity_name, entity_type, entity_tag, order_column)
@@ -161,4 +115,3 @@ module DfE
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
