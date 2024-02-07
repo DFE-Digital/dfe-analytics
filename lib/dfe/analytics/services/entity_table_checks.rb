@@ -81,7 +81,7 @@ module DfE
         def entity_table_check_data(entity_name, order_column)
           checksum_calculated_at = fetch_current_timestamp_in_time_zone
 
-          checksum_result = DfE::Analytics::Services::ChecksumCalculator.new(entity_name, order_column, checksum_calculated_at).call
+          checksum_result = DfE::Analytics::Services::ChecksumCalculator.call(entity_name, order_column, checksum_calculated_at)
           row_count, checksum = checksum_result
 
           Rails.logger.info("DfE::Analytics Processing entity: #{entity_name}: Row count: #{row_count}")

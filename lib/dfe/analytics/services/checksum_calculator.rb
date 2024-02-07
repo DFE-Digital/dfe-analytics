@@ -5,6 +5,9 @@ module DfE
     module Services
       # Delegates the checksum calculation to either a postgres or a generic checksum calculator
       class ChecksumCalculator
+        include ServicePattern
+        require 'pry'
+
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity
           @order_column = order_column
@@ -21,8 +24,7 @@ module DfE
         attr_reader :entity, :order_column, :checksum_calculated_at, :adapter_name
 
         def checksum_calculator
-          case adapter_name
-          when postgres?
+          if postgres?
             DfE::Analytics::Services::PostgresChecksumCalculator.call(entity, order_column, checksum_calculated_at)
           else
             DfE::Analytics::Services::GenericChecksumCalculator.call(entity, order_column, checksum_calculated_at)

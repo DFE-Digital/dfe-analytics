@@ -55,13 +55,13 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     Institution.table_name.to_sym => %w[id name address]
     })
     allow(Rails.logger).to receive(:info)
-    allow(Time).to receive(:now).and_return(time_now)
+    # allow(Time).to receive(:now).and_return(time_now)
   end
 
   describe '#call' do
-    let(:time_now) { Time.new(2023, 9, 19, 12, 0, 0) }
+    # let(:time_now) { Time.new(2023, 9, 19, 12, 0, 0) }
     let(:time_zone) { 'London' }
-    let(:checksum_calculated_at) { ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone('London').iso8601(6) }
+    let(:checksum_calculated_at) { ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone(time_zone).iso8601(6) }
     let(:order_column) { 'UPDATED_AT' }
     let(:course_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('course') } }
     let(:institution_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('institution') } }
