@@ -8,7 +8,7 @@ module DfE
       class GenericChecksumCalculator
         include ServicePattern
 
-        ALLOWED_ORDER_COLUMNS = %w[CREATED_AT UPDATED_AT].freeze
+        WHERE_CLAUSE_ORDER_COLUMNS = %w[CREATED_AT UPDATED_AT].freeze
 
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity
@@ -42,7 +42,7 @@ module DfE
         end
 
         def build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
-          return '' unless ALLOWED_ORDER_COLUMNS.include?(order_column)
+          return '' unless WHERE_CLAUSE_ORDER_COLUMNS.include?(order_column)
 
           "WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}"
         end

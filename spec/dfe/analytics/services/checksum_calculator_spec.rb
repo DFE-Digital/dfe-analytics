@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics::Services::ChecksumCalculator do
-  require 'pry'
-
   with_model :Candidate do
     table do |t|
       t.string :email_address
