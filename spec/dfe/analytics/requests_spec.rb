@@ -156,4 +156,32 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
       end).to have_been_made
     end
   end
+
+  context 'with request filtering' do
+    before do
+      allow(DfE::Analytics).to receive(:web_request_event_filter).and_return(
+        ActiveSupport::ParameterFilter.new([:array_param])
+      )
+      allow(DfE::Analytics).to receive(:filter_web_request_events?).and_return(true)
+    end
+
+    it 'filters out sensitive params' do
+      request = stub_analytics_event_submission
+      DfE::Analytics::Testing.webmock! do
+        perform_enqueued_jobs do
+          get('/example/path',
+              params: { page: '1', per_page: '25', array_param: %w[1 2] },
+              headers: { 'HTTP_USER_AGENT' => 'Test agent' })
+        end
+      end
+
+      expect(request.with do |req|
+        body = JSON.parse(req.body)
+        payload = body['rows'].first['json']
+        expect(payload['request_query']).to include(
+          { 'key' => 'array_param[]', 'value' => ['[FILTERED]'] }
+        )
+      end).to have_been_made
+    end
+  end
 end
