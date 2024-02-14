@@ -49,7 +49,7 @@ module DfE
         def build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
           return '' unless ALLOWED_ORDER_COLUMNS.include?(order_column)
 
-          "WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}"
+          "WHERE #{table_name_sanitized}.#{order_column.downcase} < #{checksum_calculated_at_sanitized}"
         end
       end
     end
