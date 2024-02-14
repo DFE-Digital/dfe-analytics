@@ -36,7 +36,7 @@ module DfE
             MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_column} ASC), '')) as checksum
           FROM (
             SELECT #{table_name_sanitized}.id::TEXT as ID,
-                   #{table_name_sanitized}.#{order_column_sanitized} as #{order_column_sanitized}
+                   #{table_name_sanitized}.#{order_column_sanitized} as order_column_value
             FROM #{table_name_sanitized}
             #{where_clause}
           ) CHECKSUM_TABLE
