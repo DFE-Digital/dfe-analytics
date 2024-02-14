@@ -186,7 +186,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later) do |events|
         expect(events.first['event_type']).to eq('import_entity_table_check')
-        expect(events.first['event_tags']).to eq(entity_tag)
+        expect(events.first['event_tags']).to eq([entity_tag])
       end
     end
 

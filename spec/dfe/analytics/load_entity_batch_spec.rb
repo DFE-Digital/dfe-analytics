@@ -29,7 +29,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
       expect(DfE::Analytics::SendEvents).to have_received(:perform_now) do |events|
         event_hash = events.first.instance_variable_get(:@event_hash)
         expect(event_hash[:event_type]).to eq('import_entity')
-        expect(event_hash[:event_tags]).to eq(entity_tag)
+        expect(event_hash[:event_tags]).to eq([entity_tag])
       end
     end
 

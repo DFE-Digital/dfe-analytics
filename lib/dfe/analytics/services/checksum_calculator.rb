@@ -6,7 +6,6 @@ module DfE
       # Delegates the checksum calculation to either a postgres or a generic checksum calculator
       class ChecksumCalculator
         include ServicePattern
-        require 'pry'
 
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity

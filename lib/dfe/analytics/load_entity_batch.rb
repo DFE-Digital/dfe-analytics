@@ -40,7 +40,7 @@ module DfE
         DfE::Analytics::Event.new
             .with_type('import_entity')
             .with_entity_table_name(table_name)
-            .with_tags(entity_tag)
+            .with_tags([entity_tag])
             .with_data(DfE::Analytics.extract_model_attributes(record))
       end
     end

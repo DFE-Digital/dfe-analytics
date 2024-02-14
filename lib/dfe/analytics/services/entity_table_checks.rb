@@ -107,7 +107,7 @@ module DfE
           DfE::Analytics::Event.new
             .with_type(entity_type)
             .with_entity_table_name(entity_name)
-            .with_tags(entity_tag)
+            .with_tags([entity_tag])
             .with_data(entity_table_check_data(entity_name, order_column))
             .as_json
         end
