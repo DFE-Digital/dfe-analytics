@@ -28,7 +28,7 @@ module DfE
         def calculate_checksum
           table_name_sanitized = connection.quote_table_name(entity)
           checksum_calculated_at_sanitized = connection.quote(checksum_calculated_at)
-          where_clause = build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
+          # where_clause = build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
 
           checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
@@ -37,7 +37,7 @@ module DfE
             SELECT #{table_name_sanitized}.id::TEXT as ID,
                    #{table_name_sanitized}.#{order_column} as #{order_column}
             FROM #{table_name_sanitized}
-            #{where_clause}
+            WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}
           ) CHECKSUM_TABLE
           SQL
 
