@@ -29,7 +29,7 @@ module DfE
           table_name_sanitized = connection.quote_table_name(entity)
           checksum_calculated_at_sanitized = connection.quote(checksum_calculated_at)
           where_clause = build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
-          order_column_sanitized = connection.quote_column_name(order_column)
+          order_column_sanitized = connection.quote_column_name(order_column.downcase)
 
           checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
