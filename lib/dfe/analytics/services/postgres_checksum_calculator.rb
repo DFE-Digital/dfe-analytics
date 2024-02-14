@@ -29,17 +29,17 @@ module DfE
           table_name_sanitized = connection.quote_table_name(entity)
           checksum_calculated_at_sanitized = connection.quote(checksum_calculated_at)
           where_clause = build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
-          order_column_sanitized = order_column.downcase
+          order_column_sanitized = connection.quote_column_name(order_column.downcase)
 
           checksum_sql_query = <<-SQL
-            SELECT COUNT(*) as row_count,
-              MD5(COALESCE(STRING_AGG(ID, '' ORDER BY CHECKSUM_TABLE.#{order_column_sanitized} ASC), '')) as checksum
+            SELECT COUNT(*) AS row_count,
+              MD5(COALESCE(STRING_AGG(sub.id::TEXT, '' ORDER BY sub.#{order_column_sanitized} ASC), '')) AS checksum
             FROM (
-              SELECT #{table_name_sanitized}.id::TEXT as ID,
-                     #{table_name_sanitized}.#{order_column_sanitized} as #{order_column_sanitized}
+              SELECT #{table_name_sanitized}.id,
+                     #{table_name_sanitized}.#{order_column_sanitized}
               FROM #{table_name_sanitized}
               #{where_clause}
-            ) CHECKSUM_TABLE
+            ) AS sub
           SQL
 
           result = connection.execute(checksum_sql_query).first
