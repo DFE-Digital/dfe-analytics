@@ -45,7 +45,7 @@ Style/EachWithObject:
   Enabled: false
 
 AllCops:
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0
   StyleGuide:
     Enabled: true
     EnforcedStyle: gemspec
