@@ -67,9 +67,8 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
       expect(schema_validator).to be_valid, schema_validator.failure_message
 
-      event_hash = payload.first.instance_variable_get(:@event_hash)
-      expect(event_hash[:data]).to eq(
-        [{ 'key' => 'email_address', 'value' => ['known@address.com'] }]
+      expect(payload.first['data']).to include(
+        a_hash_including('key' => 'email_address', 'value' => include('known@address.com'))
       )
     end
   end

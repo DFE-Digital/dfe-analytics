@@ -19,7 +19,7 @@ module DfE
             self.class.perform_later(model_class_arg, half_batch, entity_tag)
           end
         else
-          DfE::Analytics::SendEvents.perform_now(events)
+          DfE::Analytics::SendEvents.perform_now(events.as_json)
         end
       end
 
