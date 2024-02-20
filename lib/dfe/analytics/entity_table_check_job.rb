@@ -10,7 +10,7 @@ module DfE
         return unless DfE::Analytics.entity_table_checks_enabled?
 
         DfE::Analytics.entities_for_analytics.each do |entity_name|
-          DfE::Analytics::Services::EntityTableChecks.call(entity_name: entity_name, entity_type: 'entity_table_check', entity_tag: nil)
+          DfE::Analytics::Services::EntityTableChecks.call(entity_name: entity_name, entity_type: 'entity_table_check', entity_tag: [])
         end
       end
     end

@@ -28,7 +28,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_now) do |events|
         expect(events.first['event_type']).to eq('import_entity')
-        expect(events.first['event_tags']).to include(entity_tag)
+        expect(events.first['event_tags']).to eq([entity_tag])
       end
     end
 
