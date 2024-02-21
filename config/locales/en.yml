@@ -67,3 +67,9 @@ en:
             return a boolean indicating whether the page is cached and will
             be served by rack middleware.
           default: proc { |_rack_env| false }
+        bigquery_maintenance_window:
+          description: |
+            Schedule a maintenance window during which no events are streamed to BigQuery
+            in the format of '22-01-2024 19:30..22-01-2024 20:30'.
+          default: ENV['BIGQUERY_MAINTENANCE_WINDOW']
+

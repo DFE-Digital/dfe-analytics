@@ -162,5 +162,41 @@ RSpec.describe DfE::Analytics::SendEvents do
         end
       end
     end
+
+    context 'within the BigQuery maintenance window' do
+      before do
+        allow(DfE::Analytics).to receive(:within_maintenance_window?).and_return(true)
+      end
+
+      it 'logs that events will be queued for later processing and does not send events' do
+        expect(Rails.logger).to receive(:info).with('Within BigQuery maintenance window. Events will be queued for later processing.')
+
+        request = stub_analytics_event_submission
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+          expect(request).not_to have_been_made
+        end
+      end
+    end
+
+    context 'outside the BigQuery maintenance window' do
+      before do
+        allow(DfE::Analytics).to receive(:within_maintenance_window?).and_return(false)
+      end
+
+      it 'sends events to BigQuery' do
+        request = stub_analytics_event_submission
+
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+
+          expect(request.with do |req|
+            body = JSON.parse(req.body)
+            payload = body['rows'].first['json']
+            expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(event.deep_stringify_keys))
+          end).to have_been_made
+        end
+      end
+    end
   end
 end

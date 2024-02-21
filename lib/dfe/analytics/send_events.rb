@@ -18,6 +18,12 @@ module DfE
       end
 
       def perform(events)
+        if DfE::Analytics.within_maintenance_window?
+          # Delaying / Queueing events - the redis bit
+          Rails.logger.info('Within BigQuery maintenance window. Events will be queued for later processing.')
+          return
+        end
+
         if DfE::Analytics.log_only?
           # Use the Rails logger here as the job's logger is set to :warn by default
           Rails.logger.info("DfE::Analytics: #{events.inspect}")

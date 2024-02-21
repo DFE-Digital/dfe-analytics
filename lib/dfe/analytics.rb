@@ -63,6 +63,7 @@ module DfE
         pseudonymise_web_request_user_id
         entity_table_checks_enabled
         rack_page_cached
+        bigquery_maintenance_window
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -86,6 +87,7 @@ module DfE
       config.pseudonymise_web_request_user_id ||= false
       config.entity_table_checks_enabled      ||= false
       config.rack_page_cached                 ||= proc { |_rack_env| false }
+      config.bigquery_maintenance_window      ||= ENV.fetch('BIGQUERY_MAINTENANCE_WINDOW', nil)
     end
 
     def self.initialize!
@@ -243,6 +245,33 @@ module DfE
 
     def self.entity_table_checks_enabled?
       config.entity_table_checks_enabled
+    end
+
+    def self.parse_maintenance_window
+      return [nil, nil] unless config.bigquery_maintenance_window
+
+      start_str, end_str = config.bigquery_maintenance_window.split('..', 2).map(&:strip)
+      begin
+        start_time = DateTime.strptime(start_str, '%d-%m-%Y %H:%M')
+        end_time = DateTime.strptime(end_str, '%d-%m-%Y %H:%M')
+
+        if start_time > end_time
+          Rails.logger.info('Start time is after end time in maintenance window configuration')
+          return [nil, nil]
+        end
+
+        [start_time, end_time]
+      rescue ArgumentError => e
+        Rails.logger.info("DfE::Analytics: Unexpected error in maintenance window configuration: #{e.message}")
+        [nil, nil]
+      end
+    end
+
+    def self.within_maintenance_window?
+      start_time, end_time = parse_maintenance_window
+      return false unless start_time && end_time
+
+      DateTime.now.between?(start_time, end_time)
     end
   end
 end
