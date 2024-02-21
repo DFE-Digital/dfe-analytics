@@ -14,8 +14,8 @@ RSpec.describe DfE::Analytics::Event do
                                                'request_uuid' => '123',
                                                'request_user_agent' => 'SomeClient',
                                                'request_method' => 'GET',
-                                               'request_path' => '/',
-                                               'request_query' => [],
+                                               'request_path' => '/path',
+                                               'request_query' => [{ 'key' => 'a', 'value' => ['b'] }],
                                                'request_referer' => nil
                                              })
   end
@@ -213,8 +213,8 @@ RSpec.describe DfE::Analytics::Event do
     attrs = {
       uuid: '123',
       method: 'GET',
-      path: '/',
-      query_string: '',
+      original_fullpath: '/path?a=b',
+      query_string: 'a=b',
       referer: nil,
       user_agent: 'SomeClient',
       remote_ip: '1.2.3.4'
