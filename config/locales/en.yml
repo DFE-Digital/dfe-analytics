@@ -70,6 +70,6 @@ en:
         bigquery_maintenance_window:
           description: |
             Schedule a maintenance window during which no events are streamed to BigQuery
-            in the format of '22-01-2024 19:30..22-01-2024 20:30'.
+            in the format of '22-01-2024 19:30..22-01-2024 20:30' (UTC).
           default: ENV['BIGQUERY_MAINTENANCE_WINDOW']
 

@@ -163,39 +163,40 @@ RSpec.describe DfE::Analytics::SendEvents do
       end
     end
 
-    context 'within the BigQuery maintenance window' do
+    describe 'maintenance window scheduling' do
+      let(:events) { [event] }
+      let(:maintenance_window_start) { Time.zone.parse('25-02-2024 08:00') }
+      let(:maintenance_window_end) { Time.zone.parse('25-02-2024 10:00') }
+      let(:current_time_within_window) { Time.zone.parse('25-02-2024 09:00') }
+
       before do
         allow(DfE::Analytics).to receive(:within_maintenance_window?).and_return(true)
+        allow(DfE::Analytics.config).to receive(:bigquery_maintenance_window).and_return('25-02-2024 08:00..25-02-2024 10:00')
+        Timecop.freeze(current_time_within_window)
       end
 
-      it 'logs that events will be queued for later processing and does not send events' do
-        expect(Rails.logger).to receive(:info).with('Within BigQuery maintenance window. Events will be queued for later processing.')
-
-        request = stub_analytics_event_submission
-        DfE::Analytics::Testing.webmock! do
-          described_class.new.perform([event.as_json])
-          expect(request).not_to have_been_made
-        end
+      after do
+        Timecop.return
       end
-    end
 
-    context 'outside the BigQuery maintenance window' do
-      before do
+      it 'schedules the event correctly after the maintenance window' do
+        elapsed_seconds = current_time_within_window - maintenance_window_start
+        expected_wait_until = maintenance_window_end + elapsed_seconds
+
+        expect(DfE::Analytics::SendEvents).to receive(:set).with(wait_until: expected_wait_until).and_call_original
+        DfE::Analytics::SendEvents.do(events)
+      end
+
+      it 'does not execute the event immediately within the maintenance window' do
+        expect(DfE::Analytics::SendEvents).not_to receive(:perform_now).with(events)
+        DfE::Analytics::SendEvents.do(events)
+      end
+
+      it 'executes the event immediately outside of the maintenance window' do
         allow(DfE::Analytics).to receive(:within_maintenance_window?).and_return(false)
-      end
-
-      it 'sends events to BigQuery' do
-        request = stub_analytics_event_submission
-
-        DfE::Analytics::Testing.webmock! do
-          described_class.new.perform([event.as_json])
-
-          expect(request.with do |req|
-            body = JSON.parse(req.body)
-            payload = body['rows'].first['json']
-            expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(event.deep_stringify_keys))
-          end).to have_been_made
-        end
+        allow(DfE::Analytics).to receive(:async?).and_return(false)
+        expect(DfE::Analytics::SendEvents).to receive(:perform_now).with(events)
+        DfE::Analytics::SendEvents.do(events)
       end
     end
   end

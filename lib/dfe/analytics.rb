@@ -252,8 +252,11 @@ module DfE
 
       start_str, end_str = config.bigquery_maintenance_window.split('..', 2).map(&:strip)
       begin
-        start_time = DateTime.strptime(start_str, '%d-%m-%Y %H:%M')
-        end_time = DateTime.strptime(end_str, '%d-%m-%Y %H:%M')
+        parsed_start_time = DateTime.strptime(start_str, '%d-%m-%Y %H:%M')
+        parsed_end_time = DateTime.strptime(end_str, '%d-%m-%Y %H:%M')
+
+        start_time = Time.zone.parse(parsed_start_time.to_s)
+        end_time = Time.zone.parse(parsed_end_time.to_s)
 
         if start_time > end_time
           Rails.logger.info('Start time is after end time in maintenance window configuration')
@@ -271,7 +274,14 @@ module DfE
       start_time, end_time = parse_maintenance_window
       return false unless start_time && end_time
 
-      DateTime.now.between?(start_time, end_time)
+      Time.zone.now.between?(start_time, end_time)
+    end
+
+    def self.next_scheduled_time_after_maintenance_window
+      start_time, end_time = parse_maintenance_window
+      return unless start_time && end_time
+
+      end_time + (Time.zone.now - start_time).seconds
     end
   end
 end
