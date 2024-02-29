@@ -10,36 +10,37 @@ module DfE
         @entity_name = entity_name
       end
 
-      def run
-        DfE::Analytics.models_for_entity(@entity_name).map do |model|
+      attr_reader :entity_name
+
+      def run(entity_tag:)
+        DfE::Analytics.models_for_entity(entity_name).map do |model|
           unless model.any?
-            Rails.logger.info("No entities to process for #{@entity_name}")
+            Rails.logger.info("No entities to process for #{entity_name}")
             next
           end
 
           primary_key = model.primary_key
 
           if primary_key.nil?
-            Rails.logger.info("Not processing #{@entity_name} as it does not have a primary key")
+            Rails.logger.info("Not processing #{entity_name} as it does not have a primary key")
             next
           end
 
           unless primary_key.to_sym == :id
-            Rails.logger.info("Not processing #{@entity_name} as we do not support non-id primary keys")
+            Rails.logger.info("Not processing #{entity_name} as we do not support non-id primary keys")
             next
           end
 
-          Rails.logger.info("Processing data for #{@entity_name} with row count #{model.count}")
+          Rails.logger.info("Processing data for #{entity_name} with row count #{model.count}")
 
           batch_count = 0
 
           model.in_batches(of: BQ_BATCH_ROWS) do |relation|
             batch_count += 1
             ids = relation.pluck(:id)
-            DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids)
+            DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids, entity_tag)
           end
-
-          Rails.logger.info "Enqueued #{batch_count} batches of #{BQ_BATCH_ROWS} #{@entity_name} records for importing to BigQuery"
+          Rails.logger.info "Enqueued #{batch_count} batches of #{BQ_BATCH_ROWS} #{entity_name} records for importing to BigQuery"
         end
       end
     end
