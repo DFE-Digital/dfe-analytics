@@ -179,24 +179,42 @@ RSpec.describe DfE::Analytics::SendEvents do
         Timecop.return
       end
 
-      it 'schedules the event correctly after the maintenance window' do
-        elapsed_seconds = current_time_within_window - maintenance_window_start
-        expected_wait_until = maintenance_window_end + elapsed_seconds
+      context 'within the maintenance window' do
+        it 'does not enqueue the events for asynchronous execution' do
+          expect(DfE::Analytics::SendEvents).not_to receive(:perform_later).with(events)
+          DfE::Analytics::SendEvents.do(events)
+        end
 
-        expect(DfE::Analytics::SendEvents).to receive(:set).with(wait_until: expected_wait_until).and_call_original
-        DfE::Analytics::SendEvents.do(events)
+        it 'does not execute the events synchronously' do
+          expect(DfE::Analytics::SendEvents).not_to receive(:perform_now).with(events)
+          DfE::Analytics::SendEvents.do(events)
+        end
+
+        it 'schedules the events for after the maintenance window' do
+          elapsed_seconds = current_time_within_window - maintenance_window_start
+          expected_wait_until = maintenance_window_end + elapsed_seconds
+
+          expect(DfE::Analytics::SendEvents).to receive(:set).with(wait_until: expected_wait_until).and_call_original
+          DfE::Analytics::SendEvents.do(events)
+        end
       end
 
-      it 'does not execute the event immediately within the maintenance window' do
-        expect(DfE::Analytics::SendEvents).not_to receive(:perform_now).with(events)
-        DfE::Analytics::SendEvents.do(events)
-      end
+      context 'outside the mainenance window' do
+        before do
+          allow(DfE::Analytics).to receive(:within_maintenance_window?).and_return(false)
+        end
 
-      it 'executes the event immediately outside of the maintenance window' do
-        allow(DfE::Analytics).to receive(:within_maintenance_window?).and_return(false)
-        allow(DfE::Analytics).to receive(:async?).and_return(false)
-        expect(DfE::Analytics::SendEvents).to receive(:perform_now).with(events)
-        DfE::Analytics::SendEvents.do(events)
+        it 'enqueues the events for asynchronous execution' do
+          allow(DfE::Analytics).to receive(:async?).and_return(true)
+          expect(DfE::Analytics::SendEvents).to receive(:perform_later).with(events)
+          DfE::Analytics::SendEvents.do(events)
+        end
+
+        it 'executes the events synchronously' do
+          allow(DfE::Analytics).to receive(:async?).and_return(false)
+          expect(DfE::Analytics::SendEvents).to receive(:perform_now).with(events)
+          DfE::Analytics::SendEvents.do(events)
+        end
       end
     end
   end
