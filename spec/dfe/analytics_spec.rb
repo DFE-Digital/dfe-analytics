@@ -184,4 +184,67 @@ RSpec.describe DfE::Analytics do
       end
     end
   end
+
+  describe '.parse_maintenance_window' do
+    context 'with a valid maintenance window' do
+      before do
+        allow(described_class.config).to receive(:bigquery_maintenance_window)
+          .and_return('01-01-2020 00:00..01-01-2020 23:59')
+      end
+
+      it 'returns the correct start and end times' do
+        start_time, end_time = described_class.parse_maintenance_window
+        expect(start_time).to eq(DateTime.new(2020, 1, 1, 0, 0))
+        expect(end_time).to eq(DateTime.new(2020, 1, 1, 23, 59))
+      end
+    end
+
+    context 'when start time is after end time' do
+      before do
+        allow(described_class.config).to receive(:bigquery_maintenance_window)
+          .and_return('01-01-2020 23:59..01-01-2020 00:00')
+      end
+
+      it 'logs an error and returns [nil, nil]' do
+        expect(Rails.logger).to receive(:info).with(/Start time is after end time/)
+        expect(described_class.parse_maintenance_window).to eq([nil, nil])
+      end
+    end
+
+    context 'with an invalid format' do
+      before do
+        allow(described_class.config).to receive(:bigquery_maintenance_window)
+          .and_return('invalid_format')
+      end
+
+      it 'logs an error and returns [nil, nil]' do
+        expect(Rails.logger).to receive(:info).with(/Unexpected error/)
+        expect(described_class.parse_maintenance_window).to eq([nil, nil])
+      end
+    end
+  end
+
+  describe '.within_maintenance_window?' do
+    context 'when the current time is within the maintenance window' do
+      before do
+        allow(described_class).to receive(:parse_maintenance_window)
+          .and_return([DateTime.now - 1.hour, DateTime.now + 1.hour])
+      end
+
+      it 'returns true' do
+        expect(described_class.within_maintenance_window?).to be true
+      end
+    end
+
+    context 'when the current time is outside the maintenance window' do
+      before do
+        allow(described_class).to receive(:parse_maintenance_window)
+          .and_return([DateTime.now - 2.days, DateTime.now - 1.day])
+      end
+
+      it 'returns false' do
+        expect(described_class.within_maintenance_window?).to be false
+      end
+    end
+  end
 end

@@ -10,7 +10,9 @@ module DfE
 
         events = events.map { |event| event.is_a?(Event) ? event.as_json : event }
 
-        if DfE::Analytics.async?
+        if DfE::Analytics.within_maintenance_window?
+          set(wait_until: DfE::Analytics.next_scheduled_time_after_maintenance_window).perform_later(events)
+        elsif DfE::Analytics.async?
           perform_later(events)
         else
           perform_now(events)
