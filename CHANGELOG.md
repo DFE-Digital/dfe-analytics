@@ -1,12 +1,16 @@
 # Changelog
 
-## [v1.11.7](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.7) (2024-01-29)
+## [v1.12.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.0) (2024-02-29)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.6...v1.11.7)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.7...v1.12.0)
 
 **Merged pull requests:**
 
+- Add maintenance window logic [\#115](https://github.com/DFE-Digital/dfe-analytics/pull/115) ([ericaporter](https://github.com/ericaporter))
+- Use original\_fullpath for request path [\#112](https://github.com/DFE-Digital/dfe-analytics/pull/112) ([thomasleese](https://github.com/thomasleese))
+- release v1.11.7 [\#110](https://github.com/DFE-Digital/dfe-analytics/pull/110) ([ericaporter](https://github.com/ericaporter))
 - Update conditional to handle 'postgis' db [\#109](https://github.com/DFE-Digital/dfe-analytics/pull/109) ([ericaporter](https://github.com/ericaporter))
+- Update import job to send unique timestamp and import\_entity\_table\_check event [\#108](https://github.com/DFE-Digital/dfe-analytics/pull/108) ([ericaporter](https://github.com/ericaporter))
 - Release v1.11.6 [\#107](https://github.com/DFE-Digital/dfe-analytics/pull/107) ([ericaporter](https://github.com/ericaporter))
 - Ensure order by column is in analytics.yml [\#106](https://github.com/DFE-Digital/dfe-analytics/pull/106) ([ericaporter](https://github.com/ericaporter))
 - release v1.11.5 [\#105](https://github.com/DFE-Digital/dfe-analytics/pull/105) ([ericaporter](https://github.com/ericaporter))
@@ -38,6 +42,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.11.7](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.7) (2024-01-29)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.11.6...v1.11.7)
 
 ## [v1.11.6](https://github.com/DFE-Digital/dfe-analytics/tree/v1.11.6) (2024-01-08)
 
