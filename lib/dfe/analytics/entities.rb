@@ -37,7 +37,7 @@ module DfE
                                      .with_type(type)
                                      .with_entity_table_name(self.class.table_name)
                                      .with_data(data)
-                                     .with_tags([event_tags])
+                                     .with_tags(event_tags)
                                      .with_request_uuid(RequestLocals.fetch(:dfe_analytics_request_id) { nil })
 
         DfE::Analytics::SendEvents.do([event.as_json])
