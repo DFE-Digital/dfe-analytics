@@ -134,24 +134,27 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
 
     it 'does not send the event if updated_at is greater than checksum_calculated_at' do
-      parsed_time = DateTime.parse(checksum_calculated_at)
-      Candidate.create(id: '123', updated_at: parsed_time - 2.hours)
-      Candidate.create(id: '124', updated_at: parsed_time - 5.hours)
-      Candidate.create(id: '125', updated_at: parsed_time + 5.hours)
+      Timecop.freeze(DateTime.parse(checksum_calculated_at)) do
+        Candidate.create(id: '123', updated_at: DateTime.parse(checksum_calculated_at) - 2.hours)
+        Candidate.create(id: '124', updated_at: DateTime.parse(checksum_calculated_at) - 5.hours)
+        Candidate.create(id: '125', updated_at: DateTime.parse(checksum_calculated_at) + 5.hours)
 
-      table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
-      checksum = Digest::MD5.hexdigest(table_ids.join)
-      described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+        table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(:updated_at).pluck(:id)
+        table_ids = table_ids.sort
+        checksum = Digest::MD5.hexdigest(table_ids.join)
 
-      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
-        .with([a_hash_including({
-          'data' => [
-            { 'key' => 'row_count', 'value' => [table_ids.size] },
-            { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
-            { 'key' => 'order_column', 'value' => [order_column] }
-          ]
-      })])
+        described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+          .with([a_hash_including({
+            'data' => [
+              { 'key' => 'row_count', 'value' => [table_ids.size] },
+              { 'key' => 'checksum', 'value' => [checksum] },
+              { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+              { 'key' => 'order_column', 'value' => [order_column] }
+            ]
+        })])
+      end
     end
 
     it 'returns zero rows and checksum if table is empty' do
