@@ -10,8 +10,6 @@ module DfE
         include ServicePattern
         include ChecksumQueryComponents
 
-        WHERE_CLAUSE_ORDER_COLUMNS = %w[CREATED_AT UPDATED_AT].freeze
-
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity
           @order_column = order_column
@@ -46,6 +44,19 @@ module DfE
 
           table_ids = connection.execute(checksum_sql_query).pluck('id')
           [table_ids.count, Digest::MD5.hexdigest(table_ids.join)]
+        end
+
+        def build_select_and_order_clause(order_column, table_name_sanitized)
+          case order_column.upcase
+          when 'UPDATED_AT', 'CREATED_AT'
+            select_clause = "#{table_name_sanitized}.#{order_column.downcase} AS \"#{order_column.downcase}_alias\""
+            order_by_clause = "\"#{order_column.downcase}_alias\" ASC, #{table_name_sanitized}.id ASC"
+          else
+            select_clause = ''
+            order_by_clause = "#{table_name_sanitized}.id ASC"
+          end
+
+          [select_clause, order_by_clause]
         end
       end
     end

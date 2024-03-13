@@ -140,7 +140,6 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
         Candidate.create(id: '125', updated_at: DateTime.parse(checksum_calculated_at) + 5.hours)
 
         table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(:updated_at).pluck(:id)
-        table_ids = table_ids.sort
         checksum = Digest::MD5.hexdigest(table_ids.join)
 
         described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
