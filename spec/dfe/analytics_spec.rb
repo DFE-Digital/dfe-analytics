@@ -134,14 +134,6 @@ RSpec.describe DfE::Analytics do
     end
   end
 
-  it 'raises a configuration error on missing config values' do
-    with_analytics_config(bigquery_project_id: nil) do
-      DfE::Analytics::Testing.webmock! do
-        expect { DfE::Analytics.events_client }.to raise_error(DfE::Analytics::ConfigurationError)
-      end
-    end
-  end
-
   describe '#entities_for_analytics' do
     with_model :Candidate do
       table

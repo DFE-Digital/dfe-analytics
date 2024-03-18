@@ -4,9 +4,17 @@ module DfE
   module Analytics
     module Testing
       module Helpers
-        def stub_bigquery_auth!
+        def stub_analytics_event_submission
+          if DfE::Analytics.config.azure_federated_auth
+            nil
+          else
+            stub_analytics_legacy_event_submission
+          end
+        end
+
+        def stub_bigquery_legacy_auth!
           # will noop if called more than once
-          @stub_bigquery_auth ||= begin
+          @stub_bigquery_legacy_auth ||= begin
             DfE::Analytics.configure do |config|
               fake_bigquery_key = { 'type' => 'service_account',
                                     'project_id' => 'abc',
@@ -30,15 +38,23 @@ module DfE
           end
         end
 
-        def stub_analytics_event_submission
-          stub_bigquery_auth!
+        def stub_analytics_legacy_event_submission
+          stub_bigquery_legacy_auth!
 
           stub_request(:post, /bigquery.googleapis.com/)
             .to_return(status: 200, body: '{}', headers: { 'Content-Type' => 'application/json' })
         end
 
         def stub_analytics_event_submission_with_insert_errors
-          stub_bigquery_auth!
+          if DfE::Analytics.config.azure_federated_auth
+            nil
+          else
+            stub_analytics_legacy_event_submission_with_insert_errors
+          end
+        end
+
+        def stub_analytics_legacy_event_submission_with_insert_errors
+          stub_bigquery_legacy_auth!
 
           body = {
             insertErrors: [
@@ -67,6 +83,13 @@ module DfE
           yield
         ensure
           DfE::Analytics.instance_variable_set(:@config, old_config)
+        end
+
+        def test_dummy_config
+          config = DfE::Analytics.config.members.each_with_object({}) { |key, mem| mem[key] = 'dummy_value' }
+          config[:google_cloud_credentials] = '{ "dummy_value":  1 }'
+          config[:bigquery_api_json_key] = '{ "dummy_value":  1 }'
+          config
         end
       end
     end

@@ -2,6 +2,7 @@
 
 require 'request_store_rails'
 require 'i18n'
+require 'google/cloud/bigquery'
 require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
@@ -23,33 +24,13 @@ require 'dfe/analytics/version'
 require 'dfe/analytics/middleware/request_identity'
 require 'dfe/analytics/middleware/send_cached_page_request_event'
 require 'dfe/analytics/railtie'
+require 'dfe/analytics/big_query_api'
+require 'dfe/analytics/big_query_legacy_api'
+require 'dfe/analytics/azure_federated_auth'
 
 module DfE
   module Analytics
     class ConfigurationError < StandardError; end
-
-    def self.events_client
-      @events_client ||= begin
-        require 'google/cloud/bigquery'
-
-        missing_config = %i[
-          bigquery_project_id
-          bigquery_table_name
-          bigquery_dataset
-          bigquery_api_json_key
-        ].select { |val| config.send(val).nil? }
-
-        raise(ConfigurationError, "DfE::Analytics: missing required config values: #{missing_config.join(', ')}") if missing_config.any?
-
-        Google::Cloud::Bigquery.new(
-          project: config.bigquery_project_id,
-          credentials: JSON.parse(config.bigquery_api_json_key),
-          retries: config.bigquery_retries,
-          timeout: config.bigquery_timeout
-        ).dataset(config.bigquery_dataset, skip_lookup: true)
-                               .table(config.bigquery_table_name, skip_lookup: true)
-      end
-    end
 
     def self.config
       configurables = %i[
@@ -69,6 +50,12 @@ module DfE
         entity_table_checks_enabled
         rack_page_cached
         bigquery_maintenance_window
+        azure_federated_auth
+        azure_client_id
+        azure_token_path
+        azure_scope
+        gcp_scope
+        google_cloud_credentials
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -93,6 +80,15 @@ module DfE
       config.entity_table_checks_enabled      ||= false
       config.rack_page_cached                 ||= proc { |_rack_env| false }
       config.bigquery_maintenance_window      ||= ENV.fetch('BIGQUERY_MAINTENANCE_WINDOW', nil)
+      config.azure_federated_auth             ||= false
+
+      return unless config.azure_federated_auth
+
+      config.azure_client_id          ||= ENV.fetch('AZURE_CLIENT_ID', nil)
+      config.azure_token_path         ||= ENV.fetch('AZURE_FEDERATED_TOKEN_FILE', nil)
+      config.google_cloud_credentials ||= JSON.parse(ENV.fetch('GOOGLE_CLOUD_CREDENTIALS', '{}')).deep_symbolize_keys
+      config.azure_scope              ||= DfE::Analytics::AzureFederatedAuth::DEFAULT_AZURE_SCOPE
+      config.gcp_scope                ||= DfE::Analytics::AzureFederatedAuth::DEFAULT_GCP_SCOPE
     end
 
     def self.initialize!
