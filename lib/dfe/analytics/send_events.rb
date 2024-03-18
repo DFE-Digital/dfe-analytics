@@ -35,35 +35,9 @@ module DfE
               .each { |event| Rails.logger.info("DfE::Analytics processing: #{event.inspect}") }
           end
 
-          response = DfE::Analytics.events_client.insert(events, ignore_unknown: true)
-
-          unless response.success?
-            event_count   = events.length
-            error_message = error_message_for(response)
-
-            Rails.logger.error(error_message)
-
-            events.each.with_index(1) do |event, index|
-              Rails.logger.info("DfE::Analytics possible error processing event (#{index}/#{event_count}): #{event.inspect}")
-            end
-
-            raise SendEventsError, error_message
-          end
+          DfE::Analytics.config.azure_federated_auth ? DfE::Analytics::BigQueryApi.insert(events) : DfE::Analytics::BigQueryLegacyApi.insert(events)
         end
       end
-
-      def error_message_for(resp)
-        message =
-          resp
-          .error_rows
-          .map { |row| "index: #{resp.index_for(row)} error: #{resp.errors_for(row)} error_row: #{row}" }
-          .compact.join("\n")
-
-        "DfE::Analytics BigQuery API insert error for #{resp.error_rows.length} event(s): response error count: #{resp.error_count}\n#{message}"
-      end
-    end
-
-    class SendEventsError < StandardError
     end
   end
 end

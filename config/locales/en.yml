@@ -60,7 +60,7 @@ en:
         entity_table_checks_enabled:
           description: |
             Whether to run entity table checksum job.
-          default: false    
+          default: false
         rack_page_cached:
           description: |
             A proc which will be called with the rack env, and which should
@@ -72,4 +72,28 @@ en:
             Schedule a maintenance window during which no events are streamed to BigQuery
             in the format of '22-01-2024 19:30..22-01-2024 20:30' (UTC).
           default: ENV['BIGQUERY_MAINTENANCE_WINDOW']
-
+        azure_federated_auth:
+          description: |
+            Whether to use azure workload identity federation for authentication
+            instead of the BigQuery API JSON Key
+          default: false
+        azure_client_id:
+          description: |
+            Client Id of the app in azure
+          default: ENV['AZURE_CLIENT_ID']
+        azure_token_path:
+          description: |
+            Path of token file for used for getting token from azure ad
+          default: ENV['AZURE_FEDERATED_TOKEN_FILE']
+        azure_scope:
+          description: |
+            Azure audience scope
+          default: api://AzureADTokenExchange/.default
+        gcp_scope:
+          description: |
+            Google cloud scope
+          default: https://www.googleapis.com/auth/cloud-platform
+        google_cloud_credentials:
+          description: |
+            Google generated cloud credentials file
+          default: ENV['GOOGLE_CLOUD_CREDENTIALS']

@@ -46,6 +46,8 @@ RSpec.describe DfE::Analytics::LoadEntities do
     allow(Rails.logger).to receive(:info)
 
     DfE::Analytics.initialize!
+
+    DfE::Analytics::Testing.fake!
   end
 
   around do |ex|

@@ -42,11 +42,29 @@ module DfE
       end
     end
 
-    class StubClient
+    class LegacyStubClient
       Response = Struct.new(:success?)
 
       def insert(*)
         Response.new(true)
+      end
+    end
+
+    module LegacyTestOverrides
+      def events_client
+        if DfE::Analytics::Testing.fake?
+          LegacyStubClient.new
+        else
+          super
+        end
+      end
+    end
+
+    class StubClient
+      Response = Struct.new(:insert_errors)
+
+      def insert(*)
+        Response.new([])
       end
     end
 
@@ -63,6 +81,7 @@ module DfE
     # Default to fake mode
     DfE::Analytics::Testing.fake!
 
-    DfE::Analytics.singleton_class.send :prepend, TestOverrides
+    DfE::Analytics::BigQueryLegacyApi.singleton_class.send :prepend, LegacyTestOverrides
+    DfE::Analytics::BigQueryApi.singleton_class.send :prepend, TestOverrides
   end
 end
