@@ -31,7 +31,7 @@ RSpec.describe DfE::Analytics::BigQueryApi do
       end
     end
 
-    context 'when authorization endoint returns OK response' do
+    context 'when authorization endpoint returns OK response' do
       it 'calls the expected big query apis' do
         with_analytics_config(test_dummy_config) do
           expect(described_class.events_client).to eq(events_client)

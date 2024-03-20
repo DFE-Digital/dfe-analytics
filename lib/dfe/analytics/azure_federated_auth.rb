@@ -8,6 +8,7 @@ module DfE
     class AzureFederatedAuth
       DEFAULT_AZURE_SCOPE = 'api://AzureADTokenExchange/.default'
       DEFAULT_GCP_SCOPE   = 'https://www.googleapis.com/auth/cloud-platform'
+      ACCESS_TOKEN_EXPIRY_LEEWAY = 10.seconds
 
       def self.gcp_client_credentials
         return @gcp_client_credentials if @gcp_client_credentials && !@gcp_client_credentials.expired?
@@ -18,7 +19,9 @@ module DfE
 
         google_token, expiry_time = google_access_token(azure_google_exchange_token)
 
-        @gcp_client_credentials = Google::Auth::UserRefreshCredentials.new(access_token: google_token, expires_at: expiry_time)
+        expiry_time_with_leeway = expiry_time - ACCESS_TOKEN_EXPIRY_LEEWAY
+
+        @gcp_client_credentials = Google::Auth::UserRefreshCredentials.new(access_token: google_token, expires_at: expiry_time_with_leeway)
       end
 
       def self.azure_access_token
@@ -38,7 +41,7 @@ module DfE
 
           Rails.logger.error error_message
 
-          raise AzureFederatedAuthError, error_message
+          raise Error, error_message
         end
 
         azure_token_response.parsed_response['access_token']
@@ -54,21 +57,21 @@ module DfE
           subject_token_type: DfE::Analytics.config.google_cloud_credentials[:subject_token_type]
         }
 
-        exchange_token_response = http_client.post(DfE::Analytics.config.google_cloud_credentials[:token_url], body: request_body)
+        exchange_token_response = HTTParty.post(DfE::Analytics.config.google_cloud_credentials[:token_url], body: request_body)
 
         unless exchange_token_response.success?
           error_message = "Error calling google exchange token API: status: #{exchange_token_response.code} body: #{exchange_token_response.body}"
 
           Rails.logger.error error_message
 
-          raise AzureFederatedAuthError, error_message
+          raise Error, error_message
         end
 
         exchange_token_response.parsed_response['access_token']
       end
 
       def self.google_access_token(azure_google_exchange_token)
-        google_token_response = http_client.post(
+        google_token_response = HTTParty.post(
           DfE::Analytics.config.google_cloud_credentials[:service_account_impersonation_url],
           headers: { 'Authorization' => "Bearer #{azure_google_exchange_token}" },
           body: { scope:  DfE::Analytics.config.gcp_scope }
@@ -79,15 +82,15 @@ module DfE
 
           Rails.logger.error error_message
 
-          raise AzureFederatedAuthError, error_message
+          raise Error, error_message
         end
 
         parsed_response = google_token_response.parsed_response
 
         [parsed_response['accessToken'], parsed_response['expiryTime']]
       end
-    end
 
-    class AzureFederatedAuthError < StandardError; end
+      class Error < StandardError; end
+    end
   end
 end

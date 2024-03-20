@@ -2,6 +2,7 @@
 
 require 'request_store_rails'
 require 'i18n'
+require 'httparty'
 require 'google/cloud/bigquery'
 require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
