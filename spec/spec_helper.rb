@@ -64,6 +64,7 @@ RSpec.configure do |config|
     DfE::Analytics.instance_variable_set(:@entity_model_mapping, nil)
     DfE::Analytics::BigQueryLegacyApi.instance_variable_set(:@events_client, nil)
     DfE::Analytics::BigQueryApi.instance_variable_set(:@events_client, nil)
+    DfE::Analytics::AzureFederatedAuth.instance_variable_set(:@gcp_client_credentials, nil)
   end
 
   config.expect_with :rspec do |c|

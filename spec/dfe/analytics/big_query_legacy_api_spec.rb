@@ -24,7 +24,7 @@ RSpec.describe DfE::Analytics::BigQueryLegacyApi do
       end
     end
 
-    context 'when authorization endoint returns OK response' do
+    context 'when authorization endpoint returns OK response' do
       let(:events_client) { double(:events_client) }
 
       before do
