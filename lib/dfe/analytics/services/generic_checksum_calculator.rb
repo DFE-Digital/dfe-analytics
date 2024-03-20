@@ -1,4 +1,5 @@
 require_relative '../shared/service_pattern'
+require_relative '../shared/checksum_query_components'
 
 module DfE
   module Analytics
@@ -7,8 +8,7 @@ module DfE
       # and order column in a generic database
       class GenericChecksumCalculator
         include ServicePattern
-
-        WHERE_CLAUSE_ORDER_COLUMNS = %w[CREATED_AT UPDATED_AT].freeze
+        include ChecksumQueryComponents
 
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity
@@ -30,21 +30,33 @@ module DfE
           checksum_calculated_at_sanitized = connection.quote(checksum_calculated_at)
           where_clause = build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
 
+          select_clause, order_by_clause = build_select_and_order_clause(order_column, table_name_sanitized)
+
+          select_fields = "#{table_name_sanitized}.ID"
+          select_fields += ", #{select_clause}" unless select_clause.empty?
+
           checksum_sql_query = <<-SQL
-            SELECT #{table_name_sanitized}.ID
+            SELECT #{select_fields}
             FROM #{table_name_sanitized}
             #{where_clause}
-            ORDER BY #{table_name_sanitized}.#{order_column} ASC
+            ORDER BY #{order_by_clause}
           SQL
 
           table_ids = connection.execute(checksum_sql_query).pluck('id')
           [table_ids.count, Digest::MD5.hexdigest(table_ids.join)]
         end
 
-        def build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
-          return '' unless WHERE_CLAUSE_ORDER_COLUMNS.include?(order_column)
+        def build_select_and_order_clause(order_column, table_name_sanitized)
+          case order_column.upcase
+          when 'UPDATED_AT', 'CREATED_AT'
+            select_clause = "#{table_name_sanitized}.#{order_column.downcase} AS \"#{order_column.downcase}_alias\""
+            order_by_clause = "\"#{order_column.downcase}_alias\" ASC, #{table_name_sanitized}.id ASC"
+          else
+            select_clause = ''
+            order_by_clause = "#{table_name_sanitized}.id ASC"
+          end
 
-          "WHERE #{table_name_sanitized}.#{order_column} < #{checksum_calculated_at_sanitized}"
+          [select_clause, order_by_clause]
         end
       end
     end
