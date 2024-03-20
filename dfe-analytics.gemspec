@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency 'google-cloud-bigquery', '~> 1.38'
+  spec.add_dependency 'httparty', '~> 0.21'
   spec.add_dependency 'request_store_rails', '~> 2'
 
   spec.add_development_dependency 'appraisal'
