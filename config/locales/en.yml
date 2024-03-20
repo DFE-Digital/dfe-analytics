@@ -75,7 +75,8 @@ en:
         azure_federated_auth:
           description: |
             Whether to use azure workload identity federation for authentication
-            instead of the BigQuery API JSON Key
+            instead of the BigQuery API JSON Key. Note that this also will also
+            use a new version of the BigQuery streaming APIs.
           default: false
         azure_client_id:
           description: |
