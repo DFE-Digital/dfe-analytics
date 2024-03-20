@@ -3,6 +3,7 @@ PATH
   specs:
     dfe-analytics (1.12.5)
       google-cloud-bigquery (~> 1.38)
+      httparty (~> 0.21)
       request_store_rails (~> 2)
 
 GEM
@@ -171,6 +172,9 @@ GEM
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
     hashdiff (1.0.1)
+    httparty (0.21.0)
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
     httpclient (2.8.3)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
@@ -203,6 +207,7 @@ GEM
     mini_portile2 (2.8.2)
     minitest (5.18.1)
     multi_json (1.15.0)
+    multi_xml (0.6.0)
     net-imap (0.3.6)
       date
       net-protocol
