@@ -58,6 +58,10 @@ module DfE
         DfE::Analytics.allowlist
       end
 
+      def self.hidden_pii
+        DfE::Analytics.analytics_hidden_pii
+      end
+
       def self.database
         DfE::Analytics.all_entities_in_application
           .reduce({}) do |list, entity|
