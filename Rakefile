@@ -24,7 +24,7 @@ task :prepare_release, %i[version] do |_, args|
 
   sh 'git', 'commit', '-a', '-m', v_version
 
-  sh 'gem', 'tag'
+  sh 'git', 'tag', v_version
 
   puts <<~EOMESSAGE
     Release #{v_version} is almost ready! Before you push:
