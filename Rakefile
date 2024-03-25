@@ -24,8 +24,6 @@ task :prepare_release, %i[version] do |_, args|
 
   sh 'git', 'commit', '-a', '-m', v_version
 
-  sh 'git', 'tag', v_version
-
   puts <<~EOMESSAGE
     Release #{v_version} is almost ready! Before you push:
 
@@ -36,14 +34,5 @@ task :prepare_release, %i[version] do |_, args|
 
         git show -- CHANGELOG.md
 
-    - Ensure that if you rebase or amend HEAD in any way, the #{v_version} tag
-      points to the new HEAD; the references listed here should point to the
-      same SHA:
-
-        git show-ref tags/#{v_version} heads/#{v_version}-release
-
-    Once you're happy with the CHANGELOG.md and the tag, you can push it with:
-
-      git push --tags origin
   EOMESSAGE
 end
