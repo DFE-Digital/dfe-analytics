@@ -8,7 +8,7 @@ module DfE
     class AzureFederatedAuth
       DEFAULT_AZURE_SCOPE = 'api://AzureADTokenExchange/.default'
       DEFAULT_GCP_SCOPE   = 'https://www.googleapis.com/auth/cloud-platform'
-      ACCESS_TOKEN_EXPIRY_LEEWAY = 10.seconds
+      ACCESS_TOKEN_EXPIRE_TIME_LEEWAY = 10.seconds
 
       def self.gcp_client_credentials
         return @gcp_client_credentials if @gcp_client_credentials && !@gcp_client_credentials.expired?
@@ -17,11 +17,11 @@ module DfE
 
         azure_google_exchange_token = azure_google_exchange_access_token(azure_token)
 
-        google_token, expiry_time = google_access_token(azure_google_exchange_token)
+        google_token, expire_time = google_access_token(azure_google_exchange_token)
 
-        expiry_time_with_leeway = expiry_time - ACCESS_TOKEN_EXPIRY_LEEWAY
+        expire_time_with_leeway = expire_time - ACCESS_TOKEN_EXPIRE_TIME_LEEWAY
 
-        @gcp_client_credentials = Google::Auth::UserRefreshCredentials.new(access_token: google_token, expires_at: expiry_time_with_leeway)
+        @gcp_client_credentials = Google::Auth::UserRefreshCredentials.new(access_token: google_token, expires_at: expire_time_with_leeway)
       end
 
       def self.azure_access_token
@@ -87,7 +87,7 @@ module DfE
 
         parsed_response = google_token_response.parsed_response
 
-        [parsed_response['accessToken'], parsed_response['expiryTime']]
+        [parsed_response['accessToken'], parsed_response['expireTime']]
       end
 
       class Error < StandardError; end

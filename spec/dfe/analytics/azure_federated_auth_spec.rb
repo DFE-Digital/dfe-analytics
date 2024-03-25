@@ -10,7 +10,7 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
   let(:azure_access_token) { 'fake_az_response_token' }
   let(:azure_google_exchange_access_token) { 'fake_az_gcp_exchange_token_response' }
   let(:google_access_token) { 'fake_google_response_token' }
-  let(:google_access_token_expiry_time) { '2024-03-09T14:38:02Z' }
+  let(:google_access_token_expire_time) { '2024-03-09T14:38:02Z' }
 
   describe '#azure_access_token' do
     before do
@@ -69,7 +69,7 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
         stub_google_access_token_request
 
         expect(described_class.google_access_token(azure_google_exchange_access_token))
-          .to eq([google_access_token, google_access_token_expiry_time])
+          .to eq([google_access_token, google_access_token_expire_time])
       end
     end
 
@@ -88,7 +88,7 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
   end
 
   describe '#gcp_client_credentials' do
-    let(:future_expiry_time) { Time.now + 1.hour }
+    let(:future_expire_time) { Time.now + 1.hour }
 
     before do
       allow(described_class).to receive(:azure_access_token).and_return(azure_access_token)
@@ -99,18 +99,18 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
 
       allow(described_class)
         .to receive(:google_access_token)
-        .with(azure_google_exchange_access_token).and_return([google_access_token, future_expiry_time])
+        .with(azure_google_exchange_access_token).and_return([google_access_token, future_expire_time])
     end
 
     it 'returns the expected client credentials' do
       expect(described_class.gcp_client_credentials).to be_an_instance_of(Google::Auth::UserRefreshCredentials)
       expect(described_class.gcp_client_credentials.access_token).to eq(google_access_token)
       expect(described_class.gcp_client_credentials.expires_at)
-        .to be_within(DfE::Analytics::AzureFederatedAuth::ACCESS_TOKEN_EXPIRY_LEEWAY).of(future_expiry_time)
+        .to be_within(DfE::Analytics::AzureFederatedAuth::ACCESS_TOKEN_EXPIRE_TIME_LEEWAY).of(future_expire_time)
     end
 
     context 'token expiry' do
-      context 'when expiry is in the future' do
+      context 'when expire time is in the future' do
         it 'calls token APIs once only on mutiple calls to get access token' do
           expect(described_class)
             .to receive(:azure_access_token)
@@ -126,7 +126,7 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
           expect(described_class)
             .to receive(:google_access_token)
             .with(azure_google_exchange_access_token)
-            .and_return([google_access_token, future_expiry_time])
+            .and_return([google_access_token, future_expire_time])
             .once
 
           5.times do

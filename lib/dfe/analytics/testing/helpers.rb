@@ -161,7 +161,7 @@ module DfE
             }
           end
 
-          request_body = 'grant_type=urn%3Aietf%3Ap1Garams%3Aoauth%3Agrant-type%3Atoken-exchange' \
+          request_body = 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange' \
                          '&audience=fake_gcp_aud&scope=fake_gcp_scope&requested_token_type=urn%3' \
                          'Aietf%3Aparams%3Aoauth%3Atoken-type%3Aaccess_token&subject_token=' \
                          'fake_az_response_token&subject_token_type=fake_sub_token_type'
@@ -231,7 +231,7 @@ module DfE
           request_body = 'scope=fake_gcp_scope'
 
           response_body = {
-            expiryTime: '2024-03-09T14:38:02Z',
+            expireTime: '2024-03-09T14:38:02Z',
             accessToken: 'fake_google_response_token'
           }.to_json
 
