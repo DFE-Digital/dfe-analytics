@@ -19,7 +19,7 @@ module DfE
 
         google_token, expire_time = google_access_token(azure_google_exchange_token)
 
-        expire_time_with_leeway = expire_time - ACCESS_TOKEN_EXPIRE_TIME_LEEWAY
+        expire_time_with_leeway = expire_time.to_datetime - ACCESS_TOKEN_EXPIRE_TIME_LEEWAY
 
         @gcp_client_credentials = Google::Auth::UserRefreshCredentials.new(access_token: google_token, expires_at: expire_time_with_leeway)
       end
