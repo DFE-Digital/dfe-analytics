@@ -1,11 +1,13 @@
 # Changelog
 
-## [v1.12.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.1) (2024-03-04)
+## [v1.12.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.2) (2024-03-22)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.0...v1.12.1)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.1...v1.12.2)
 
 **Merged pull requests:**
 
+- Update rakefile [\#122](https://github.com/DFE-Digital/dfe-analytics/pull/122) ([ericaporter](https://github.com/ericaporter))
+- Add order by clause to ensure consistent ordering [\#119](https://github.com/DFE-Digital/dfe-analytics/pull/119) ([ericaporter](https://github.com/ericaporter))
 - Remove array brackets for unused event tag [\#117](https://github.com/DFE-Digital/dfe-analytics/pull/117) ([ericaporter](https://github.com/ericaporter))
 - Add maintenance window logic [\#115](https://github.com/DFE-Digital/dfe-analytics/pull/115) ([ericaporter](https://github.com/ericaporter))
 - Use original\_fullpath for request path [\#112](https://github.com/DFE-Digital/dfe-analytics/pull/112) ([thomasleese](https://github.com/thomasleese))
@@ -43,6 +45,10 @@
 - Update advice on queue config and running imports [\#65](https://github.com/DFE-Digital/dfe-analytics/pull/65) ([asatwal](https://github.com/asatwal))
 - Add anonymisation of user\_id in the web request event data [\#64](https://github.com/DFE-Digital/dfe-analytics/pull/64) ([asatwal](https://github.com/asatwal))
 - Log Matched Events [\#63](https://github.com/DFE-Digital/dfe-analytics/pull/63) ([asatwal](https://github.com/asatwal))
+
+## [v1.12.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.1) (2024-03-04)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.0...v1.12.1)
 
 ## [v1.12.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.0) (2024-02-29)
 
