@@ -22,7 +22,7 @@ module DfE
           Google::Apis::BigqueryV2::BigqueryService.new
         end
 
-        @events_client.authorisation = DfE::Analytics::AzureFederatedAuth.gcp_client_credentials
+        @events_client.authorization = DfE::Analytics::AzureFederatedAuth.gcp_client_credentials
         @events_client
       end
 
