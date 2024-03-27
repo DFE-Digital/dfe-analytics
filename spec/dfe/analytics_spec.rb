@@ -236,7 +236,7 @@ RSpec.describe DfE::Analytics do
       end
     end
 
-    context 'when the current time is outside the maintenance window' do
+    context 'when the current time is outside the maintenance window X' do
       before do
         allow(described_class).to receive(:parse_maintenance_window)
           .and_return([DateTime.now - 2.days, DateTime.now - 1.day])
