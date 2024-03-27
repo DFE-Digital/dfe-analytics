@@ -141,7 +141,7 @@ module DfE
       Rails.application.config_for(:analytics_pii)
     end
 
-    def self.analytics_hidden_pii
+    def self.hidden_pii
       Rails.application.config_for(:analytics_hidden_pii)
     end
 

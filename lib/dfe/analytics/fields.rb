@@ -59,7 +59,7 @@ module DfE
       end
 
       def self.hidden_pii
-        DfE::Analytics.analytics_hidden_pii
+        DfE::Analytics.hidden_pii
       end
 
       def self.database

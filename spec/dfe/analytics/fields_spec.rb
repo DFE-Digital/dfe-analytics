@@ -10,13 +10,13 @@ RSpec.describe DfE::Analytics::Fields do
     end
 
     let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address] } }
-    let(:existing_blocklist) { { Candidate.table_name.to_sym => ['id'] } }
-    let(:hidden_pii) { { Candidate.table_name.to_sym => ['dob'] } }
+    let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[id] } }
+    let(:hidden_pii) { { Candidate.table_name.to_sym => %w[dob] } }
 
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return(existing_allowlist)
       allow(DfE::Analytics).to receive(:blocklist).and_return(existing_blocklist)
-      allow(DfE::Analytics).to receive(:analytics_hidden_pii).and_return(hidden_pii)
+      allow(DfE::Analytics).to receive(:hidden_pii).and_return(hidden_pii)
     end
 
     describe '.allowlist' do
@@ -117,7 +117,7 @@ RSpec.describe DfE::Analytics::Fields do
 
     context 'handling of hidden PII fields' do
       let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[dob email_address id] } }
-      let(:hidden_pii) { { Candidate.table_name.to_sym => ['dob'] } }
+      let(:hidden_pii) { { Candidate.table_name.to_sym => %w[dob] } }
       let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[first_name last_name] } }
 
       describe '.hidden_pii' do
