@@ -1,5 +1,6 @@
 require_relative '../shared/service_pattern'
 require_relative '../shared/checksum_query_components'
+require 'pry'
 
 module DfE
   module Analytics
@@ -30,6 +31,8 @@ module DfE
           checksum_calculated_at_sanitized = connection.quote(checksum_calculated_at)
           where_clause = build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
           select_clause, order_alias = build_select_and_order_clause(order_column, table_name_sanitized)
+
+          binding.pry
 
           checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
