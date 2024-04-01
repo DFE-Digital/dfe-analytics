@@ -42,6 +42,8 @@ module DfE
           ) AS CHECKSUM_TABLE
           SQL
 
+          puts checksum_sql_query
+
           result = connection.execute(checksum_sql_query).first
           [result['row_count'].to_i, result['checksum']]
         end
