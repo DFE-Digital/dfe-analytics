@@ -1,6 +1,5 @@
 require_relative '../shared/service_pattern'
 require_relative '../shared/checksum_query_components'
-require 'pry'
 
 module DfE
   module Analytics
@@ -32,11 +31,9 @@ module DfE
           where_clause = build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
           select_clause, order_alias = build_select_and_order_clause(order_column, table_name_sanitized)
 
-          binding.pry
-
           checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
-            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_alias} ASC, CHECKSUM_TABLE.ID ASC), ''))
+            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_alias} ASC, CHECKSUM_TABLE.ID ASC), '')) AS "checksum"
           FROM (
             SELECT #{table_name_sanitized}.id::TEXT as ID,
             #{select_clause}
@@ -44,8 +41,6 @@ module DfE
             #{where_clause}
           ) AS CHECKSUM_TABLE
           SQL
-
-          puts checksum_sql_query
 
           result = connection.execute(checksum_sql_query).first
           [result['row_count'].to_i, result['checksum']]
