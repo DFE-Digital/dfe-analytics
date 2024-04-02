@@ -1,6 +1,15 @@
 # Changelog
 
-## [v1.12.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.2) (2024-03-22)
+## [v1.12.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.3) (2024-04-02)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.2...v1.12.3)
+
+**Merged pull requests:**
+
+- Re-add 'as checksum' [\#126](https://github.com/DFE-Digital/dfe-analytics/pull/126) ([ericaporter](https://github.com/ericaporter))
+- Update release instructions relating to tagging [\#124](https://github.com/DFE-Digital/dfe-analytics/pull/124) ([ericaporter](https://github.com/ericaporter))
+
+## [v1.12.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.2) (2024-03-25)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.1...v1.12.2)
 
