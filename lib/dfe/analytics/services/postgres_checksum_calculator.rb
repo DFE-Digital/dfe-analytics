@@ -33,7 +33,7 @@ module DfE
 
           checksum_sql_query = <<-SQL
           SELECT COUNT(*) as row_count,
-            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_alias} ASC, CHECKSUM_TABLE.ID ASC), ''))
+            MD5(COALESCE(STRING_AGG(CHECKSUM_TABLE.ID, '' ORDER BY CHECKSUM_TABLE.#{order_alias} ASC, CHECKSUM_TABLE.ID ASC), '')) as checksum
           FROM (
             SELECT #{table_name_sanitized}.id::TEXT as ID,
             #{select_clause}
