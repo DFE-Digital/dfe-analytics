@@ -27,7 +27,6 @@ module DfE
             process_batch(model_class, ids, entity_tag)
           end
         end
-        puts 'SendEvents.perform_now called'
       end
 
       private
