@@ -112,6 +112,57 @@ RSpec.describe DfE::Analytics::Event do
     end
   end
 
+  describe 'with_hidden_data' do
+    let(:hidden_data_hash) do
+      {
+        sensitive_info: 'secret',
+        pii_data: '12345'
+      }
+    end
+
+    it 'appends hidden data to the event' do
+      event = described_class.new
+      output = event.with_hidden_data(hidden_data_hash).as_json
+
+      expect(output).to match a_hash_including({
+        'hidden_data' => include(
+          { 'key' => 'sensitive_info', 'value' => ['secret'] },
+          { 'key' => 'pii_data', 'value' => ['12345'] }
+        )
+      })
+    end
+
+    it 'converts booleans to strings in hidden data' do
+      event = described_class.new
+      output = event.with_hidden_data(key: false).as_json
+      expect(output['hidden_data'].first['value']).to eq ['false']
+    end
+
+    it 'converts hashes to strings in hidden data' do
+      event = described_class.new
+      output = event.with_hidden_data(key: { hidden_details: { level: 'high' } }).as_json
+      expect(output['hidden_data'].first['value']).to eq ['{"hidden_details":{"level":"high"}}']
+    end
+
+    it 'strips out nil values in hidden data' do
+      expect(Rails.logger).to receive(:warn).with(/DfE::Analytics an array field contains nulls/)
+
+      event = described_class.new
+      event.with_hidden_data(key: ['A', nil, 'B']).as_json
+      expect(event.as_json['hidden_data'].first['value']).to eq %w[A B]
+    end
+
+    it 'correctly processes nested arrays and hashes in hidden data' do
+      event = described_class.new
+      nested_data = { complex_key: [{ inner_key: 'inner_value' }] }
+      output = event.with_hidden_data(nested_data).as_json
+
+      expect(output['hidden_data']).to include(
+        'key' => 'complex_key', 'value' => ['{"inner_key":"inner_value"}']
+      )
+    end
+  end
+
   describe 'handling invalid UTF-8' do
     it 'coerces it to valid UTF-8' do
       invalid_string = "hello \xbf\xef hello"

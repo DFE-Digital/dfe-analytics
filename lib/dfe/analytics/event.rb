@@ -4,6 +4,7 @@ require 'active_support/values/time_zone'
 
 module DfE
   module Analytics
+    # rubocop:disable Metrics/ClassLength
     class Event
       EVENT_TYPES = %w[
         web_request create_entity update_entity delete_entity import_entity initialise_analytics entity_table_check import_entity_table_check
@@ -78,6 +79,12 @@ module DfE
         self
       end
 
+      def with_hidden_data(hash)
+        @event_hash.deep_merge!(hidden_data: hash_to_kv_pairs(hash))
+
+        self
+      end
+
       def with_tags(tags)
         @event_hash[:event_tags] = tags if tags
 
@@ -137,5 +144,6 @@ module DfE
         user_id
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
