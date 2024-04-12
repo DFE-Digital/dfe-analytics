@@ -36,6 +36,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
     context 'when entity table checks are not enabled' do
       before do
+        allow(DfE::Analytics).to receive(:enabled?).and_return(true)
         allow(DfE::Analytics).to receive(:entity_table_checks_enabled?).and_return(false)
         allow(DfE::Analytics).to receive(:entities_for_analytics).and_return(%w[Candidate Application])
       end
@@ -49,6 +50,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
     context 'when entity table checks are enabled' do
       before do
+        allow(DfE::Analytics).to receive(:enabled?).and_return(true)
         allow(DfE::Analytics).to receive(:entity_table_checks_enabled?).and_return(true)
         allow(DfE::Analytics).to receive(:entities_for_analytics).and_return(%w[Candidate Application])
       end
