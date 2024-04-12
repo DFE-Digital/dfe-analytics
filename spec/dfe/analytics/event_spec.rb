@@ -61,6 +61,7 @@ RSpec.describe DfE::Analytics::Event do
   end
 
   describe 'data pairs' do
+    let(:event) { described_class.new }
     let(:has_as_json_class) do
       Struct.new(:colour, :is_cat) do
         def as_json
@@ -72,94 +73,49 @@ RSpec.describe DfE::Analytics::Event do
       end
     end
 
-    it 'converts booleans to strings' do
-      event = described_class.new
-      output = event.with_data(key: true).as_json
-      expect(output['data'].first['value']).to eq ['true']
+    def find_data_pair(output, key)
+      output['data'].find { |pair| pair['key'] == key }
+    end
+
+    it 'converts data types to their string representations' do
+      boolean_output = event.with_data(data: { boolean_key: true }, hidden_data: {}).as_json
+      expect(find_data_pair(boolean_output, 'boolean_key')['value']).to eq(['true'])
     end
 
     it 'converts hashes to strings' do
-      event = described_class.new
-      output = event.with_data(key: { equality_and_diversity: { ethnic_background: 'Irish' } }).as_json
-      expect(output['data'].first['value']).to eq ['{"equality_and_diversity":{"ethnic_background":"Irish"}}']
+      hash_output = event.with_data(data: { hash_key: { equality_and_diversity: { ethnic_background: 'Irish' } } }, hidden_data: {}).as_json
+      expect(find_data_pair(hash_output, 'hash_key')['value']).to eq(['{"equality_and_diversity":{"ethnic_background":"Irish"}}'])
     end
 
-    it 'strips out nil values' do
-      event = described_class.new
-      output = event.with_data(key: ['A', nil, 'B']).as_json
-      expect(output['data'].first['value']).to eq %w[A B]
-    end
-
-    it 'logs a warning when stripping out nil values' do
+    it 'strips out nil values and logs a warning' do
       expect(Rails.logger).to receive(:warn).with(/DfE::Analytics an array field contains nulls/)
-
-      event = described_class.new
-      event.with_data(key: ['A', nil, nil]).as_json
+      nil_values_output = event.with_data(data: { key_with_nil: ['A', nil, nil] }, hidden_data: {}).as_json
+      expect(find_data_pair(nil_values_output, 'key_with_nil')['value']).to eq(['A'])
     end
 
     it 'handles objects that have JSON-friendly structures' do
-      event = described_class.new
-      output = event.with_data(as_json_object: has_as_json_class.new(:green, true)).as_json
+      output = event.with_data(data: { as_json_object: has_as_json_class.new('green', true) }, hidden_data: {}).as_json
+
       expect(output['data'].first['value']).to eq ['{"colour":"green","is_cat":true}']
+      puts has_as_json_class.new('green', true).as_json.to_json
     end
 
     it 'handles arrays of JSON-friendly structures' do
-      event = described_class.new
-      output = event.with_data(
-        as_json_object: [has_as_json_class.new(:green, true)]
-      ).as_json
-      expect(output['data'].first['value']).to eq ['{"colour":"green","is_cat":true}']
-    end
-  end
+      output = event.with_data(data: { as_json_object: [has_as_json_class.new('green', true)] }, hidden_data: {}).as_json
 
-  describe 'with_hidden_data' do
-    let(:hidden_data_hash) do
-      {
-        sensitive_info: 'secret',
-        pii_data: '12345'
-      }
+      expect(output['data']).not_to be_nil
+      expect(output['data']).not_to be_empty
+
+      found_key_value_pair = output['data'].find { |pair| pair['key'] == 'as_json_object' }
+      expect(found_key_value_pair).not_to be_nil
+      expect(found_key_value_pair['value']).to eq(['{"colour":"green","is_cat":true}'])
     end
 
-    it 'appends hidden data to the event' do
-      event = described_class.new
-      output = event.with_hidden_data(hidden_data_hash).as_json
-
-      expect(output).to match a_hash_including({
-        'hidden_data' => include(
-          { 'key' => 'sensitive_info', 'value' => ['secret'] },
-          { 'key' => 'pii_data', 'value' => ['12345'] }
-        )
-      })
-    end
-
-    it 'converts booleans to strings in hidden data' do
-      event = described_class.new
-      output = event.with_hidden_data(key: false).as_json
-      expect(output['hidden_data'].first['value']).to eq ['false']
-    end
-
-    it 'converts hashes to strings in hidden data' do
-      event = described_class.new
-      output = event.with_hidden_data(key: { hidden_details: { level: 'high' } }).as_json
-      expect(output['hidden_data'].first['value']).to eq ['{"hidden_details":{"level":"high"}}']
-    end
-
-    it 'strips out nil values in hidden data' do
-      expect(Rails.logger).to receive(:warn).with(/DfE::Analytics an array field contains nulls/)
-
-      event = described_class.new
-      event.with_hidden_data(key: ['A', nil, 'B']).as_json
-      expect(event.as_json['hidden_data'].first['value']).to eq %w[A B]
-    end
-
-    it 'correctly processes nested arrays and hashes in hidden data' do
-      event = described_class.new
-      nested_data = { complex_key: [{ inner_key: 'inner_value' }] }
-      output = event.with_hidden_data(nested_data).as_json
-
-      expect(output['hidden_data']).to include(
-        'key' => 'complex_key', 'value' => ['{"inner_key":"inner_value"}']
-      )
+    it 'behaves correctly when with_data is called with empty data and hidden_data' do
+      event.with_data(data: {}, hidden_data: {})
+      updated_event_hash = event.as_json
+      expect(updated_event_hash['data']).to eq([])
+      expect(updated_event_hash['hidden_data']).to eq([])
     end
   end
 

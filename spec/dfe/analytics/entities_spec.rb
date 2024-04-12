@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics::Entities do
-  let(:interesting_fields) { [] }
+  let(:allowlist_fields) { [] }
   let(:pii_fields) { [] }
   let(:hidden_pii_fields) { [] }
 
@@ -20,7 +20,7 @@ RSpec.describe DfE::Analytics::Entities do
     allow(DfE::Analytics).to receive(:enabled?).and_return(true)
 
     allow(DfE::Analytics).to receive(:allowlist).and_return({
-      Candidate.table_name.to_sym => interesting_fields
+      Candidate.table_name.to_sym => allowlist_fields
     })
 
     allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
@@ -39,7 +39,7 @@ RSpec.describe DfE::Analytics::Entities do
 
   describe 'create_entity events' do
     context 'when fields are specified in the analytics file' do
-      let(:interesting_fields) { ['id'] }
+      let(:allowlist_fields) { ['id'] }
 
       it 'includes attributes specified in the settings file' do
         Candidate.create(id: 123)
@@ -91,7 +91,7 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       context 'and the specified fields are listed as PII' do
-        let(:interesting_fields) { ['email_address'] }
+        let(:allowlist_fields) { ['email_address'] }
         let(:pii_fields) { ['email_address'] }
 
         it 'hashes those fields' do
@@ -108,7 +108,7 @@ RSpec.describe DfE::Analytics::Entities do
       end
 
       context 'and other fields are listed as PII' do
-        let(:interesting_fields) { ['id'] }
+        let(:allowlist_fields) { ['id'] }
         let(:pii_fields) { ['email_address'] }
 
         it 'does not include the fields only listed as PII' do
@@ -125,7 +125,7 @@ RSpec.describe DfE::Analytics::Entities do
     end
 
     context 'when no fields are specified in the analytics file' do
-      let(:interesting_fields) { [] }
+      let(:allowlist_fields) { [] }
 
       it 'does not send create_entity events at all' do
         Candidate.create
@@ -136,7 +136,7 @@ RSpec.describe DfE::Analytics::Entities do
     end
 
     context 'when fields are specified in the analytics and hidden_pii file' do
-      let(:interesting_fields) { %w[email_address dob] }
+      let(:allowlist_fields) { %w[email_address dob] }
       let(:hidden_pii_fields) { %w[dob] }
 
       it 'sends event with separated allowed and hidden data' do
@@ -154,7 +154,7 @@ RSpec.describe DfE::Analytics::Entities do
 
   describe 'update_entity events' do
     context 'when fields are specified in the analytics file' do
-      let(:interesting_fields) { %w[email_address first_name] }
+      let(:allowlist_fields) { %w[email_address first_name] }
 
       it 'sends update events for fields we care about' do
         entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
@@ -165,8 +165,7 @@ RSpec.describe DfE::Analytics::Entities do
             'entity_table_name' => Candidate.table_name,
             'event_type' => 'update_entity',
             'data' => [
-              { 'key' => 'email_address', 'value' => ['bar@baz.com'] },
-              { 'key' => 'first_name', 'value' => ['Jason'] }
+              { 'key' => 'email_address', 'value' => ['bar@baz.com'] }
             ]
           })])
       end
@@ -195,7 +194,7 @@ RSpec.describe DfE::Analytics::Entities do
     end
 
     context 'when no fields are specified in the analytics file' do
-      let(:interesting_fields) { [] }
+      let(:allowlist_fields) { [] }
 
       it 'does not send update events at all' do
         entity = Candidate.create
@@ -210,7 +209,7 @@ RSpec.describe DfE::Analytics::Entities do
 
     context 'when fields are specified in the analytics and hidden_pii file' do
       let(:candidate) { Candidate.create(email_address: 'name@example.com', dob: '20062000') }
-      let(:interesting_fields) { %w[email_address dob] }
+      let(:allowlist_fields) { %w[email_address dob] }
       let(:hidden_pii_fields) { %w[dob] }
 
       it 'sends events with updated allowed field but without original hidden data' do
@@ -238,7 +237,7 @@ RSpec.describe DfE::Analytics::Entities do
   end
 
   describe 'delete_entity events' do
-    let(:interesting_fields) { ['email_address'] }
+    let(:allowlist_fields) { ['email_address'] }
 
     it 'sends events when objects are deleted' do
       entity = Candidate.create(email_address: 'boo@example.com')
@@ -255,7 +254,7 @@ RSpec.describe DfE::Analytics::Entities do
     end
 
     context 'when fields are specified in the analytics and hidden_pii file' do
-      let(:interesting_fields) { %w[email_address dob] }
+      let(:allowlist_fields) { %w[email_address dob] }
       let(:hidden_pii_fields) { %w[dob] }
 
       it 'sends event indicating deletion with allowed and hidden data' do

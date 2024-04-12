@@ -37,7 +37,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
       perform_enqueued_jobs do
         c = Candidate.create(email_address: '12345678910')
         c2 = Candidate.create(email_address: '12345678910')
-        stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 250)
+        stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 300)
 
         described_class.perform_now('Candidate', [c.id, c2.id], entity_tag)
 
@@ -48,7 +48,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
     it 'doesn’t split a batch unless it has to' do
       c = Candidate.create(email_address: '12345678910')
       c2 = Candidate.create(email_address: '12345678910')
-      stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 1000)
+      stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 550)
 
       described_class.perform_now('Candidate', [c.id, c2.id], entity_tag)
 
@@ -102,7 +102,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
           c = Candidate.create(email_address: '12345678910', dob: '12072000')
           c2 = Candidate.create(email_address: '12345678910', dob: '12072000')
 
-          stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 250)
+          stub_const('DfE::Analytics::LoadEntityBatch::BQ_BATCH_MAX_BYTES', 300)
 
           described_class.perform_now('Candidate', [c.id, c2.id], entity_tag)
 

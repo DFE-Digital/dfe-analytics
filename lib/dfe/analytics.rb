@@ -211,7 +211,10 @@ module DfE
       hidden_attributes = attributes.slice(*exportable_hidden_pii_attrs&.map(&:to_s))
 
       # Allowed attributes (which currently includes the allowlist_pii) must be kept separate from hidden_attributes
-      [allowed_attributes.deep_merge(obfuscated_attributes), hidden_attributes]
+      model_attributes = {}
+      model_attributes.merge!(data: allowed_attributes.deep_merge(obfuscated_attributes)) if allowed_attributes.any? || obfuscated_attributes.any?
+      model_attributes.merge!(hidden_data: hidden_attributes) if hidden_attributes.any?
+      model_attributes
     end
 
     def self.anonymise(value)

@@ -4,7 +4,6 @@ require 'active_support/values/time_zone'
 
 module DfE
   module Analytics
-    # rubocop:disable Metrics/ClassLength
     class Event
       EVENT_TYPES = %w[
         web_request create_entity update_entity delete_entity import_entity initialise_analytics entity_table_check import_entity_table_check
@@ -74,13 +73,8 @@ module DfE
       end
 
       def with_data(hash)
-        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash))
-
-        self
-      end
-
-      def with_hidden_data(hash)
-        @event_hash.deep_merge!(hidden_data: hash_to_kv_pairs(hash))
+        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash[:data]))
+        @event_hash.deep_merge!(hidden_data: hash_to_kv_pairs(hash[:hidden_data]))
 
         self
       end
@@ -116,6 +110,8 @@ module DfE
       end
 
       def hash_to_kv_pairs(hash)
+        return [] if hash.nil?
+
         hash.map do |(key, values)|
           if Array.wrap(values).any?(&:nil?)
             message = "an array field contains nulls - event: #{@event_hash} key: #{key} values: #{values}"
@@ -144,6 +140,5 @@ module DfE
         user_id
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end
