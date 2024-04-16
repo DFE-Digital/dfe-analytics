@@ -73,8 +73,8 @@ module DfE
       end
 
       def with_data(hash)
-        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash[:data]))
-        @event_hash.deep_merge!(hidden_data: hash_to_kv_pairs(hash[:hidden_data]))
+        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash[:data])) if hash.include?(:data)
+        @event_hash.deep_merge!(hidden_data: hash_to_kv_pairs(hash[:hidden_data])) if hash.include?(:hidden_data)
 
         self
       end
