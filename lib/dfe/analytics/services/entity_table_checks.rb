@@ -94,8 +94,6 @@ module DfE
         end
 
         def send_entity_table_check_event(entity_name, entity_type, entity_tag, order_column)
-          return unless DfE::Analytics.enabled?
-
           entity_table_check_event = build_event_for(entity_name, entity_type, entity_tag, order_column)
           DfE::Analytics::SendEvents.perform_later([entity_table_check_event])
         end

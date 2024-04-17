@@ -6,11 +6,6 @@ module DfE
       BQ_BATCH_MAX_BYTES = 10_000_000
 
       def perform(model_class_arg, ids, entity_tag)
-        unless DfE::Analytics.enabled?
-          Rails.logger.info('Bulk upload only available when DfE::Analytics is enabled, please check it is enabled in this env')
-          return
-        end
-
         model_class = resolve_model_class(model_class_arg)
 
         events = create_events(model_class, ids, entity_tag)

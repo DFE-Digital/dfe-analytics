@@ -4,8 +4,12 @@ module DfE
   module Analytics
     class SendEvents < AnalyticsJob
       def self.do(events)
-        # The initialise event is a one-off event that must be sent to BigQuery once only
+        unless DfE::Analytics.enabled?
+          Rails.logger.info('DfE::Analytics::SendEvents.do() called but DfE::Analytics is disabled. Please check DfE::Analytics.enabled? before sending events to BigQuery')
+          return
+        end
 
+        # The initialise event is a one-off event that must be sent to BigQuery once only
         DfE::Analytics::InitialisationEvents.trigger_initialisation_events unless DfE::Analytics::InitialisationEvents.initialisation_events_sent?
 
         events = events.map { |event| event.is_a?(Event) ? event.as_json : event }
