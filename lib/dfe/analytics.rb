@@ -143,8 +143,7 @@ module DfE
 
     def self.hidden_pii
       Rails.application.config_for(:analytics_hidden_pii)
-    rescue StandardError
-      Rails.logger.info('Missing configuration: analytics_hidden_pii.yml. Please create this file in the config directory')
+    rescue RuntimeError
       { 'shared' => {} }
     end
 
