@@ -143,6 +143,8 @@ module DfE
 
     def self.hidden_pii
       Rails.application.config_for(:analytics_hidden_pii)
+    rescue RuntimeError
+      { 'shared' => {} }
     end
 
     def self.blocklist
