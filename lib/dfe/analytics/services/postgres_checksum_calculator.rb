@@ -55,7 +55,7 @@ module DfE
                         end
           select_clause = case order_column
                           when 'UPDATED_AT', 'CREATED_AT'
-                            "#{table_name_sanitized}.#{order_column.downcase} AS \"#{order_alias}\""
+                            "DATE_TRUNC('milliseconds', #{table_name_sanitized}.#{order_column.downcase}) AS \"#{order_alias}\""
                           else
                             "#{table_name_sanitized}.id::TEXT AS \"#{order_alias}\""
                           end
