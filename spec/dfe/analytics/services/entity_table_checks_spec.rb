@@ -215,5 +215,17 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
           })])
       end
     end
+
+    it 'orders records by updated_at truncated to milliseconds' do
+      time_base = Time.zone.now.beginning_of_minute
+      Candidate.create(email_address: 'first@example.com', updated_at: time_base + 0.001.seconds)
+      Candidate.create(email_address: 'second@example.com', updated_at: time_base + 0.005.seconds)
+
+      described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+
+      ordered_candidates = Candidate.order(:updated_at).pluck(:email_address)
+
+      expect(ordered_candidates).to eq(['first@example.com', 'second@example.com'])
+    end
   end
 end
