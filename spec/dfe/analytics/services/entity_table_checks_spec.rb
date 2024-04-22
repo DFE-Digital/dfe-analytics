@@ -59,7 +59,6 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
 
   describe '#call' do
     let(:time_zone) { 'London' }
-    let(:checksum_calculated_at) { ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone(time_zone).iso8601(6) }
     let(:order_column) { 'UPDATED_AT' }
     let(:course_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('course') } }
     let(:institution_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('institution') } }
@@ -68,7 +67,11 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     let(:department_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('department') } }
     let(:entity_type) { 'entity_table_check' }
 
-    before { Timecop.freeze(checksum_calculated_at) }
+    before do
+      current_timestamp = ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone(time_zone)
+      @checksum_calculated_at = current_timestamp.iso8601(6)
+      Timecop.freeze(current_timestamp)
+    end
     after { Timecop.return }
 
     it 'returns if the adapter or environment is unsupported' do
@@ -92,10 +95,9 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
 
     it 'orders by created_at if updated_at is missing' do
       order_column = 'CREATED_AT'
-
       [123, 124, 125].map { |id| Application.create(id: id) }
       application_entities = DfE::Analytics.entities_for_analytics.select { |entity| entity.to_s.include?('application') }
-      table_ids = Application.where('created_at < ?', checksum_calculated_at).order(created_at: :asc).pluck(:id)
+      table_ids = Application.where('created_at < ?', @checksum_calculated_at).order(created_at: :asc).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       application_entities.each do |application|
@@ -105,7 +107,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
           'data' => [
             { 'key' => 'row_count', 'value' => [table_ids.size] },
             { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'checksum_calculated_at', 'value' => [@checksum_calculated_at] },
             { 'key' => 'order_column', 'value' => [order_column] }
           ]
         })])
@@ -115,49 +117,48 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     it 'sends an entity table check event' do
       [130, 131, 132].map { |id| Candidate.create(id: id) }
       candidate_entities = DfE::Analytics.entities_for_analytics.select { |entity| entity.to_s.include?('candidate') }
-      table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
+      table_ids = Candidate.where('updated_at < ?', @checksum_calculated_at).order(updated_at: :asc).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       candidate_entities.each do |candidate|
         described_class.call(entity_name: candidate, entity_type: entity_type, entity_tag: nil)
+
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
-        .with([a_hash_including({
-          'data' =>
-          [
-            { 'key' => 'row_count', 'value' => [table_ids.size] },
-            { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
-            { 'key' => 'order_column', 'value' => [order_column] }
-          ]
-        })])
+          .with([hash_including({
+            'data' => [
+              { 'key' => 'row_count', 'value' => [table_ids.size] },
+              { 'key' => 'checksum', 'value' => [checksum] },
+              { 'key' => 'checksum_calculated_at', 'value' => [@checksum_calculated_at] },
+              { 'key' => 'order_column', 'value' => [order_column] }
+            ]
+          })])
       end
     end
 
     it 'does not send the event if updated_at is greater than checksum_calculated_at' do
-      Timecop.freeze(DateTime.parse(checksum_calculated_at)) do
-        Candidate.create(id: '123', updated_at: DateTime.parse(checksum_calculated_at) - 2.hours)
-        Candidate.create(id: '124', updated_at: DateTime.parse(checksum_calculated_at) - 5.hours)
-        Candidate.create(id: '125', updated_at: DateTime.parse(checksum_calculated_at) + 5.hours)
+      Candidate.create(id: '123', updated_at: DateTime.parse(@checksum_calculated_at) - 2.hours)
+      Candidate.create(id: '124', updated_at: DateTime.parse(@checksum_calculated_at) - 5.hours)
+      Candidate.create(id: '125', updated_at: DateTime.parse(@checksum_calculated_at) + 5.hours)
 
-        table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(:updated_at).pluck(:id)
-        checksum = Digest::MD5.hexdigest(table_ids.join)
+      table_ids = Candidate.where('updated_at < ?', @checksum_calculated_at).order(:updated_at).pluck(:id)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
 
-        described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+      described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+      puts "@checksum_calculated_at set to #{@checksum_calculated_at}"  # Debugging output
 
-        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
-          .with([a_hash_including({
-            'data' => [
-              { 'key' => 'row_count', 'value' => [table_ids.size] },
-              { 'key' => 'checksum', 'value' => [checksum] },
-              { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
-              { 'key' => 'order_column', 'value' => [order_column] }
-            ]
-        })])
-      end
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+          'data' => [
+            { 'key' => 'row_count', 'value' => [table_ids.size] },
+            { 'key' => 'checksum', 'value' => [checksum] },
+            { 'key' => 'checksum_calculated_at', 'value' => [@checksum_calculated_at] },
+            { 'key' => 'order_column', 'value' => [order_column] }
+          ]
+      })])
     end
 
     it 'returns zero rows and checksum if table is empty' do
-      table_ids = Candidate.where('updated_at < ?', checksum_calculated_at).order(updated_at: :asc).pluck(:id)
+      table_ids = Candidate.where('updated_at < ?', @checksum_calculated_at).order(updated_at: :asc).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
       described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
 
@@ -166,7 +167,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
           'data' => [
             { 'key' => 'row_count', 'value' => [0] },
             { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'checksum_calculated_at', 'value' => [@checksum_calculated_at] },
             { 'key' => 'order_column', 'value' => [order_column] }
           ]
       })])
@@ -209,7 +210,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
             'data' => [
               { 'key' => 'row_count', 'value' => [table_ids.size] },
               { 'key' => 'checksum', 'value' => [checksum] },
-              { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+              { 'key' => 'checksum_calculated_at', 'value' => [@checksum_calculated_at] },
               { 'key' => 'order_column', 'value' => [order_column] }
             ]
           })])
