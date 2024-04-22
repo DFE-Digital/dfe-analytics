@@ -20,9 +20,25 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
   end
 
   describe '#perform' do
+    context 'when dfe-analytics is not enabled' do
+      before do
+        allow(DfE::Analytics).to receive(:enabled?).and_return(false)
+        allow(DfE::Analytics).to receive(:entity_table_checks_enabled?).and_return(true)
+        allow(DfE::Analytics).to receive(:entities_for_analytics).and_return(%w[Candidate Application])
+      end
+
+      it 'does not call EntityTableChecks' do
+        expect(DfE::Analytics::Services::EntityTableChecks).not_to receive(:call)
+
+        described_class.new.perform
+      end
+    end
+
     context 'when entity table checks are not enabled' do
       before do
+        allow(DfE::Analytics).to receive(:enabled?).and_return(true)
         allow(DfE::Analytics).to receive(:entity_table_checks_enabled?).and_return(false)
+        allow(DfE::Analytics).to receive(:entities_for_analytics).and_return(%w[Candidate Application])
       end
 
       it 'does not call EntityTableChecks' do
@@ -34,6 +50,7 @@ RSpec.describe DfE::Analytics::EntityTableCheckJob do
 
     context 'when entity table checks are enabled' do
       before do
+        allow(DfE::Analytics).to receive(:enabled?).and_return(true)
         allow(DfE::Analytics).to receive(:entity_table_checks_enabled?).and_return(true)
         allow(DfE::Analytics).to receive(:entities_for_analytics).and_return(%w[Candidate Application])
       end

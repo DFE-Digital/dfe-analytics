@@ -7,7 +7,7 @@ module DfE
     # To ensure BigQuery is in sync with the database
     class EntityTableCheckJob < AnalyticsJob
       def perform
-        return unless DfE::Analytics.entity_table_checks_enabled?
+        return unless DfE::Analytics.enabled? && DfE::Analytics.entity_table_checks_enabled?
 
         entity_tag = Time.now.strftime('%Y%m%d%H%M%S')
         DfE::Analytics.entities_for_analytics.each do |entity_name|

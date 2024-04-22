@@ -8,6 +8,7 @@ RSpec.describe DfE::Analytics::LoadEntityBatch do
   end
 
   before do
+    allow(DfE::Analytics).to receive(:enabled?).and_return(true)
     allow(DfE::Analytics::SendEvents).to receive(:perform_now)
 
     allow(DfE::Analytics).to receive(:allowlist).and_return({
