@@ -1,5 +1,4 @@
 require_relative '../shared/service_pattern'
-require_relative '../shared/checksum_query_components'
 
 module DfE
   module Analytics
@@ -63,7 +62,7 @@ module DfE
         def build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
           return '' unless WHERE_CLAUSE_ORDER_COLUMNS.map(&:downcase).include?(order_column.downcase)
 
-          "WHERE DATE_TRUNC('milliseconds', #{table_name_sanitized}.#{order_column.downcase}) < #{checksum_calculated_at_sanitized}"
+          "WHERE #{table_name_sanitized}.#{order_column.downcase} < #{checksum_calculated_at_sanitized}"
         end
       end
     end
