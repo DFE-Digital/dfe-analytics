@@ -1,6 +1,18 @@
 # Changelog
 
-## [v1.12.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.3) (2024-04-02)
+## [v1.12.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.4) (2024-04-23)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.3...v1.12.4)
+
+**Merged pull requests:**
+
+- Fix for flakey tests [\#134](https://github.com/DFE-Digital/dfe-analytics/pull/134) ([ericaporter](https://github.com/ericaporter))
+- Explicitly truncate updated\_at and created\_at [\#132](https://github.com/DFE-Digital/dfe-analytics/pull/132) ([ericaporter](https://github.com/ericaporter))
+- Add ImportEntityTableCheck to import task [\#131](https://github.com/DFE-Digital/dfe-analytics/pull/131) ([ericaporter](https://github.com/ericaporter))
+- Add flags to prevent code running in envs where dfe-analytics isn't set up [\#130](https://github.com/DFE-Digital/dfe-analytics/pull/130) ([ericaporter](https://github.com/ericaporter))
+
+## [v1.12.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.3) (2024-04-04)
+>>>>>>> 21aad86 (v1.12.4)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.2...v1.12.3)
 
