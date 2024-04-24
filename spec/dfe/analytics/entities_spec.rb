@@ -145,7 +145,7 @@ RSpec.describe DfE::Analytics::Entities do
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
           .with([a_hash_including({
             'event_type' => 'create_entity',
-            'data' => array_including(a_hash_including('key' => 'email_address')),
+            'data' => array_including(a_hash_including('key' => 'email_address', 'value' => ['foo@bar.com'])),
             'hidden_data' => array_including(a_hash_including('key' => 'dob', 'value' => ['20062000']))
           })])
       end
