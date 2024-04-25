@@ -22,10 +22,13 @@ module DfE
           # in this after_update hook we don't have access to the new fields via
           # #attributes — we need to dig them out of saved_changes which stores
           # them in the format { attr: ['old', 'new'] }
-          new_attributes = saved_changes.transform_values(&:last)
+          updated_attributes = DfE::Analytics.extract_model_attributes(
+            self, saved_changes.transform_values(&:last)
+          )
 
-          extracted_attributes = DfE::Analytics.extract_model_attributes(self, new_attributes)
-          send_event('update_entity', extracted_attributes) if extracted_attributes.any?
+          allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
+
+          send_event('update_entity', allowed_attributes) if updated_attributes.any?
         end
       end
 

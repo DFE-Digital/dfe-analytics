@@ -165,7 +165,8 @@ RSpec.describe DfE::Analytics::Entities do
             'entity_table_name' => Candidate.table_name,
             'event_type' => 'update_entity',
             'data' => [
-              { 'key' => 'email_address', 'value' => ['bar@baz.com'] }
+              { 'key' => 'email_address', 'value' => ['bar@baz.com'] },
+              { 'key' => 'first_name', 'value' => ['Jason'] }
             ]
           })])
       end
