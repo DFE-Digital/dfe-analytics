@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.12.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.5) (2024-04-29)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.4...v1.12.5)
+
+**Merged pull requests:**
+
+- Fix for checksum lookup [\#139](https://github.com/DFE-Digital/dfe-analytics/pull/139) ([ericaporter](https://github.com/ericaporter))
+
 ## [v1.12.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.4) (2024-04-24)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.3...v1.12.4)
