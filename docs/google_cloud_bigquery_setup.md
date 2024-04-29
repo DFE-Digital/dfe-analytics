@@ -71,7 +71,6 @@ requires more manual work especially when it comes to adding permissions.
 
 </details>
 
-
 #### Analyst Role
 
 This role is used for analysts or other users who don't need to write to or
@@ -248,6 +247,24 @@ bigquery.tables.updateData
 
 </details>
 
+### 4. Create a policy tag
+We use a BigQuery 'policy tag' to label some fields in some tables in BigQuery
+as 'hidden', restrict access to these fields and mask data in these fields to
+users without access. Policy tag(s) exist within a group known as a 'taxonomy'.
+
+To create the 'hidden' policy tag required by dfe-analytics:
+1. Enable the "BigQuery Data Policy API": search for this from the 'Enable APIs
+   and services' screen, accessible from the 'Enabled APIs and services' screen
+   within the 'APIs and services' section of GCP, and click 'Enable'.
+2. Open BigQuery, open the 'Policy tags' screen and click 'Create taxonomy'.
+3. Use this screen to create a policy tag named ‘hidden’ within a taxonomy named
+   something like ‘project-restricted-access' (replacing ‘project’ with something
+   meaningful to your GCP project). Ensure the taxonomy is within the
+   europe-west2 (London) region.
+4. Click the 'Manage data policies' button to open the Masking rules screen. Under
+   'Data policy name 1' type 'hidden' and under 'Masking rule 1' select
+   'Hash (SHA256)'. Click Submit.
+
 ## Dataset and Table Setup
 
 `dfe-analytics` inserts events into a table in BigQuery with a pre-defined
@@ -301,6 +318,12 @@ Once the dataset is ready you need to create the `events` table in it:
    into the query editor.
 3. Edit your project and dataset names in the query editor.
 4. Run the query to create a blank events table.
+5. Label the DATA_hidden field with the 'hidden' policy tag to restrict
+   access to it: Navigate to the newly created table in BigQuery using the
+   left hand sidebar. Click 'Edit Schema'. Expand the 'DATA_hidden' field
+   and select the checkbox next to the 'value' element within it. Click
+   'Add policy tag' and select the 'hidden' policy tag in the taxonomy for
+   your project. Click Save.
 
 BigQuery allows you to copy a table to a new dataset, so now is a good time to
 create all the datasets you need and copy the blank `events` table to each of
@@ -334,6 +357,3 @@ Ensure you have the email address of the service account handy for this.
    principals" box.
 4. Select the "BigQuery Appender Custom" role you created previously.
 5. Click "SAVE" to finish.
-
-
-
