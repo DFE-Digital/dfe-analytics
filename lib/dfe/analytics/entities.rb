@@ -9,24 +9,26 @@ module DfE
         attr_accessor :event_tags
 
         after_create do
-          data = DfE::Analytics.extract_model_attributes(self)
-          send_event('create_entity', data) if data.any?
+          extracted_attributes = DfE::Analytics.extract_model_attributes(self)
+          send_event('create_entity', extracted_attributes) if extracted_attributes.any?
         end
 
         after_destroy do
-          data = DfE::Analytics.extract_model_attributes(self)
-          send_event('delete_entity', data) if data.any?
+          extracted_attributes = DfE::Analytics.extract_model_attributes(self)
+          send_event('delete_entity', extracted_attributes) if extracted_attributes.any?
         end
 
         after_update do
-          # in this after_update hook we don’t have access to the new fields via
+          # in this after_update hook we don't have access to the new fields via
           # #attributes — we need to dig them out of saved_changes which stores
           # them in the format { attr: ['old', 'new'] }
-          interesting_changes = DfE::Analytics.extract_model_attributes(
+          updated_attributes = DfE::Analytics.extract_model_attributes(
             self, saved_changes.transform_values(&:last)
           )
 
-          send_event('update_entity', DfE::Analytics.extract_model_attributes(self).merge(interesting_changes)) if interesting_changes.any?
+          allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
+
+          send_event('update_entity', allowed_attributes) if updated_attributes.any?
         end
       end
 

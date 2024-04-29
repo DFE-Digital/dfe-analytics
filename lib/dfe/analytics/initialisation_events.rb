@@ -27,7 +27,7 @@ module DfE
 
         initialise_analytics_event = DfE::Analytics::Event.new
                                                 .with_type('initialise_analytics')
-                                                .with_data(initialise_analytics_data)
+                                                .with_data(data: initialise_analytics_data)
                                                 .as_json
 
         if DfE::Analytics.async?
