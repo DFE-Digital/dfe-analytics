@@ -65,7 +65,7 @@ module DfE
         def build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
           return '' unless WHERE_CLAUSE_ORDER_COLUMNS.map(&:downcase).include?(order_column.downcase)
 
-          "WHERE DATE_TRUNC('milliseconds', #{table_name_sanitized}.#{order_column.downcase}) < DATE_TRUNC('milliseconds', #{checksum_calculated_at_sanitized})"
+          "WHERE DATE_TRUNC('milliseconds', #{table_name_sanitized}.#{order_column.downcase}) < DATE_TRUNC('milliseconds', #{checksum_calculated_at_sanitized}::timestamp)"
         end
       end
     end
