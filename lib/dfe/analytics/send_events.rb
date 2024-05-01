@@ -2,7 +2,6 @@
 
 module DfE
   module Analytics
-
     class SendEvents < AnalyticsJob
       def self.do(events)
         unless DfE::Analytics.enabled?

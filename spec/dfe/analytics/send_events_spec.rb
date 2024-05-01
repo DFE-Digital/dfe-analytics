@@ -30,6 +30,82 @@ RSpec.describe DfE::Analytics::SendEvents do
 
   describe '#perform' do
     subject(:perform) { described_class.new.perform(events) }
+    let(:event) do
+      {
+        environment: 'test',
+        request_method: 'GET',
+        request_path: '/provider/applications',
+        namespace: 'provider_interface',
+        user_id: 3456
+      }
+    end
+
+    let(:masked_event) do
+      {
+        'entity_table_name' => 'user_profiles',
+        'event_type' => 'update_entity',
+        'data' => [
+          { 'key' => 'dob', 'value' => '[HIDDEN]' },
+          { 'key' => 'first_name', 'value' => '[HIDDEN]' },
+          { 'key' => 'email', 'value' => 'user@example.com' },
+          { 'key' => 'phone_number', 'value' => '1234567890' }
+        ]
+      }
+    end
+
+    context 'when the request is successful' do
+      it 'sends the events JSON to Bigquery' do
+        request = stub_analytics_event_submission
+
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+
+          expect(request.with do |req|
+            body = JSON.parse(req.body)
+            payload = body['rows'].first['json']
+            expect(payload.except('occurred_at', 'request_uuid')).to match(a_hash_including(event.deep_stringify_keys))
+          end).to have_been_made
+        end
+      end
+
+      it 'does not log the request when event_debug disabled' do
+        stub_analytics_event_submission
+
+        expect(Rails.logger).not_to receive(:info)
+
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+        end
+      end
+    end
+
+    context 'when the request is not successful' do
+      before { stub_analytics_event_submission_with_insert_errors }
+
+      subject(:perform) do
+        DfE::Analytics::Testing.webmock! do
+          described_class.new.perform([event.as_json])
+        end
+      end
+
+      it 'raises an exception' do
+        expect { perform }.to raise_error(DfE::Analytics::SendEventsError, /An error./)
+      end
+
+      it 'contains the insert errors' do
+        perform
+      rescue DfE::Analytics::SendEventsError => e
+        expect(e.message).to_not be_empty
+      end
+
+      it 'logs the error message' do
+        expect(Rails.logger).to receive(:error).with(/DfE::Analytics BigQuery API insert error for 1 event\(s\):/)
+
+        perform
+      rescue DfE::Analytics::SendEventsError
+        nil
+      end
+    end
 
     context 'when "log_only" is set' do
       before do
