@@ -15,17 +15,42 @@ RSpec.describe DfE::Analytics::SendEvents do
 
   let(:events) { [event.as_json] }
 
+  let(:masked_event) do
+    {
+      'entity_table_name' => 'user_profiles',
+      'event_type' => 'update_entity',
+      'data' => [
+        { 'key' => 'dob', 'value' => '[HIDDEN]' },
+        { 'key' => 'first_name', 'value' => '[HIDDEN]' },
+        { 'key' => 'email', 'value' => 'user@example.com' },
+        { 'key' => 'phone_number', 'value' => '1234567890' }
+      ]
+    }
+  end
+
   describe '#perform' do
     subject(:perform) { described_class.new.perform(events) }
 
     context 'when "log_only" is set' do
       before do
         allow(DfE::Analytics).to receive(:log_only?).and_return true
+        allow(Rails.logger).to receive(:info)
       end
 
       it 'does not go call bigquery apis' do
         expect(DfE::Analytics::BigQueryLegacyApi).not_to receive(:insert).with(events)
         perform
+      end
+
+      it 'logs events with all sensitive data masked' do
+        expect(Rails.logger).to receive(:info) do |log_message|
+          expect(log_message).to include('"key"=>"dob", "value"=>"[HIDDEN]"')
+          expect(log_message).to include('"key"=>"first_name", "value"=>"[HIDDEN]"')
+          expect(log_message).to include('"key"=>"email", "value"=>"user@example.com"')
+          expect(log_message).to include('"key"=>"phone_number", "value"=>"1234567890"')
+        end
+
+        described_class.new.perform([masked_event.as_json])
       end
     end
 

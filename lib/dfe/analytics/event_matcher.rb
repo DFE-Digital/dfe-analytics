@@ -2,11 +2,16 @@ module DfE
   module Analytics
     # Match event against given filters
     class EventMatcher
-      attr_reader :event, :filters
+      attr_reader :event, :filters, :mask_hidden_data
 
-      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters])
+      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters], mask_hidden_data: true)
+        raise 'Event filters must be set' if filters.nil?
+
         @event = event.with_indifferent_access
         @filters = filters.compact
+        @mask_hidden_data = mask_hidden_data
+
+        mask_hidden_data! if mask_hidden_data
       end
 
       def matched?
@@ -46,6 +51,12 @@ module DfE
 
           memo[field]
         end
+      end
+
+      def mask_hidden_data!
+        return unless mask_hidden_data && @event[:data] && @event[:entity_table_name]
+
+        @event[:data] = DfE::Analytics.mask_hidden_data(@event[:data], @event[:entity_table_name])
       end
     end
   end

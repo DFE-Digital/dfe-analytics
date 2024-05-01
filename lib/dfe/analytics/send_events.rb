@@ -2,6 +2,7 @@
 
 module DfE
   module Analytics
+
     class SendEvents < AnalyticsJob
       def self.do(events)
         unless DfE::Analytics.enabled?
@@ -24,13 +25,16 @@ module DfE
       end
 
       def perform(events)
+        masked_events = events.map do |event|
+          DfE::Analytics.mask_hidden_data(event, event[:entity_table_name])
+        end
+
         if DfE::Analytics.log_only?
           # Use the Rails logger here as the job's logger is set to :warn by default
-          Rails.logger.info("DfE::Analytics: #{events.inspect}")
+          Rails.logger.info("DfE::Analytics: #{masked_events.inspect}")
         else
-
           if DfE::Analytics.event_debug_enabled?
-            events
+            masked_events
               .select { |event| DfE::Analytics::EventMatcher.new(event).matched? }
               .each { |event| Rails.logger.info("DfE::Analytics processing: #{event.inspect}") }
           end
