@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.12.6](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.6) (2024-05-03)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.5...v1.12.6)
+
+**Merged pull requests:**
+
+- Add support for workload identity federation and consolidate GCP/BigQuery APIs into seperate classes [\#120](https://github.com/DFE-Digital/dfe-analytics/pull/120) ([asatwal](https://github.com/asatwal))
+
 ## [v1.12.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.5) (2024-04-29)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.4...v1.12.5)
