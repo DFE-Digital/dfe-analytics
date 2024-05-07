@@ -50,7 +50,80 @@ RSpec.describe DfE::Analytics::SendEvents do
           expect(log_message).to include('"key"=>"phone_number", "value"=>"1234567890"')
         end
 
-        described_class.new.perform([masked_event.as_json])
+        described_class.new.perform([masked_event])
+      end
+    end
+
+    describe 'Masking hidden_pii when event_debug_enabled?' do
+      subject(:perform) { described_class.new.perform(events) }
+
+      let(:masked_event) do
+        {
+          'entity_table_name' => 'user_profiles',
+          'event_type' => 'update_entity',
+          'data' => [
+            { 'key' => 'dob', 'value' => '[HIDDEN]' },
+            { 'key' => 'first_name', 'value' => '[HIDDEN]' },
+            { 'key' => 'email', 'value' => 'user@example.com' },
+            { 'key' => 'phone_number', 'value' => '1234567890' }
+          ]
+        }
+      end
+
+      let(:event_debug_filters) do
+        {
+          event_filters: [
+            {
+              event_type: 'update_entity',
+              entity_table_name: 'user_profiles',
+              data: {
+                key: 'dob',
+                value: '[HIDDEN]'
+              }
+            },
+            {
+              event_type: 'update_entity',
+              entity_table_name: 'user_profiles',
+              data: {
+                key: 'first_name',
+                value: '[HIDDEN]'
+              }
+            },
+            {
+              event_type: 'update_entity',
+              entity_table_name: 'user_profiles',
+              data: {
+                key: 'email',
+                value: 'user@example.com'
+              }
+            },
+            {
+              event_type: 'update_entity',
+              entity_table_name: 'user_profiles',
+              data: {
+                key: 'phone_number',
+                value: '1234567890'
+              }
+            }
+          ]
+        }
+      end
+
+      before do
+        allow(DfE::Analytics).to receive(:event_debug_filters).and_return(event_debug_filters)
+        allow(DfE::Analytics::BigQueryLegacyApi).to receive(:insert)
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'masks sensitive data in the log output' do
+        expect(Rails.logger).to receive(:info) do |log_message|
+          expect(log_message).to include('"key"=>"dob", "value"=>"[HIDDEN]"')
+          expect(log_message).to include('"key"=>"first_name", "value"=>"[HIDDEN]"')
+          expect(log_message).to include('"key"=>"email", "value"=>"user@example.com"')
+          expect(log_message).to include('"key"=>"phone_number", "value"=>"1234567890"')
+        end
+
+        described_class.new.perform([masked_event])
       end
     end
 
