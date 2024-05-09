@@ -457,9 +457,9 @@ Once the dataset is ready you need to create the `events` table in it:
    into the query editor.
 3. Edit your project and dataset names in the query editor.
 4. Run the query to create a blank events table.
-5. Label the DATA_hidden field with the 'hidden' policy tag to restrict
+5. Label the hidden_DATA field with the 'hidden' policy tag to restrict
    access to it: Navigate to the newly created table in BigQuery using the
-   left hand sidebar. Click 'Edit Schema'. Expand the 'DATA_hidden' field
+   left hand sidebar. Click 'Edit Schema'. Expand the 'hidden_DATA' field
    and select the checkbox next to the 'value' element within it. Click
    'Add policy tag' and select the 'hidden' policy tag in the taxonomy for
    your project. Click Save.
