@@ -4,9 +4,10 @@ module DfE
   module Analytics
     # Railtie
     class Railtie < Rails::Railtie
-      config.before_initialize do
+      initializer 'dfe.analytics.configure_params' do |app|
         i18n_files = File.expand_path("#{File.dirname(__FILE__)}/../../../config/locales/en.yml")
         I18n.load_path << i18n_files
+        app.config.filter_parameters += [:hidden_data]
       end
 
       initializer 'dfe.analytics.insert_middleware' do |app|

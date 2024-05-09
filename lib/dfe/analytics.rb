@@ -172,6 +172,18 @@ module DfE
       event_debug_filters[:event_filters]&.any?
     end
 
+    def self.mask_hidden_data(event, entity_table_name)
+      return event if entity_table_name.nil?
+
+      hidden_pii_fields = hidden_pii[entity_table_name.to_sym] || []
+
+      hidden_pii_fields.each do |field|
+        event[field] = '[HIDDEN]' if event.key?(field)
+      end
+
+      event
+    end
+
     def self.async?
       config.async
     end
