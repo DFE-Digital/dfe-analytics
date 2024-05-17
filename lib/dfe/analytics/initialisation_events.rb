@@ -30,11 +30,7 @@ module DfE
                                                 .with_data(initialise_analytics_data)
                                                 .as_json
 
-        if DfE::Analytics.async?
-          DfE::Analytics::SendEvents.perform_later([initialise_analytics_event])
-        else
-          DfE::Analytics::SendEvents.perform_now([initialise_analytics_event])
-        end
+        DfE::Analytics::SendEvents.perform_for([initialise_analytics_event])
 
         @@initialisation_events_sent = true # rubocop:disable Style:ClassVars
       end
