@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.12.7](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.7) (2024-05-17)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.6...v1.12.7)
+
+**Merged pull requests:**
+
+- Fix sending of initialisation events to respect maintenance window [\#144](https://github.com/DFE-Digital/dfe-analytics/pull/144) ([asatwal](https://github.com/asatwal))
+
 ## [v1.12.6](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.6) (2024-05-03)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.5...v1.12.6)
