@@ -78,11 +78,11 @@ module DfE
       def self.overlapping_pii_fields
         overlapping_fields = []
         hidden_pii.each do |entity, fields|
-          next if fields.nil? || fields.empty?
+          next if fields.blank?
 
           if allowlist_pii[entity]
             overlapping = fields & allowlist_pii[entity]
-            overlapping_fields.concat(overlapping) unless overlapping.empty?
+            overlapping_fields.concat(overlapping) unless overlapping.blank?
           end
         end
         overlapping_fields
