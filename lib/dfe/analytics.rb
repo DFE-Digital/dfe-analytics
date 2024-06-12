@@ -177,8 +177,16 @@ module DfE
 
       hidden_pii_fields = hidden_pii[entity_table_name.to_sym] || []
 
-      hidden_pii_fields.each do |field|
-        event[field] = '[HIDDEN]' if event.key?(field)
+      event.each do |item|
+        next unless item.is_a?(Hash)
+
+        hidden_pii_fields.each do |field|
+          if item.key?(field)
+            item[field] = '[HIDDEN]'
+          elsif item['key'] == field
+            item['value'] = '[HIDDEN]'
+          end
+        end
       end
 
       event
