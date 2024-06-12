@@ -177,24 +177,24 @@ module DfE
     
       hidden_pii_fields = hidden_pii[entity_table_name.to_sym] || []
     
-      # Recursive method to apply masking to nested hashes
       mask_nested_data(event, hidden_pii_fields)
     
       event
     end
 
     def self.mask_nested_data(data, hidden_pii_fields)
-      if data.is_a?(Array)
-        data.each { |item| mask_nested_data(item, hidden_pii_fields) }
-      elsif data.is_a?(Hash)
+      return unless data.is_a?(Array)
+
+      data.each do |item|
+        next unless item.is_a?(Hash)
+
         hidden_pii_fields.each do |field|
-          if data.key?(field)
-            data[field] = '[HIDDEN]'
-          elsif data.key?('key') && hidden_pii_fields.include?(data['key'])
-            data['value'] = '[HIDDEN]'
+          if item.key?(field)
+            item[field] = '[HIDDEN]'
+          elsif item['key'] == field
+            item['value'] = '[HIDDEN]'
           end
         end
-        data.each { |key, value| mask_nested_data(value, hidden_pii_fields) }
       end
     end
 
