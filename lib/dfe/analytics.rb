@@ -141,6 +141,7 @@ module DfE
     def self.hidden_pii
       Rails.application.config_for(:analytics_hidden_pii)
     rescue RuntimeError
+      puts 'Error loading hidden PII config, using default.'
       { 'shared' => {} }
     end
 
@@ -169,18 +170,23 @@ module DfE
     end
 
     def self.event_debug_enabled?
-      event_debug_filters&.dig(:event_filters)&.any?
+      event_debug_filters && event_debug_filters[:event_filters]&.any?
     end
 
     def self.mask_hidden_data(event, entity_table_name)
       return event if entity_table_name.nil?
 
+      puts "Masking data for event: #{event}, entity_table_name: #{entity_table_name}"
+
       hidden_pii_fields = hidden_pii[entity_table_name.to_sym] || []
+      puts "Hidden PII fields: #{hidden_pii_fields}"
 
       hidden_pii_fields.each do |field|
         event[field] = '[HIDDEN]' if event.key?(field)
+        puts "Masking field: #{field}"
       end
 
+      puts "Masked event: #{event}"
       event
     end
 

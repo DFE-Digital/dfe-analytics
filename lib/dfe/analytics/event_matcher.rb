@@ -56,6 +56,8 @@ module DfE
       def mask_hidden_data!
         return unless mask_hidden_data && @event[:data] && @event[:entity_table_name]
 
+        puts "Calling mask_hidden_data! for event: #{@event}"
+
         @event[:data] = DfE::Analytics.mask_hidden_data(@event[:data], @event[:entity_table_name])
       end
     end
