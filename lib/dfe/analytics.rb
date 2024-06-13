@@ -174,28 +174,15 @@ module DfE
 
     def self.mask_hidden_data(event, entity_table_name)
       return event if entity_table_name.nil?
-    
+
+      hidden_pii = self.hidden_pii || {}
       hidden_pii_fields = hidden_pii[entity_table_name.to_sym] || []
-    
-      mask_nested_data(event, hidden_pii_fields)
-    
-      event
-    end
 
-    def self.mask_nested_data(data, hidden_pii_fields)
-      return unless data.is_a?(Array)
-
-      data.each do |item|
-        next unless item.is_a?(Hash)
-
-        hidden_pii_fields.each do |field|
-          if item.key?(field)
-            item[field] = '[HIDDEN]'
-          elsif item['key'] == field
-            item['value'] = '[HIDDEN]'
-          end
-        end
+      hidden_pii_fields.each do |field|
+        event[field] = '[HIDDEN]' if event.key?(field)
       end
+
+      event
     end
 
     def self.async?
