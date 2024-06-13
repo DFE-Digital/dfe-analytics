@@ -170,7 +170,7 @@ module DfE
     end
 
     def self.event_debug_enabled?
-      event_debug_filters && event_debug_filters[:event_filters]&.any?
+      event_debug_filters[:event_filters]&.any?
     end
 
     def self.mask_hidden_data(event, entity_table_name)
