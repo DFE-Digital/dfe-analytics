@@ -21,7 +21,7 @@ module DfE
         else
           perform_now(events)
         end
-      rescue => e
+      rescue StandardError => e
         Rails.logger.error("SendEvents.do error: #{e.message}")
         raise
       end
@@ -38,10 +38,10 @@ module DfE
           end
 
           DfE::Analytics.config.azure_federated_auth ? DfE::Analytics::BigQueryApi.insert(events) : DfE::Analytics::BigQueryLegacyApi.insert(events)
-        rescue => e
-          Rails.logger.error("SendEvents mask_hidden_data error: #{e.message}")
-          raise
         end
+      rescue StandardError => e
+        Rails.logger.error("SendEvents perform error: #{e.message}")
+        raise
       end
 
       private
@@ -54,7 +54,7 @@ module DfE
           end
         end
         masked_event
-      rescue => e
+      rescue StandardError => e
         Rails.logger.error("SendEvents mask_hidden_data error: #{e.message}")
         raise
       end
