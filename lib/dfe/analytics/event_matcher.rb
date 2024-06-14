@@ -4,7 +4,7 @@ module DfE
     class EventMatcher
       attr_reader :event, :filters
 
-      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters], mask_hidden_data: true)
+      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters])
         raise 'Event filters must be set' if filters.nil?
 
         @event = event.with_indifferent_access
@@ -32,12 +32,10 @@ module DfE
 
       def field_matched?(filter_value, nested_fields)
         event_value = event_value_for(nested_fields)
-        
+
         return false if event_value.nil?
 
-        if nested_fields.include?('hidden_data')
-          event_value = 'HIDDEN'
-        end
+        event_value = 'HIDDEN' if nested_fields.include?('hidden_data')
 
         regexp = Regexp.new(filter_value)
 
@@ -52,7 +50,10 @@ module DfE
         nested_fields.reduce(event) do |memo, field|
           break memo.to_s unless memo.is_a?(Hash)
 
-          memo[field] || ''
+          value = memo[field]
+          break '' if value.nil?
+
+          value
         end
       end
     end

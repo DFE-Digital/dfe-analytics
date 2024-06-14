@@ -38,15 +38,13 @@ module DfE
         end
       end
 
-       private
+      private
 
-       def mask_hidden_data(event)
+      def mask_hidden_data(event)
         masked_event = event.deep_dup
         if masked_event['hidden_data'].is_a?(Array)
           masked_event['hidden_data'].each do |data|
-            if data.is_a?(Hash) && data['value']
-              data['value'] = ['HIDDEN']
-            end
+            data['value'] = ['HIDDEN'] if data.is_a?(Hash) && data['value']
           end
         end
         masked_event
