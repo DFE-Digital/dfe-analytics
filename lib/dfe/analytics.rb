@@ -141,7 +141,8 @@ module DfE
     def self.hidden_pii
       Rails.application.config_for(:analytics_hidden_pii)
     rescue RuntimeError
-      puts 'Error loading hidden PII config, using default.'
+      Rails.logger.debug 'Error loading hidden PII config, using default.'
+      Rails.logger.info 'Error loading hidden PII config, using default.'
       { 'shared' => {} }
     end
 
@@ -176,17 +177,21 @@ module DfE
     def self.mask_hidden_data(event, entity_table_name)
       return event if entity_table_name.nil?
 
-      puts "Masking data for event: #{event}, entity_table_name: #{entity_table_name}"
+      Rails.logger.debug "Masking data for event: #{event}, entity_table_name: #{entity_table_name}"
+      Rails.logger.info "Masking data for event: #{event}, entity_table_name: #{entity_table_name}"
 
       hidden_pii_fields = hidden_pii[entity_table_name.to_sym] || []
-      puts "Hidden PII fields: #{hidden_pii_fields}"
+      Rails.logger.debug "Hidden PII fields: #{hidden_pii_fields}"
+      Rails.logger.info "Hidden PII fields: #{hidden_pii_fields}"
 
       hidden_pii_fields.each do |field|
         event[field] = '[HIDDEN]' if event.key?(field)
-        puts "Masking field: #{field}"
+        Rails.logger.debug "Masking field: #{field}"
+        Rails.logger.info "Masking field: #{field}"
       end
 
-      puts "Masked event: #{event}"
+      Rails.logger.debug "Masked event: #{event}"
+      Rails.logger.info "Masked event: #{event}"
       event
     end
 
