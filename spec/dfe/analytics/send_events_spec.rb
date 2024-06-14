@@ -20,10 +20,12 @@ RSpec.describe DfE::Analytics::SendEvents do
       'entity_table_name' => 'user_profiles',
       'event_type' => 'update_entity',
       'data' => [
-        { 'key' => 'dob', 'value' => '[HIDDEN]' },
-        { 'key' => 'first_name', 'value' => '[HIDDEN]' },
-        { 'key' => 'email', 'value' => 'user@example.com' },
-        { 'key' => 'phone_number', 'value' => '1234567890' }
+        { 'key' => 'email', 'value' => ['user@example.com'] },
+        { 'key' => 'phone_number', 'value' => ['1234567890'] }
+      ],
+      'hidden_data' => [
+        { 'key' => 'dob', 'value' => ['HIDDEN'] },
+        { 'key' => 'first_name', 'value' => ['HIDDEN'] }
       ]
     }
   end
@@ -44,10 +46,10 @@ RSpec.describe DfE::Analytics::SendEvents do
 
       it 'logs events with all sensitive data masked' do
         expect(Rails.logger).to receive(:info) do |log_message|
-          expect(log_message).to include('"key"=>"dob", "value"=>"[HIDDEN]"')
-          expect(log_message).to include('"key"=>"first_name", "value"=>"[HIDDEN]"')
-          expect(log_message).to include('"key"=>"email", "value"=>"user@example.com"')
-          expect(log_message).to include('"key"=>"phone_number", "value"=>"1234567890"')
+          expect(log_message).to include('"key"=>"dob", "value"=>["HIDDEN"]')
+          expect(log_message).to include('"key"=>"first_name", "value"=>["HIDDEN"]')
+          expect(log_message).to include('"key"=>"email", "value"=>["user@example.com"]')
+          expect(log_message).to include('"key"=>"phone_number", "value"=>["1234567890"]')
         end
 
         described_class.new.perform([masked_event])
