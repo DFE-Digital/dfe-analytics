@@ -32,6 +32,8 @@ module DfE
 
       def field_matched?(filter_value, nested_fields)
         event_value = event_value_for(nested_fields)
+        
+        return false if event_value.nil?
 
         if nested_fields.include?('hidden_data')
           event_value = 'HIDDEN'
@@ -50,7 +52,7 @@ module DfE
         nested_fields.reduce(event) do |memo, field|
           break memo.to_s unless memo.is_a?(Hash)
 
-          memo[field]
+          memo[field] || ''
         end
       end
     end
