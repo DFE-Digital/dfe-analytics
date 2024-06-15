@@ -9,12 +9,11 @@ module DfE
 
         @event = event.with_indifferent_access
         @filters = filters.compact
-      rescue StandardError => e
-        Rails.logger.error("EventMatcher initialization error: #{e.message}")
-        raise
       end
 
       def matched?
+        return false if event.nil? || filters.nil?
+
         filters.any? { |filter| filter_matched?(filter) }
       rescue StandardError => e
         Rails.logger.error("EventMatcher matched? error: #{e.message}")
@@ -24,6 +23,8 @@ module DfE
       private
 
       def filter_matched?(filter, nested_fields = [])
+        return false if filter.nil?
+
         filter.all? do |field, filter_value|
           fields = nested_fields + [field]
 
@@ -40,6 +41,8 @@ module DfE
       end
 
       def field_matched?(filter_value, nested_fields)
+        return false if filter_value.nil?
+
         event_value = event_value_for(nested_fields)
 
         return false if event_value.nil?
@@ -47,7 +50,6 @@ module DfE
         event_value = 'HIDDEN' if nested_fields.include?('hidden_data')
 
         regexp = Regexp.new(filter_value)
-
         regexp.match?(event_value)
       rescue StandardError => e
         Rails.logger.error("EventMatcher field_matched? error: #{e.message}")
