@@ -36,7 +36,7 @@ module DfE
           end
         rescue StandardError => e
           Rails.logger.error("EventMatcher filter_matched? error: #{e.message}")
-          raise
+          false
         end
       end
 
@@ -53,7 +53,7 @@ module DfE
         regexp.match?(event_value)
       rescue StandardError => e
         Rails.logger.error("EventMatcher field_matched? error: #{e.message}")
-        raise
+        false
       end
 
       def event_value_for(nested_fields)
@@ -62,16 +62,22 @@ module DfE
         # - Don't dig any deeper into the event on the first non hash value
         # - Will result in greedy and overzealous match as whole of nested structure compared
         nested_fields.reduce(event) do |memo, field|
-          break memo.to_s unless memo.is_a?(Hash)
+          unless memo.is_a?(Hash)
+            Rails.logger.error("EventMatcher event_value_for error: expected a Hash but got #{memo.class} for field: #{field}")
+            break memo.to_s
+          end
 
           value = memo[field]
-          break '' if value.nil?
+          if value.nil?
+            Rails.logger.error("EventMatcher event_value_for error: value for field '#{field}' is nil in nested_fields: #{nested_fields.inspect}")
+            break ''
+          end
 
           value
-        rescue StandardError => e
-          Rails.logger.error("EventMatcher event_value_for error: #{e.message}")
-          raise
         end
+      rescue StandardError => e
+        Rails.logger.error("EventMatcher event_value_for error: #{e.message}")
+        ''
       end
     end
   end
