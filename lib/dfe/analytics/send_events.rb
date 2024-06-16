@@ -14,6 +14,10 @@ module DfE
 
         events = events.map { |event| event.is_a?(Event) ? event.as_json : event }
 
+        perform_for(events)
+      end
+
+      def self.perform_for(events)
         if DfE::Analytics.within_maintenance_window?
           set(wait_until: DfE::Analytics.next_scheduled_time_after_maintenance_window).perform_later(events)
         elsif DfE::Analytics.async?
@@ -21,42 +25,36 @@ module DfE
         else
           perform_now(events)
         end
-      rescue StandardError => e
-        Rails.logger.error("SendEvents.do error: #{e.message}")
-        raise
       end
 
       def perform(events)
         if DfE::Analytics.log_only?
           # Use the Rails logger here as the job's logger is set to :warn by default
-          events.each { |event| Rails.logger.info("DfE::Analytics: #{mask_hidden_data(event).inspect}") }
+          Rails.logger.info("DfE::Analytics: #{obscure_hidden_data(events).inspect}")
         else
+
           if DfE::Analytics.event_debug_enabled?
             events
               .select { |event| DfE::Analytics::EventMatcher.new(event).matched? }
-              .each { |event| Rails.logger.info("DfE::Analytics processing: #{mask_hidden_data(event).inspect}") }
+              .each { |event| Rails.logger.info("DfE::Analytics processing: #{obscure_hidden_data([event]).first.inspect}") }
           end
 
           DfE::Analytics.config.azure_federated_auth ? DfE::Analytics::BigQueryApi.insert(events) : DfE::Analytics::BigQueryLegacyApi.insert(events)
         end
-      rescue StandardError => e
-        Rails.logger.error("SendEvents perform error: #{e.message}")
-        raise
       end
 
       private
 
-      def mask_hidden_data(event)
-        masked_event = event.deep_dup
-        if masked_event['hidden_data'].is_a?(Array)
-          masked_event['hidden_data'].each do |data|
-            data['value'] = ['HIDDEN'] if data.is_a?(Hash) && data['value']
+      def obscure_hidden_data(events)
+        events.map do |event|
+          if event.is_a?(Hash)
+            event.deep_dup.tap do |e|
+              e['hidden_data'] = e['hidden_data'].map { |data| data.merge('value' => ['HIDDEN']) } if e.key?('hidden_data')
+            end
+          else
+            event
           end
         end
-        masked_event
-      rescue StandardError => e
-        Rails.logger.error("SendEvents mask_hidden_data error: #{e.message}")
-        raise
       end
     end
   end
