@@ -31,6 +31,8 @@ module DfE
       def field_matched?(filter_value, nested_fields)
         event_value = event_value_for(nested_fields)
 
+        return false if event_value.nil? || filter_value.nil?
+
         regexp = Regexp.new(filter_value)
 
         regexp.match?(event_value)

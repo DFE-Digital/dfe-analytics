@@ -47,13 +47,22 @@ module DfE
 
       def obscure_hidden_data(events)
         events.map do |event|
-          if event.is_a?(Hash)
-            event.deep_dup.tap do |e|
-              e['hidden_data'] = e['hidden_data'].map { |data| data.merge('value' => ['HIDDEN']) } if e.key?('hidden_data')
+          obscure_event_hidden_data(event)
+        end
+      end
+
+      def obscure_event_hidden_data(event)
+        if event.is_a?(Hash)
+          event.deep_dup.tap do |e|
+            if e.key?('hidden_data')
+              e['hidden_data'] = e['hidden_data'].map do |data|
+                data_value = data['value'].nil? ? 'HIDDEN' : ['HIDDEN']
+                data.merge('value' => data_value)
+              end
             end
-          else
-            event
           end
+        else
+          event
         end
       end
     end
