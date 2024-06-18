@@ -25,6 +25,10 @@ module DfE
             # Recurse for nested hashes
             filter_matched?(filter_value, fields)
           else
+            if filter_value.nil?
+              Rails.logger.error("Nil filter value encountered. filter_value: #{filter_value.inspect}, nested_fields: #{fields.inspect}")
+              return false
+            end
             field_matched?(filter_value, fields)
           end
         end
@@ -33,8 +37,8 @@ module DfE
       def field_matched?(filter_value, nested_fields)
         event_value = event_value_for(nested_fields)
 
-        if event_value.nil? || filter_value.nil?
-          Rails.logger.error("Nil value encountered. event_value: #{event_value.inspect}, filter_value: #{filter_value.inspect}, nested_fields: #{nested_fields.inspect}")
+        if event_value.nil?
+          Rails.logger.error("Nil event value encountered. event_value: #{event_value.inspect}, nested_fields: #{nested_fields.inspect}")
           return false
         end
 
