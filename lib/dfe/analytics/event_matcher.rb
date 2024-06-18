@@ -9,16 +9,10 @@ module DfE
 
         @event = event.with_indifferent_access
         @filters = filters.compact
-      rescue StandardError => e
-        Rails.logger.error("Error in EventMatcher#initialize: #{e.message}")
-        raise e
       end
 
       def matched?
         filters.any? { |filter| filter_matched?(filter) }
-      rescue StandardError => e
-        Rails.logger.error("Error in EventMatcher#matched?: #{e.message}")
-        false
       end
 
       private
@@ -34,35 +28,31 @@ module DfE
             field_matched?(filter_value, fields)
           end
         end
-      rescue StandardError => e
-        Rails.logger.error("Error in EventMatcher#filter_matched?: #{e.message}")
-        false
       end
 
       def field_matched?(filter_value, nested_fields)
         event_value = event_value_for(nested_fields)
 
-        regexp = Regexp.new(filter_value)
+        if event_value.nil? || filter_value.nil?
+          Rails.logger.error("Nil value encountered. event_value: #{event_value.inspect}, filter_value: #{filter_value.inspect}, nested_fields: #{nested_fields.inspect}")
+          return false
+        end
 
-        regexp.match?(event_value)
-      rescue StandardError => e
-        Rails.logger.error("Error in EventMatcher#field_matched?: #{e.message}")
-        false
+        begin
+          regexp = Regexp.new(filter_value)
+          regexp.match?(event_value)
+        rescue => e
+          Rails.logger.error("Error in EventMatcher#field_matched?: #{e.message}. event_value: #{event_value.inspect}, filter_value: #{filter_value.inspect}, nested_fields: #{nested_fields.inspect}")
+          false
+        end
       end
 
       def event_value_for(nested_fields)
-        # If nested hash fields in a filter don't correspond to hashes in the event THEN
-        # - Convert the remaining value into a string (note: this maybe a whole array)
-        # - Don't dig any deeper into the event on the first non hash value
-        # - Will result in greedy and overzealous match as whole of nested structure compared
         nested_fields.reduce(event) do |memo, field|
           break memo.to_s unless memo.is_a?(Hash)
 
           memo[field]
         end.to_s
-      rescue StandardError => e
-        Rails.logger.error("Error in EventMatcher#event_value_for: #{e.message}")
-        ''
       end
     end
   end
