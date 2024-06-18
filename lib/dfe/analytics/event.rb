@@ -18,9 +18,7 @@ module DfE
         }
       end
 
-      def event_hash
-        @event_hash
-      end
+      attr_reader :event_hash
 
       def as_json
         @event_hash.as_json

@@ -42,21 +42,29 @@ module DfE
 
       def mask_hidden_data(event)
         if event.is_a?(DfE::Analytics::Event)
-          masked_event = event.event_hash.deep_dup
+          masked_event = event.event_hash.deep_dup.with_indifferent_access
         elsif event.is_a?(Hash)
-          masked_event = event.deep_dup
+          masked_event = event.deep_dup.with_indifferent_access
         else
-          Rails.logger.info('Invalid input type for mask_hidden_data. Expected DfE::Analytics::Event or Hash.')
+          return event
         end
-      
-        if masked_event['hidden_data'].is_a?(Array)
-          masked_event['hidden_data'].each do |data|
-            if data.is_a?(Hash) && data['value']
-              data['value'] = ['HIDDEN']
-            end
+
+        return masked_event unless masked_event.key?(:hidden_data)
+
+        hidden_data = masked_event[:hidden_data]
+
+        if hidden_data.is_a?(Array)
+          hidden_data.each do |data|
+            next unless data.is_a?(Hash)
+
+            data[:value] = ['HIDDEN'] if data[:value]
+
+            data[:key][:value] = ['HIDDEN'] if data[:key].is_a?(Hash) && (data[:key][:value])
           end
+        else
+          Rails.logger.info("Unexpected hidden_data structure: expected Array, got #{hidden_data.class}")
         end
-      
+
         masked_event
       end
     end
