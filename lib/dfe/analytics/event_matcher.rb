@@ -31,10 +31,14 @@ module DfE
       end
 
       def field_matched?(filter_value, nested_fields)
-        event_value = event_value_for(nested_fields)
-
-        regexp = Regexp.new(filter_value)
-
+        event_value = event_value_for(nested_fields) || ''
+      
+        begin
+          regexp = Regexp.new(filter_value)
+        rescue RegexpError
+          return false
+        end
+      
         regexp.match?(event_value)
       end
 
