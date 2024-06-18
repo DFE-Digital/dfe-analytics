@@ -9,10 +9,16 @@ module DfE
 
         @event = event.with_indifferent_access
         @filters = filters.compact
+      rescue StandardError => e
+        Rails.logger.error("Error in EventMatcher#initialize: #{e.message}")
+        raise e
       end
 
       def matched?
         filters.any? { |filter| filter_matched?(filter) }
+      rescue StandardError => e
+        Rails.logger.error("Error in EventMatcher#matched?: #{e.message}")
+        false
       end
 
       private
@@ -28,18 +34,20 @@ module DfE
             field_matched?(filter_value, fields)
           end
         end
+      rescue StandardError => e
+        Rails.logger.error("Error in EventMatcher#filter_matched?: #{e.message}")
+        false
       end
 
       def field_matched?(filter_value, nested_fields)
-        event_value = event_value_for(nested_fields) || ''
-      
-        begin
-          regexp = Regexp.new(filter_value)
-        rescue RegexpError
-          return false
-        end
-      
+        event_value = event_value_for(nested_fields)
+
+        regexp = Regexp.new(filter_value)
+
         regexp.match?(event_value)
+      rescue StandardError => e
+        Rails.logger.error("Error in EventMatcher#field_matched?: #{e.message}")
+        false
       end
 
       def event_value_for(nested_fields)
@@ -52,6 +60,9 @@ module DfE
 
           memo[field]
         end.to_s
+      rescue StandardError => e
+        Rails.logger.error("Error in EventMatcher#event_value_for: #{e.message}")
+        ''
       end
     end
   end

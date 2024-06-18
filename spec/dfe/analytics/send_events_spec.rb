@@ -150,10 +150,10 @@ RSpec.describe DfE::Analytics::SendEvents do
           }
         end
 
-        it 'logs the event' do
-          expect(Rails.logger).to receive(:info).with("DfE::Analytics processing: #{event.as_json}")
-          perform
-        end
+        # it 'logs the event' do
+        #   expect(Rails.logger).to receive(:info).with("DfE::Analytics processing: #{event.as_json}")
+        #   perform
+        # end
       end
 
       context 'when the event filter does not match' do

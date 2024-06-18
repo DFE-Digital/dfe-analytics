@@ -21,6 +21,9 @@ module DfE
         else
           perform_now(events)
         end
+      rescue => e
+        Rails.logger.error("Error in SendEvents.do: #{e.message}")
+        raise e
       end
 
       def perform(events)
@@ -36,20 +39,29 @@ module DfE
 
           DfE::Analytics.config.azure_federated_auth ? DfE::Analytics::BigQueryApi.insert(events) : DfE::Analytics::BigQueryLegacyApi.insert(events)
         end
+      rescue => e
+        Rails.logger.error("Error in SendEvents#perform: #{e.message}")
+        raise e
       end
 
       private
 
       def mask_hidden_data(event)
+        Rails.logger.debug("Masking hidden data for event: #{event.inspect}")
+
         if event.is_a?(DfE::Analytics::Event)
           masked_event = event.event_hash.deep_dup.with_indifferent_access
         elsif event.is_a?(Hash)
           masked_event = event.deep_dup.with_indifferent_access
         else
+          Rails.logger.info("Event is neither a DfE::Analytics::Event nor a Hash: #{event.inspect}")
           return event
         end
 
-        return masked_event unless masked_event.key?(:hidden_data)
+        unless masked_event.key?(:hidden_data)
+          Rails.logger.info("No hidden_data key found in event: #{masked_event.inspect}")
+          return masked_event
+        end
 
         hidden_data = masked_event[:hidden_data]
 
@@ -59,13 +71,18 @@ module DfE
 
             data[:value] = ['HIDDEN'] if data[:value]
 
-            data[:key][:value] = ['HIDDEN'] if data[:key].is_a?(Hash) && (data[:key][:value])
+            data[:key][:value] = ['HIDDEN'] if data[:key].is_a?(Hash) && data[:key][:value]
           end
         else
           Rails.logger.info("Unexpected hidden_data structure: expected Array, got #{hidden_data.class}")
         end
 
+        Rails.logger.info("Masked event: #{masked_event.inspect}")
         masked_event
+      rescue => e
+        Rails.logger.error("Error in SendEvents#mask_hidden_data: #{e.message}")
+        Rails.logger.error("Event causing error: #{event.inspect}")
+        raise e
       end
     end
   end
