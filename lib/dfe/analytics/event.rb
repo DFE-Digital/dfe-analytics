@@ -18,6 +18,10 @@ module DfE
         }
       end
 
+      def event_hash
+        @event_hash
+      end
+
       def as_json
         @event_hash.as_json
       end

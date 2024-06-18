@@ -47,7 +47,7 @@ module DfE
           break memo.to_s unless memo.is_a?(Hash)
 
           memo[field]
-        end
+        end.to_s
       end
     end
   end
