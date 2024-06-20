@@ -4,7 +4,8 @@ module DfE
     class EventMatcher
       attr_reader :event, :filters
 
-      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters])
+      def initialize(event, filters = nil)
+        filters ||= DfE::Analytics.event_debug_filters[:event_filters]
         raise 'Event filters must be set' if filters.nil?
 
         @event = event.with_indifferent_access
@@ -42,14 +43,18 @@ module DfE
           return false
         end
 
-        filter_value = filter_value.to_s
-        event_value = event_value.to_s
+        # Log the original values before converting to strings
+        Rails.logger.debug("Original filter_value: #{filter_value.inspect}, Original event_value: #{event_value.inspect}")
+
+        # Convert values to strings for comparison
+        filter_value_str = filter_value.to_s
+        event_value_str = event_value.to_s
 
         begin
-          regexp = Regexp.new(filter_value)
-          regexp.match?(event_value)
+          regexp = Regexp.new(filter_value_str)
+          regexp.match?(event_value_str)
         rescue StandardError => e
-          Rails.logger.error("Error in EventMatcher#field_matched?: #{e.message}. event_value: #{event_value.inspect}, filter_value: #{filter_value.inspect}, nested_fields: #{nested_fields.inspect}")
+          Rails.logger.error("Error in EventMatcher#field_matched?: #{e.message}. original event_value: #{event_value.inspect}, original filter_value: #{filter_value.inspect}, nested_fields: #{nested_fields.inspect}")
           false
         end
       end
