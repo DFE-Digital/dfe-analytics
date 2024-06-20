@@ -42,10 +42,13 @@ module DfE
           return false
         end
 
+        filter_value = filter_value.to_s
+        event_value = event_value.to_s
+
         begin
           regexp = Regexp.new(filter_value)
           regexp.match?(event_value)
-        rescue => e
+        rescue StandardError => e
           Rails.logger.error("Error in EventMatcher#field_matched?: #{e.message}. event_value: #{event_value.inspect}, filter_value: #{filter_value.inspect}, nested_fields: #{nested_fields.inspect}")
           false
         end
@@ -56,7 +59,7 @@ module DfE
           break memo.to_s unless memo.is_a?(Hash)
 
           memo[field]
-        end.to_s
+        end
       end
     end
   end
