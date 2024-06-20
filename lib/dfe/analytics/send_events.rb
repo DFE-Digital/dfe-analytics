@@ -21,9 +21,6 @@ module DfE
         else
           perform_now(events)
         end
-      rescue StandardError => e
-        Rails.logger.error("Error in SendEvents.do: #{e.message}")
-        raise e
       end
 
       def perform(events)
@@ -39,50 +36,59 @@ module DfE
 
           DfE::Analytics.config.azure_federated_auth ? DfE::Analytics::BigQueryApi.insert(events) : DfE::Analytics::BigQueryLegacyApi.insert(events)
         end
-      rescue StandardError => e
-        Rails.logger.error("Error in SendEvents#perform: #{e.message}")
-        raise e
       end
 
       private
 
       def mask_hidden_data(event)
-        Rails.logger.debug("Masking hidden data for event: #{event.inspect}")
+        masked_event = duplicate_event(event)
+        return event unless masked_event&.key?(:hidden_data)
 
-        if event.is_a?(DfE::Analytics::Event)
-          masked_event = event.event_hash.deep_dup.with_indifferent_access
-        elsif event.is_a?(Hash)
-          masked_event = event.deep_dup.with_indifferent_access
+        mask_hidden_data_values(masked_event)
+      end
+
+      def duplicate_event(event)
+        Rails.logger.error("Event class: #{event.class}")
+
+        case event
+        when DfE::Analytics::Event
+          event.event_hash.deep_dup.with_indifferent_access
+        when Hash
+          event.deep_dup.with_indifferent_access
         else
-          Rails.logger.info("Event is neither a DfE::Analytics::Event nor a Hash: #{event.inspect}")
-          return event
+          Rails.logger.error("Unsupported event type: #{event.class}")
+          nil
+        end
+      end
+
+      def mask_hidden_data_values(event)
+        hidden_data = event[:hidden_data]
+
+        hidden_data.each { |data| mask_data(data) } if hidden_data.is_a?(Array)
+
+        event
+      end
+
+      def mask_data(data)
+        Rails.logger.error("Data class: #{data.class}")
+
+        return unless data.is_a?(Hash)
+
+        Rails.logger.error("Data contains value: #{data[:value]}") if data.key?(:value)
+        data[:value] = ['HIDDEN'] if data[:value].present?
+
+        unless data.key?(:key)
+          Rails.logger.error('Data does not contain key')
+          return
         end
 
-        unless masked_event.key?(:hidden_data)
-          Rails.logger.info("No hidden_data key found in event: #{masked_event.inspect}")
-          return masked_event
+        unless data[:key].is_a?(Hash)
+          Rails.logger.error("Data[:key] is not a Hash: #{data[:key].class}")
+          return
         end
 
-        hidden_data = masked_event[:hidden_data]
-
-        if hidden_data.is_a?(Array)
-          hidden_data.each do |data|
-            next unless data.is_a?(Hash)
-
-            data[:value] = ['HIDDEN'] if data[:value]
-
-            data[:key][:value] = ['HIDDEN'] if data[:key].is_a?(Hash) && data[:key][:value]
-          end
-        else
-          Rails.logger.info("Unexpected hidden_data structure: expected Array, got #{hidden_data.class}")
-        end
-
-        Rails.logger.info("Masked event: #{masked_event.inspect}")
-        masked_event
-      rescue StandardError => e
-        Rails.logger.error("Error in SendEvents#mask_hidden_data: #{e.message}")
-        Rails.logger.error("Event causing error: #{event.inspect}")
-        raise e
+        Rails.logger.error("Data[:key] contains value: #{data[:key][:value]}") if data[:key].key?(:value)
+        data[:key][:value] = ['HIDDEN'] if data[:key][:value].present?
       end
     end
   end
