@@ -41,24 +41,10 @@ module DfE
       private
 
       def mask_hidden_data(event)
-        masked_event = duplicate_event(event)
+        masked_event = event.deep_dup.with_indifferent_access
         return event unless masked_event&.key?(:hidden_data)
 
         mask_hidden_data_values(masked_event)
-      end
-
-      def duplicate_event(event)
-        Rails.logger.error("Event class: #{event.class}")
-
-        case event
-        when DfE::Analytics::Event
-          event.event_hash.deep_dup.with_indifferent_access
-        when Hash
-          event.deep_dup.with_indifferent_access
-        else
-          Rails.logger.error("Unsupported event type: #{event.class}")
-          nil
-        end
       end
 
       def mask_hidden_data_values(event)
@@ -70,25 +56,13 @@ module DfE
       end
 
       def mask_data(data)
-        Rails.logger.error("Data class: #{data.class}")
-
         return unless data.is_a?(Hash)
 
-        Rails.logger.error("Data contains value: #{data[:value]}") if data.key?(:value)
         data[:value] = ['HIDDEN'] if data[:value].present?
 
-        unless data.key?(:key)
-          Rails.logger.error('Data does not contain key')
-          return
-        end
+        return unless data[:key].is_a?(Hash) && data[:key][:value].present?
 
-        unless data[:key].is_a?(Hash)
-          Rails.logger.error("Data[:key] is not a Hash: #{data[:key].class}")
-          return
-        end
-
-        Rails.logger.error("Data[:key] contains value: #{data[:key][:value]}") if data[:key].key?(:value)
-        data[:key][:value] = ['HIDDEN'] if data[:key][:value].present?
+        data[:key][:value] = ['HIDDEN']
       end
     end
   end
