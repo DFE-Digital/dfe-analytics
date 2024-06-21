@@ -4,9 +4,7 @@ module DfE
     class EventMatcher
       attr_reader :event, :filters
 
-      def initialize(event, filters = nil)
-        filters ||= DfE::Analytics.event_debug_filters[:event_filters]
-
+      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters])
         @event = event.with_indifferent_access
         @filters = filters.compact
       end
