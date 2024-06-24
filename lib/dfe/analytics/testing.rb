@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'dfe/analytics/big_query_api'
+require 'dfe/analytics/big_query_legacy_api'
+
 module DfE
   module Analytics
     module Testing
