@@ -2,9 +2,10 @@ namespace :dfe do
   namespace :analytics do
     desc 'Send Analytics events for the (allowlisted) state of all records in the database'
     task :import_all_entities, %i[batch_size] => :environment do |_, args|
-      return unless DfE::Analytics.enabled?
-
-      puts 'DfE Analytics is not enabled - Ignoring import_all_entities'
+      unless DfE::Analytics.enabled?
+        puts 'DfE Analytics is not enabled - Ignoring import_all_entities'
+        return
+      end
 
       entity_tag = Time.now.strftime('%Y%m%d%H%M%S')
       DfE::Analytics.entities_for_analytics.each do |entity_name|
@@ -15,9 +16,10 @@ namespace :dfe do
 
     desc 'Send Analytics events for the state of all records in a specified model'
     task :import_entity, %i[entity_name batch_size] => :environment do |_, args|
-      return unless DfE::Analytics.enabled?
-
-      puts 'DfE Analytics is not enabled - Ignoring import_entity'
+      unless DfE::Analytics.enabled?
+        puts 'DfE Analytics is not enabled - Ignoring import_all_entities'
+        return
+      end
 
       abort('You need to specify a model name as an argument to the Rake task, eg dfe:analytics:import_entity[Model]') unless args[:entity_name]
       entity_tag = Time.now.strftime('%Y%m%d%H%M%S')
