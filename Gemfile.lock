@@ -4,6 +4,7 @@ PATH
     dfe-analytics (1.12.8)
       google-cloud-bigquery (~> 1.38)
       httparty (~> 0.21)
+      multi_xml (~> 0.6.0)
       request_store_rails (~> 2)
 
 GEM
@@ -211,8 +212,7 @@ GEM
     mini_portile2 (2.8.2)
     minitest (5.18.1)
     multi_json (1.15.0)
-    multi_xml (0.7.1)
-      bigdecimal (~> 3.1)
+    multi_xml (0.6.0)
     net-imap (0.3.6)
       date
       net-protocol
