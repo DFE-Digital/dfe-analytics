@@ -1,5 +1,15 @@
 # Changelog
 
+## [v1.12.8](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.8) (2024-06-25)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.7...v1.12.8)
+
+**Merged pull requests:**
+
+- Add big\_query\_api requires to testing.rb [\#151](https://github.com/DFE-Digital/dfe-analytics/pull/151) ([ericaporter](https://github.com/ericaporter))
+- Fix import\_all\_entities rake task output [\#147](https://github.com/DFE-Digital/dfe-analytics/pull/147) ([slorek](https://github.com/slorek))
+- Fix for service pattern name spacing issue [\#137](https://github.com/DFE-Digital/dfe-analytics/pull/137) ([ericaporter](https://github.com/ericaporter))
+
 ## [v1.12.7](https://github.com/DFE-Digital/dfe-analytics/tree/v1.12.7) (2024-05-17)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.6...v1.12.7)
