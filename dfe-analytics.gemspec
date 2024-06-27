@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'google-cloud-bigquery', '~> 1.38'
   spec.add_dependency 'httparty', '~> 0.21'
+  spec.add_dependency 'multi_xml', '~> 0.6.0'
   spec.add_dependency 'request_store_rails', '~> 2'
 
   spec.add_development_dependency 'appraisal'
@@ -42,5 +43,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'webmock', '~> 3.14'
   spec.add_development_dependency 'with_model'
+
   spec.metadata['rubygems_mfa_required'] = 'true'
 end
