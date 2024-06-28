@@ -256,7 +256,7 @@ it might be necessary to add a primary key to the table and to update the releva
 
 ## Custom events
 
-If you wish to send custom analytics event, for example if you have data about emails sent, server side validation errors, api query data or data relating to searches performed, create a file `config/analytics_custom_events.yml` containing an array of your custom events types under a `shared` key like:
+If you wish to send custom analytics event, for example if you have data about emails sent, server-side validation errors, API query data, or data relating to searches performed, create a file `config/analytics_custom_events.yml` containing an array of your custom events types under a `shared` key like:
 
 ```yaml
 shared:
@@ -275,7 +275,7 @@ event = DfE::Analytics::Event.new
   .with_data(some: 'custom details about event')
 ```
 
-If you need to include hidden_pii, you can use the `hidden_data` key which will allow all fields lsited to be sent separately to BigQuery where they will be hidden.
+If you need to include hidden PII, you can use the `hidden_data` key which will allow all fields listed to be sent separately to BigQuery where they will be hidden.
 
 ```ruby
 event = DfE::Analytics::Event.new
@@ -284,8 +284,14 @@ event = DfE::Analytics::Event.new
   .with_request_details(request)
   .with_namespace('some_namespace')
   .with_data(
-    data: { some: 'custom details about event' },
-    hidden_data: { some_hidden: 'some data to be hidden' }
+    data: 
+    { 
+      some: 'custom details about event'
+    },
+    hidden_data: { 
+      some_hidden: 'some data to be hidden',
+      more_hidden: 'more data to be hidden,
+    }
   )
 ```
 
