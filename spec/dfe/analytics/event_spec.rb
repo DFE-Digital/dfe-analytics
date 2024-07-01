@@ -216,6 +216,35 @@ RSpec.describe DfE::Analytics::Event do
     end
   end
 
+  describe 'custom events with hidden_data' do
+    let(:type) { 'some_custom_event' }
+
+    before do
+      allow(DfE::Analytics).to receive(:custom_events).and_return [type]
+    end
+
+    it 'includes hidden_data in the event payload' do
+      event = DfE::Analytics::Event.new
+               .with_type(type)
+               .with_request_details(fake_request)
+               .with_namespace('some_namespace')
+               .with_data(
+                 data: { some: 'custom details about event' },
+                 hidden_data: { some_hidden: 'some data to be hidden' }
+               )
+      output = event.as_json
+
+      visible_data = output['data'].find { |d| d['key'] == 'some' }
+      hidden_data = output['hidden_data'].find { |d| d['key'] == 'some_hidden' }
+
+      expect(visible_data).not_to be_nil
+      expect(visible_data['value']).to eq(['custom details about event'])
+
+      expect(hidden_data).not_to be_nil
+      expect(hidden_data['value']).to eq(['some data to be hidden'])
+    end
+  end
+
   def fake_request(overrides = {})
     attrs = {
       uuid: '123',
