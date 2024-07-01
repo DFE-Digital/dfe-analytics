@@ -73,7 +73,8 @@ module DfE
       end
 
       def with_data(hash)
-        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash))
+        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash[:data])) if hash.include?(:data)
+        @event_hash.deep_merge!(hidden_data: hash_to_kv_pairs(hash[:hidden_data])) if hash.include?(:hidden_data)
 
         self
       end
@@ -109,6 +110,8 @@ module DfE
       end
 
       def hash_to_kv_pairs(hash)
+        return [] if hash.nil?
+
         hash.map do |(key, values)|
           if Array.wrap(values).any?(&:nil?)
             message = "an array field contains nulls - event: #{@event_hash} key: #{key} values: #{values}"

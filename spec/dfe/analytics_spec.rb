@@ -177,6 +177,61 @@ RSpec.describe DfE::Analytics do
     end
   end
 
+  describe '.extract_model_attributes' do
+    with_model :Candidate do
+      table do |t|
+        t.string :email_address
+        t.string :hidden_data
+        t.integer :age
+      end
+    end
+
+    before do
+      allow(DfE::Analytics).to receive(:allowlist).and_return({
+        Candidate.table_name.to_sym => %w[email_address hidden_data age]
+      })
+      allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
+        Candidate.table_name.to_sym => %w[email_address]
+      })
+      allow(DfE::Analytics).to receive(:hidden_pii).and_return({
+        Candidate.table_name.to_sym => %w[hidden_data age]
+      })
+    end
+
+    let(:candidate) { Candidate.create(email_address: 'test@example.com', hidden_data: 'secret', age: 50) }
+
+    it 'correctly separates and obfuscates attributes' do
+      result = described_class.extract_model_attributes(candidate)
+
+      expect(result[:data].keys).to include('email_address')
+      expect(result[:data]['email_address']).to_not eq(candidate.email_address)
+
+      expect(result[:hidden_data]['hidden_data']).to eq('secret')
+      expect(result[:hidden_data]['age']).to eq(50)
+    end
+
+    it 'correctly separates allowed and hidden attributes' do
+      result = described_class.extract_model_attributes(candidate)
+
+      expect(result[:data].keys).to include('email_address')
+      expect(result[:data]).not_to have_key('hidden_data')
+      expect(result[:data]).not_to have_key('age')
+
+      expect(result[:hidden_data]['hidden_data']).to eq('secret')
+      expect(result[:hidden_data]['age']).to eq(50)
+    end
+
+    it 'does not error if no hidden data is sent' do
+      candidate = Candidate.create(email_address: 'test@example.com')
+      allow(DfE::Analytics).to receive(:allowlist).and_return(Candidate.table_name.to_sym => %w[email_address])
+
+      result = described_class.extract_model_attributes(candidate)
+      expect(result[:data].keys).to include('email_address')
+      expect(result[:hidden_data]).to be_nil.or be_empty
+      expect { DfE::Analytics.extract_model_attributes(candidate) }.not_to raise_error
+    end
+  end
+
   describe '.parse_maintenance_window' do
     context 'with a valid maintenance window' do
       before do

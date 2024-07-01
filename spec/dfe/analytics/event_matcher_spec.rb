@@ -127,5 +127,26 @@ RSpec.describe DfE::Analytics::EventMatcher do
         end
       end
     end
+
+    describe '.field_matched?' do
+      let(:logging) do
+        {
+          event_filters: [
+            {
+              event_type: 'update_entity',
+              entity_table_name: 'course_options',
+              data: {
+                key: 'course_id'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'returns false when event_value is nil' do
+        allow(subject).to receive(:event_value_for).and_return(nil)
+        expect(subject.send(:field_matched?, 'course_id', 'data')).to be false
+      end
+    end
   end
 end

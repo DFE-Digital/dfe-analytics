@@ -138,6 +138,12 @@ module DfE
       Rails.application.config_for(:analytics_pii)
     end
 
+    def self.hidden_pii
+      Rails.application.config_for(:analytics_hidden_pii)
+    rescue RuntimeError
+      { 'shared' => {} }
+    end
+
     def self.blocklist
       Rails.application.config_for(:analytics_blocklist)
     end
@@ -185,16 +191,29 @@ module DfE
     def self.extract_model_attributes(model, attributes = nil)
       # if no list of attrs specified, consider all attrs belonging to this model
       attributes ||= model.attributes
-      table_name = model.class.table_name
+      table_name = model.class.table_name.to_sym
 
-      exportable_attrs = allowlist[table_name.to_sym].presence || []
-      pii_attrs = allowlist_pii[table_name.to_sym].presence || []
+      exportable_attrs = (allowlist[table_name].presence || []).map(&:to_sym)
+      hidden_pii_attrs = (hidden_pii[table_name].presence || []).map(&:to_sym)
+      pii_attrs = (allowlist_pii[table_name].presence || []).map(&:to_sym)
+
+      # Validation in fields.rb ensures attributes do not appear on both allowlist_pii and allowlist_hidden_pii
       exportable_pii_attrs = exportable_attrs & pii_attrs
+      exportable_hidden_pii_attrs = exportable_attrs & hidden_pii_attrs
 
-      allowed_attributes = attributes.slice(*exportable_attrs&.map(&:to_s))
-      obfuscated_attributes = attributes.slice(*exportable_pii_attrs&.map(&:to_s))
+      # Exclude both pii and hidden attributes from allowed_attributes
+      allowed_attrs_to_include = exportable_attrs - (exportable_pii_attrs + exportable_hidden_pii_attrs)
 
-      allowed_attributes.deep_merge(obfuscated_attributes.transform_values { |value| pseudonymise(value) })
+      allowed_attributes = attributes.slice(*allowed_attrs_to_include&.map(&:to_s))
+      obfuscated_attributes = attributes.slice(*exportable_pii_attrs.map(&:to_s))
+                .transform_values { |value| pseudonymise(value) }
+      hidden_attributes = attributes.slice(*exportable_hidden_pii_attrs&.map(&:to_s))
+
+      # Allowed attributes (which currently includes the allowlist_pii) must be kept separate from hidden_attributes
+      model_attributes = {}
+      model_attributes.merge!(data: allowed_attributes.deep_merge(obfuscated_attributes)) if allowed_attributes.any? || obfuscated_attributes.any?
+      model_attributes.merge!(hidden_data: hidden_attributes) if hidden_attributes.any?
+      model_attributes
     end
 
     def self.anonymise(value)

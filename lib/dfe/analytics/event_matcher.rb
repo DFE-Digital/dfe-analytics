@@ -16,6 +16,8 @@ module DfE
       private
 
       def filter_matched?(filter, nested_fields = [])
+        return false if filter.nil? || filter.values.any?(&:nil?)
+
         filter.all? do |field, filter_value|
           fields = nested_fields + [field]
 
@@ -31,9 +33,14 @@ module DfE
       def field_matched?(filter_value, nested_fields)
         event_value = event_value_for(nested_fields)
 
-        regexp = Regexp.new(filter_value)
+        return false if event_value.nil?
 
-        regexp.match?(event_value)
+        # Convert values to strings for comparison
+        filter_value_str = filter_value.to_s
+        event_value_str = event_value.to_s
+
+        regexp = Regexp.new(filter_value_str)
+        regexp.match?(event_value_str)
       end
 
       def event_value_for(nested_fields)
