@@ -24,22 +24,45 @@ module DfE
       end
 
       def perform(events)
-        masked_events = events.map do |event|
-          DfE::Analytics.mask_hidden_data(event, event[:entity_table_name])
-        end
-
         if DfE::Analytics.log_only?
           # Use the Rails logger here as the job's logger is set to :warn by default
-          Rails.logger.info("DfE::Analytics: #{masked_events.inspect}")
+          events.each { |event| Rails.logger.info("DfE::Analytics: #{mask_hidden_data(event).inspect}") }
         else
           if DfE::Analytics.event_debug_enabled?
-            masked_events
+            events
               .select { |event| DfE::Analytics::EventMatcher.new(event).matched? }
-              .each { |event| Rails.logger.info("DfE::Analytics processing: #{event.inspect}") }
+              .each { |event| Rails.logger.info("DfE::Analytics processing: #{mask_hidden_data(event).inspect}") }
           end
 
           DfE::Analytics.config.azure_federated_auth ? DfE::Analytics::BigQueryApi.insert(events) : DfE::Analytics::BigQueryLegacyApi.insert(events)
         end
+      end
+
+      private
+
+      def mask_hidden_data(event)
+        masked_event = event.deep_dup.with_indifferent_access
+        return event unless masked_event&.key?(:hidden_data)
+
+        mask_hidden_data_values(masked_event)
+      end
+
+      def mask_hidden_data_values(event)
+        hidden_data = event[:hidden_data]
+
+        hidden_data.each { |data| mask_data(data) } if hidden_data.is_a?(Array)
+
+        event
+      end
+
+      def mask_data(data)
+        return unless data.is_a?(Hash)
+
+        data[:value] = ['HIDDEN'] if data[:value].present?
+
+        return unless data[:key].is_a?(Hash) && data[:key][:value].present?
+
+        data[:key][:value] = ['HIDDEN']
       end
     end
   end

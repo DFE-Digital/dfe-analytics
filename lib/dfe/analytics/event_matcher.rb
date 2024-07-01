@@ -2,16 +2,11 @@ module DfE
   module Analytics
     # Match event against given filters
     class EventMatcher
-      attr_reader :event, :filters, :mask_hidden_data
+      attr_reader :event, :filters
 
-      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters], mask_hidden_data: true)
-        raise 'Event filters must be set' if filters.nil?
-
+      def initialize(event, filters = DfE::Analytics.event_debug_filters[:event_filters])
         @event = event.with_indifferent_access
         @filters = filters.compact
-        @mask_hidden_data = mask_hidden_data
-
-        mask_hidden_data! if mask_hidden_data
       end
 
       def matched?
@@ -21,6 +16,8 @@ module DfE
       private
 
       def filter_matched?(filter, nested_fields = [])
+        return false if filter.nil? || filter.values.any?(&:nil?)
+
         filter.all? do |field, filter_value|
           fields = nested_fields + [field]
 
@@ -36,9 +33,14 @@ module DfE
       def field_matched?(filter_value, nested_fields)
         event_value = event_value_for(nested_fields)
 
-        regexp = Regexp.new(filter_value)
+        return false if event_value.nil?
 
-        regexp.match?(event_value)
+        # Convert values to strings for comparison
+        filter_value_str = filter_value.to_s
+        event_value_str = event_value.to_s
+
+        regexp = Regexp.new(filter_value_str)
+        regexp.match?(event_value_str)
       end
 
       def event_value_for(nested_fields)
@@ -51,12 +53,6 @@ module DfE
 
           memo[field]
         end
-      end
-
-      def mask_hidden_data!
-        return unless mask_hidden_data && @event[:data] && @event[:entity_table_name]
-
-        @event[:data] = DfE::Analytics.mask_hidden_data(@event[:data], @event[:entity_table_name])
       end
     end
   end
