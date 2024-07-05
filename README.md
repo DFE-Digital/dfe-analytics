@@ -231,6 +231,17 @@ user identifier proc can be defined in `config/initializers/dfe_analytics.rb`:
 DfE::Analytics.config.user_identifier = proc { |user| user&.uid }
 ```
 
+You can specify paths that should be excluded from logging using the skip_web_requests configuration option. This is useful for endpoints like health checks that are frequently hit and do not need to be logged.
+
+```ruby
+DfE::Analytics.configure do |config|
+  # other configurations...
+
+  # Specify paths to skip
+  config.skip_web_requests = ['/healthcheck', %r{^/admin}, %r{/api/v1/status}]
+end
+```
+
 ### 6. Import existing data
 
 To load the current contents of your database into BigQuery, run

@@ -36,6 +36,11 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
     Rails.application.routes.draw do
       get '/example/path' => 'test#index'
       get '/unauthenticated_example' => 'test_unauthenticated#index'
+      get '/healthcheck' => 'test#index'
+      get '/regex_path/test' => 'test#index'
+      get '/some/path/with/regex_path' => 'test#index'
+      get '/another/path/to/regex_path' => 'test#index'
+      get '/included/path' => 'test#index' 
     end
 
     ex.run
@@ -61,6 +66,12 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
       response_status: 200,
       namespace: 'example_namespace',
       user_id: 1 }
+  end
+
+  before do
+    DfE::Analytics.configure do |config|
+      config.excluded_paths = ['/healthcheck', %r{^/regex_path/.*$}, %r{regex_path$}]
+    end
   end
 
   it 'sends request data to BigQuery' do
@@ -154,6 +165,56 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
         payload = body['rows'].first['json']
         expect(payload.except('occurred_at', 'request_uuid')).to match(event.deep_stringify_keys)
       end).to have_been_made
+    end
+  end
+
+  context 'when request path is in the skip list' do
+    it 'does not send healthcheck request data to BigQuery' do
+      request = stub_analytics_event_submission
+
+      DfE::Analytics::Testing.webmock! do
+        perform_enqueued_jobs do
+          get('/healthcheck')
+        end
+      end
+
+      expect(request).not_to have_been_made
+    end
+
+    it 'does not send regex_path/test request data to BigQuery' do
+      request = stub_analytics_event_submission
+
+      DfE::Analytics::Testing.webmock! do
+        perform_enqueued_jobs do
+          get('/regex_path/test')
+        end
+      end
+
+      expect(request).not_to have_been_made
+    end
+
+    it 'does not send some/path/with/regex_path request data to BigQuery' do
+      request = stub_analytics_event_submission
+
+      DfE::Analytics::Testing.webmock! do
+        perform_enqueued_jobs do
+          get('/some/path/with/regex_path')
+        end
+      end
+
+      expect(request).not_to have_been_made
+    end
+
+    it 'does not send another/path/to/regex_path request data to BigQuery' do
+      request = stub_analytics_event_submission
+
+      DfE::Analytics::Testing.webmock! do
+        perform_enqueued_jobs do
+          get('/another/path/to/regex_path')
+        end
+      end
+
+      expect(request).not_to have_been_made
     end
   end
 end
