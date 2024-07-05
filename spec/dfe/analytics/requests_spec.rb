@@ -40,7 +40,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
       get '/regex_path/test' => 'test#index'
       get '/some/path/with/regex_path' => 'test#index'
       get '/another/path/to/regex_path' => 'test#index'
-      get '/included/path' => 'test#index' 
+      get '/included/path' => 'test#index'
     end
 
     ex.run
@@ -70,7 +70,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
 
   before do
     DfE::Analytics.configure do |config|
-      config.excluded_paths = ['/healthcheck', %r{^/regex_path/.*$}, %r{regex_path$}]
+      config.excluded_paths = ['/healthcheck', %r{^/regex_path/.*$}, /regex_path$/]
     end
   end
 
