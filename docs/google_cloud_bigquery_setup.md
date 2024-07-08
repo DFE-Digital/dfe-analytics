@@ -71,8 +71,7 @@ requires more manual work especially when it comes to adding permissions.
 
 </details>
 
-
-#### Analyst Role
+#### Basic Role
 
 This role is used for analysts or other users who don't need to write to or
 modify data in BigQuery.
@@ -80,7 +79,7 @@ modify data in BigQuery.
 <details> <summary>Using the GCloud CLI</summary>
 
 ``` bash
-gcloud iam roles create bigquery_analyst_custom --title="BigQuery Analyst Custom" --description="Assigned to accounts used by analysts and SQL developers." --permissions=bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.routines.get,bigquery.routines.list,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.createSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,resourcemanager.projects.get --project=YOUR_PROJECT_ID
+gcloud iam roles create bigquery_basic_custom --title="BigQuery Basic Custom" --description="Assigned to accounts used by analysts." --permissions=bigquery.connections.get,bigquery.dataPolicies.maskedGet,bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.readsessions.create,bigquery.readsessions.getData,bigquery.readsessions.update,bigquery.routines.get,bigquery.routines.list,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.createSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,datacatalog.entries.get,datacatalog.entries.list,datacatalog.entryGroups.get,datacatalog.entryGroups.list,datacatalog.tagTemplates.get,datacatalog.tagTemplates.getTag,datacatalog.taxonomies.get,datacatalog.taxonomies.list,datalineage.events.get,datalineage.events.list,datalineage.locations.searchLinks,datalineage.processes.get,datalineage.processes.list,datalineage.runs.get,datalineage.runs.list,iam.serviceAccounts.actAs,iam.serviceAccounts.get,iam.serviceAccounts.list,pubsub.topics.get,resourcemanager.projects.get --project=YOUR_PROJECT_ID
 ```
 
 </details>
@@ -89,15 +88,17 @@ gcloud iam roles create bigquery_analyst_custom --title="BigQuery Analyst Custom
 
 | Field             | Value                                                     |
 |-------------------|-----------------------------------------------------------|
-| Title             | **BigQuery Analyst Custom**                               |
-| Description       | Assigned to accounts used by analysts and SQL developers. |
-| ID                | `bigquery_analyst_custom`                                 |
+| Title             | **BigQuery Basic Custom**                               |
+| Description       | Assigned to accounts used by analysts or other users who don't need to write to or modify data in BigQuery. |
+| ID                | `bigquery_basic_custom`                                 |
 | Role launch stage | General Availability                                      |
 | + Add permissions | See below                                                 |
 
-##### Permissions for `bigquery_analyst_custom`
+##### Permissions for `bigquery_basic_custom`
 
 ```
+bigquery.connections.get
+bigquery.dataPolicies.maskedGet
 bigquery.datasets.get
 bigquery.datasets.getIamPolicy
 bigquery.datasets.updateTag
@@ -109,6 +110,9 @@ bigquery.models.export
 bigquery.models.getData
 bigquery.models.getMetadata
 bigquery.models.list
+bigquery.readsessions.create
+bigquery.readsessions.getData
+bigquery.readsessions.update
 bigquery.routines.get
 bigquery.routines.list
 bigquery.savedqueries.create
@@ -123,20 +127,39 @@ bigquery.tables.getData
 bigquery.tables.getIamPolicy
 bigquery.tables.list
 bigquery.tables.restoreSnapshot
+datacatalog.entries.get
+datacatalog.entries.list
+datacatalog.entryGroups.get
+datacatalog.entryGroups.list
+datacatalog.tagTemplates.get
+datacatalog.tagTemplates.getTag
+datacatalog.taxonomies.get
+datacatalog.taxonomies.list
+datalineage.events.get
+datalineage.events.list
+datalineage.locations.searchLinks
+datalineage.processes.get
+datalineage.processes.list
+datalineage.runs.get
+datalineage.runs.list
+iam.serviceAccounts.actAs
+iam.serviceAccounts.get
+iam.serviceAccounts.list
+pubsub.topics.get
 resourcemanager.projects.get
 ```
 
 </details>
 
-#### Developer Role
+#### Advanced Role
 
-This role is used for developers or other users who need to be able to write to
+This role is used for Dataform SQL developers or other users who need to be able to write to
 or modify data in BigQuery.
 
 <details> <summary>Using the GCloud CLI</summary>
 
 ``` bash
-gcloud iam roles create bigquery_developer_custom --title="BigQuery Developer Custom" --description="Assigned to accounts used by developers." --permissions=bigquery.connections.create,bigquery.connections.delete,bigquery.connections.get,bigquery.connections.getIamPolicy,bigquery.connections.list,bigquery.connections.update,bigquery.connections.updateTag,bigquery.connections.use,bigquery.datasets.create,bigquery.datasets.delete,bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.update,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.delete,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.jobs.update,bigquery.models.create,bigquery.models.delete,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.models.updateData,bigquery.models.updateMetadata,bigquery.models.updateTag,bigquery.routines.create,bigquery.routines.delete,bigquery.routines.get,bigquery.routines.list,bigquery.routines.update,bigquery.routines.updateTag,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.create,bigquery.tables.createSnapshot,bigquery.tables.delete,bigquery.tables.deleteSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,bigquery.tables.setCategory,bigquery.tables.update,bigquery.tables.updateData,bigquery.tables.updateTag,resourcemanager.projects.get --project=YOUR_PROJECT_ID
+gcloud iam roles create bigquery_advanced_custom --title="BigQuery Advanced Custom" --description="Assigned to accounts used by Dataform SQL developers who need to be able to write to or modify data in BigQuery." --permissions=aiplatform.notebookRuntimeTemplates.apply,aiplatform.notebookRuntimeTemplates.get,aiplatform.notebookRuntimeTemplates.getIamPolicy,aiplatform.notebookRuntimeTemplates.list,aiplatform.notebookRuntimes.assign,aiplatform.notebookRuntimes.get,aiplatform.notebookRuntimes.list,aiplatform.operations.list,bigquery.config.get,bigquery.connections.create,bigquery.connections.delete,bigquery.connections.get,bigquery.connections.getIamPolicy,bigquery.connections.list,bigquery.connections.update,bigquery.connections.updateTag,bigquery.connections.use,bigquery.datasets.create,bigquery.datasets.delete,bigquery.datasets.get,bigquery.datasets.getIamPolicy,bigquery.datasets.update,bigquery.datasets.updateTag,bigquery.jobs.create,bigquery.jobs.delete,bigquery.jobs.get,bigquery.jobs.list,bigquery.jobs.listAll,bigquery.jobs.update,bigquery.models.create,bigquery.models.delete,bigquery.models.export,bigquery.models.getData,bigquery.models.getMetadata,bigquery.models.list,bigquery.models.updateData,bigquery.models.updateMetadata,bigquery.models.updateTag,bigquery.readsessions.create,bigquery.readsessions.getData,bigquery.readsessions.update,bigquery.routines.create,bigquery.routines.delete,bigquery.routines.get,bigquery.routines.list,bigquery.routines.update,bigquery.routines.updateTag,bigquery.savedqueries.create,bigquery.savedqueries.delete,bigquery.savedqueries.get,bigquery.savedqueries.list,bigquery.savedqueries.update,bigquery.tables.create,bigquery.tables.createSnapshot,bigquery.tables.delete,bigquery.tables.deleteSnapshot,bigquery.tables.export,bigquery.tables.get,bigquery.tables.getData,bigquery.tables.getIamPolicy,bigquery.tables.list,bigquery.tables.restoreSnapshot,bigquery.tables.setCategory,bigquery.tables.update,bigquery.tables.updateData,bigquery.tables.updateTag,datacatalog.categories.fineGrainedGet,datacatalog.entries.get,datacatalog.entries.list,datacatalog.entryGroups.get,datacatalog.entryGroups.list,datacatalog.tagTemplates.get,datacatalog.tagTemplates.getTag,datacatalog.taxonomies.get,datacatalog.taxonomies.list,dataform.compilationResults.create,dataform.compilationResults.get,dataform.compilationResults.list,dataform.compilationResults.query,dataform.locations.get,dataform.locations.list,dataform.releaseConfigs.create,dataform.releaseConfigs.delete,dataform.releaseConfigs.get,dataform.releaseConfigs.list,dataform.releaseConfigs.update,dataform.repositories.commit,dataform.repositories.computeAccessTokenStatus,dataform.repositories.create,dataform.repositories.delete,dataform.repositories.fetchHistory,dataform.repositories.fetchRemoteBranches,dataform.repositories.get,dataform.repositories.getIamPolicy,dataform.repositories.list,dataform.repositories.queryDirectoryContents,dataform.repositories.readFile,dataform.repositories.setIamPolicy,dataform.repositories.update,dataform.workflowConfigs.create,dataform.workflowConfigs.delete,dataform.workflowConfigs.get,dataform.workflowConfigs.list,dataform.workflowConfigs.update,dataform.workflowInvocations.cancel,dataform.workflowInvocations.create,dataform.workflowInvocations.delete,dataform.workflowInvocations.get,dataform.workflowInvocations.list,dataform.workflowInvocations.query,dataform.workspaces.commit,dataform.workspaces.create,dataform.workspaces.delete,dataform.workspaces.fetchFileDiff,dataform.workspaces.fetchFileGitStatuses,dataform.workspaces.fetchGitAheadBehind,dataform.workspaces.get,dataform.workspaces.getIamPolicy,dataform.workspaces.installNpmPackages,dataform.workspaces.list,dataform.workspaces.makeDirectory,dataform.workspaces.moveDirectory,dataform.workspaces.moveFile,dataform.workspaces.pull,dataform.workspaces.push,dataform.workspaces.queryDirectoryContents,dataform.workspaces.readFile,dataform.workspaces.removeDirectory,dataform.workspaces.removeFile,dataform.workspaces.reset,dataform.workspaces.searchFiles,dataform.workspaces.setIamPolicy,dataform.workspaces.writeFile,datalineage.events.get,datalineage.events.list,datalineage.locations.searchLinks,datalineage.processes.get,datalineage.processes.list,datalineage.runs.get,datalineage.runs.list,iam.serviceAccounts.actAs,iam.serviceAccounts.get,iam.serviceAccounts.list,logging.buckets.get,logging.buckets.list,logging.exclusions.get,logging.exclusions.list,logging.links.get,logging.links.list,logging.locations.get,logging.locations.list,logging.logEntries.list,logging.logMetrics.get,logging.logMetrics.list,logging.logServiceIndexes.list,logging.logServices.list,logging.logs.list,logging.operations.get,logging.operations.list,logging.queries.create,logging.queries.delete,logging.queries.get,logging.queries.list,logging.queries.listShared,logging.queries.update,logging.sinks.get,logging.sinks.list,logging.usage.get,logging.views.get,logging.views.list,pubsub.topics.get,resourcemanager.projects.get --project=YOUR_PROJECT_ID
 ```
 
 </details>
@@ -145,15 +168,24 @@ gcloud iam roles create bigquery_developer_custom --title="BigQuery Developer Cu
 
 | Field | Value |
 | ----------------- | ---------------------------------------- |
-| Title | **BigQuery Developer Custom** |
-| Description | Assigned to accounts used by developers. |
-| ID | `bigquery_developer_custom` |
+| Title | **BigQuery Advanced Custom** |
+| Description | Assigned to accounts used by Dataform SQL developers who need to be able to write to or modify data in BigQuery. |
+| ID | `bigquery_advanced_custom` |
 | Role launch stage | General Availability |
 | + Add permissions | See below |
 
-##### Permissions for `bigquery_developer_custom`
+##### Permissions for `bigquery_advanced_custom`
 
 ```
+aiplatform.notebookRuntimeTemplates.apply
+aiplatform.notebookRuntimeTemplates.get
+aiplatform.notebookRuntimeTemplates.getIamPolicy
+aiplatform.notebookRuntimeTemplates.list
+aiplatform.notebookRuntimes.assign
+aiplatform.notebookRuntimes.get
+aiplatform.notebookRuntimes.list
+aiplatform.operations.list
+bigquery.config.get
 bigquery.connections.create
 bigquery.connections.delete
 bigquery.connections.get
@@ -183,6 +215,9 @@ bigquery.models.list
 bigquery.models.updateData
 bigquery.models.updateMetadata
 bigquery.models.updateTag
+bigquery.readsessions.create
+bigquery.readsessions.getData
+bigquery.readsessions.update
 bigquery.routines.create
 bigquery.routines.delete
 bigquery.routines.get
@@ -208,6 +243,111 @@ bigquery.tables.setCategory
 bigquery.tables.update
 bigquery.tables.updateData
 bigquery.tables.updateTag
+datacatalog.categories.fineGrainedGet
+datacatalog.entries.get
+datacatalog.entries.list
+datacatalog.entryGroups.get
+datacatalog.entryGroups.list
+datacatalog.tagTemplates.get
+datacatalog.tagTemplates.getTag
+datacatalog.taxonomies.get
+datacatalog.taxonomies.list
+dataform.compilationResults.create
+dataform.compilationResults.get
+dataform.compilationResults.list
+dataform.compilationResults.query
+dataform.locations.get
+dataform.locations.list
+dataform.releaseConfigs.create
+dataform.releaseConfigs.delete
+dataform.releaseConfigs.get
+dataform.releaseConfigs.list
+dataform.releaseConfigs.update
+dataform.repositories.commit
+dataform.repositories.computeAccessTokenStatus
+dataform.repositories.create
+dataform.repositories.delete
+dataform.repositories.fetchHistory
+dataform.repositories.fetchRemoteBranches
+dataform.repositories.get
+dataform.repositories.getIamPolicy
+dataform.repositories.list
+dataform.repositories.queryDirectoryContents
+dataform.repositories.readFile
+dataform.repositories.setIamPolicy
+dataform.repositories.update
+dataform.workflowConfigs.create
+dataform.workflowConfigs.delete
+dataform.workflowConfigs.get
+dataform.workflowConfigs.list
+dataform.workflowConfigs.update
+dataform.workflowInvocations.cancel
+dataform.workflowInvocations.create
+dataform.workflowInvocations.delete
+dataform.workflowInvocations.get
+dataform.workflowInvocations.list
+dataform.workflowInvocations.query
+dataform.workspaces.commit
+dataform.workspaces.create
+dataform.workspaces.delete
+dataform.workspaces.fetchFileDiff
+dataform.workspaces.fetchFileGitStatuses
+dataform.workspaces.fetchGitAheadBehind
+dataform.workspaces.get
+dataform.workspaces.getIamPolicy
+dataform.workspaces.installNpmPackages
+dataform.workspaces.list
+dataform.workspaces.makeDirectory
+dataform.workspaces.moveDirectory
+dataform.workspaces.moveFile
+dataform.workspaces.pull
+dataform.workspaces.push
+dataform.workspaces.queryDirectoryContents
+dataform.workspaces.readFile
+dataform.workspaces.removeDirectory
+dataform.workspaces.removeFile
+dataform.workspaces.reset
+dataform.workspaces.searchFiles
+dataform.workspaces.setIamPolicy
+dataform.workspaces.writeFile
+datalineage.events.get
+datalineage.events.list
+datalineage.locations.searchLinks
+datalineage.processes.get
+datalineage.processes.list
+datalineage.runs.get
+datalineage.runs.list
+iam.serviceAccounts.actAs
+iam.serviceAccounts.get
+iam.serviceAccounts.list
+logging.buckets.get
+logging.buckets.list
+logging.exclusions.get
+logging.exclusions.list
+logging.links.get
+logging.links.list
+logging.locations.get
+logging.locations.list
+logging.logEntries.list
+logging.logMetrics.get
+logging.logMetrics.list
+logging.logServiceIndexes.list
+logging.logServices.list
+logging.logs.list
+logging.operations.get
+logging.operations.list
+logging.queries.create
+logging.queries.delete
+logging.queries.get
+logging.queries.list
+logging.queries.listShared
+logging.queries.update
+logging.sinks.get
+logging.sinks.list
+logging.usage.get
+logging.views.get
+logging.views.list
+pubsub.topics.get
 resourcemanager.projects.get
 ```
 
@@ -245,6 +385,24 @@ bigquery.tables.updateData
 ```
 
 </details>
+
+### 4. Create a policy tag
+We use a BigQuery 'policy tag' to label some fields in some tables in BigQuery
+as 'hidden', restrict access to these fields and mask data in these fields to
+users without access. Policy tag(s) exist within a group known as a 'taxonomy'.
+
+To create the 'hidden' policy tag required by dfe-analytics:
+1. Enable the "BigQuery Data Policy API": search for this from the 'Enable APIs
+   and services' screen, accessible from the 'Enabled APIs and services' screen
+   within the 'APIs and services' section of GCP, and click 'Enable'.
+2. Open BigQuery, open the 'Policy tags' screen and click 'Create taxonomy'.
+3. Use this screen to create a policy tag named ‘hidden’ within a taxonomy named
+   something like ‘project-restricted-access' (replacing ‘project’ with something
+   meaningful to your GCP project). Ensure the taxonomy is within the
+   europe-west2 (London) region.
+4. Click the 'Manage data policies' button to open the Masking rules screen. Under
+   'Data policy name 1' type 'hidden' and under 'Masking rule 1' select
+   'Hash (SHA256)'. Click Submit.
 
 ## Dataset and Table Setup
 
@@ -299,6 +457,12 @@ Once the dataset is ready you need to create the `events` table in it:
    into the query editor.
 3. Edit your project and dataset names in the query editor.
 4. Run the query to create a blank events table.
+5. Label the hidden_DATA field with the 'hidden' policy tag to restrict
+   access to it: Navigate to the newly created table in BigQuery using the
+   left hand sidebar. Click 'Edit Schema'. Expand the 'hidden_DATA' field
+   and select the checkbox next to the 'value' element within it. Click
+   'Add policy tag' and select the 'hidden' policy tag in the taxonomy for
+   your project. Click Save.
 
 BigQuery allows you to copy a table to a new dataset, so now is a good time to
 create all the datasets you need and copy the blank `events` table to each of
@@ -332,6 +496,3 @@ Ensure you have the email address of the service account handy for this.
    principals" box.
 4. Select the "BigQuery Appender Custom" role you created previously.
 5. Click "SAVE" to finish.
-
-
-

@@ -5,11 +5,12 @@ RSpec.describe DfE::Analytics::Fields do
         t.string :email_address
         t.string :first_name
         t.string :last_name
+        t.string :dob
       end
     end
 
-    let(:existing_allowlist) { { Candidate.table_name.to_sym => ['email_address'] } }
-    let(:existing_blocklist) { { Candidate.table_name.to_sym => ['id'] } }
+    let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address] } }
+    let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[id] } }
 
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return(existing_allowlist)
@@ -46,7 +47,7 @@ RSpec.describe DfE::Analytics::Fields do
 
     describe '.conflicting_fields' do
       context 'when fields conflict' do
-        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address id first_name] } }
+        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address id first_name dob] } }
         let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[email_address first_name] } }
 
         it 'returns the conflicting fields' do
@@ -108,6 +109,51 @@ RSpec.describe DfE::Analytics::Fields do
       describe '.check!' do
         it 'raises an error' do
           expect { DfE::Analytics::Fields.check! }.to raise_error(DfE::Analytics::ConfigurationError, /Database field removed/)
+        end
+      end
+    end
+
+    describe 'handling of hidden PII fields' do
+      let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[id dob email_address] } }
+      let(:hidden_pii) { { Candidate.table_name.to_sym => %w[dob] } }
+      let(:allowlist_pii) { { Candidate.table_name.to_sym => %w[id email_address] } }
+      let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[first_name last_name] } }
+
+      before do
+        allow(DfE::Analytics).to receive(:hidden_pii).and_return(hidden_pii)
+        allow(DfE::Analytics).to receive(:allowlist_pii).and_return(allowlist_pii)
+      end
+
+      describe '.hidden_pii' do
+        let(:hidden_pii) { { Candidate.table_name.to_sym => %w[dob] } }
+        it 'returns all the fields in the analytics_hidden_pii.yml file' do
+          expect(described_class.hidden_pii).to eq(hidden_pii)
+        end
+      end
+
+      describe '.check!' do
+        context 'when there are no overlapping fields in hidden_pii and allowlist_pii' do
+          it 'does not raise an error' do
+            expect { DfE::Analytics::Fields.check! }.not_to raise_error
+          end
+        end
+
+        context 'when there are overlapping fields in hidden_pii and allowlist_pii' do
+          let(:allowlist_pii) { { Candidate.table_name.to_sym => %w[id dob email_address] } }
+
+          it 'raises an error' do
+            error_message = /PII configuration error detected! The following fields are listed in both hidden_pii and allowlist_pii/
+            expect { DfE::Analytics::Fields.check! }.to raise_error(DfE::Analytics::ConfigurationError, error_message)
+          end
+        end
+
+        context 'when hidden PII fields are improperly managed' do
+          let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address] } }
+          let(:allowlist_pii) { { Candidate.table_name.to_sym => %w[email_address] } }
+
+          it 'raises an error about hidden PII fields not in allowlist' do
+            expect { described_class.check! }.to raise_error(DfE::Analytics::ConfigurationError, /New database field detected/)
+          end
         end
       end
     end

@@ -108,7 +108,7 @@ module DfE
             .with_type(entity_type)
             .with_entity_table_name(entity_name)
             .with_tags([entity_tag])
-            .with_data(entity_table_check_data(entity_name, order_column))
+            .with_data(data: entity_table_check_data(entity_name, order_column))
             .as_json
         end
       end
