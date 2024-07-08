@@ -410,6 +410,7 @@ The different types of events that DfE Analytics send are:
 
 - `web_request` - sent after a controller action is performed using controller callbacks
 - `create_entity` - sent after an object is created using model callbacks
+- `update_entity` - sent after an object is updated using model callbacks
 - `delete_entity` - sent after an object is deleted using model callbacks
 - `import_entity` - sent for each object imported using the DfE Analytics import rake tasks
 
