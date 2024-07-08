@@ -238,7 +238,7 @@ DfE::Analytics.configure do |config|
   # other configurations...
 
   # Specify paths to skip
-  config.skip_web_requests = ['/healthcheck', %r{^/admin}, %r{/api/v1/status}]
+  config.excluded_paths = ['/healthcheck', %r{^/admin}, %r{/api/v1/status}]
 end
 ```
 
