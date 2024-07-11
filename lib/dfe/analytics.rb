@@ -57,6 +57,7 @@ module DfE
         azure_scope
         gcp_scope
         google_cloud_credentials
+        excluded_paths
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -82,6 +83,7 @@ module DfE
       config.rack_page_cached                 ||= proc { |_rack_env| false }
       config.bigquery_maintenance_window      ||= ENV.fetch('BIGQUERY_MAINTENANCE_WINDOW', nil)
       config.azure_federated_auth             ||= false
+      config.excluded_paths                   ||= []
 
       return unless config.azure_federated_auth
 
