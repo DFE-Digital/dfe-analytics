@@ -377,7 +377,7 @@ to Google Cloud to append data to the `events` tables.
 <details> <summary>Using the GCloud CLI</summary>
 
 ``` bash
-gcloud iam roles create bigquery_appender_custom --title="BigQuery Appender Custom" --description="Assigned to service accounts used to append data to events tables." --permissions=bigquery.datasets.get,bigquery.tables.get,bigquery.tables.updateData
+gcloud iam roles create bigquery_appender_custom --title="BigQuery Appender Custom" --description="Assigned to service accounts used to append data to events tables." --permissions=bigquery.datasets.get,bigquery.tables.get,bigquery.tables.updateData --project=YOUR_PROJECT_ID
 ```
 
 </details>
