@@ -116,7 +116,7 @@ RSpec.describe DfE::Analytics::Entities do
 
           expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
             .with([a_hash_including({
-              'data' => match([ # #match will cause a strict match within hash_including
+              'data' => match([
                                 { 'key' => 'id', 'value' => [123] }
                               ])
             })])
@@ -176,9 +176,9 @@ RSpec.describe DfE::Analytics::Entities do
         entity.update(last_name: 'GB')
 
         expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
-        .with([a_hash_including({
-          'event_type' => 'update_entity'
-        })])
+          .with([a_hash_including({
+            'event_type' => 'update_entity'
+          })])
       end
 
       it 'sends events that are valid according to the schema' do
@@ -202,9 +202,9 @@ RSpec.describe DfE::Analytics::Entities do
         entity.update(first_name: 'Persephone')
 
         expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
-        .with([a_hash_including({
-          'event_type' => 'update_entity'
-        })])
+          .with([a_hash_including({
+            'event_type' => 'update_entity'
+          })])
       end
     end
 
@@ -218,9 +218,9 @@ RSpec.describe DfE::Analytics::Entities do
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
           .with([a_hash_including({
-          'event_type' => 'update_entity',
-          'data' => array_including(a_hash_including('key' => 'email_address', 'value' => ['updated@example.com']))
-        })])
+            'event_type' => 'update_entity',
+            'data' => array_including(a_hash_including('key' => 'email_address', 'value' => ['updated@example.com']))
+          })])
       end
 
       it 'sends events with updated allowed field and with updated hidden data' do
@@ -228,10 +228,10 @@ RSpec.describe DfE::Analytics::Entities do
 
         expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
           .with([a_hash_including({
-          'event_type' => 'update_entity',
-          'data' => array_including(a_hash_including('key' => 'email_address', 'value' => ['updated@example.com'])),
-          'hidden_data' => array_including(a_hash_including('key' => 'dob', 'value' => ['21062000']))
-        })])
+            'event_type' => 'update_entity',
+            'data' => array_including(a_hash_including('key' => 'email_address', 'value' => ['updated@example.com'])),
+            'hidden_data' => array_including(a_hash_including('key' => 'dob', 'value' => ['21062000']))
+          })])
       end
     end
   end
@@ -268,6 +268,37 @@ RSpec.describe DfE::Analytics::Entities do
             'hidden_data' => array_including(a_hash_including('key' => 'dob', 'value' => ['21062000']))
           })])
       end
+    end
+  end
+
+  describe 'rollback behavior' do
+    it 'does not send create event if the transaction is rolled back' do
+      ActiveRecord::Base.transaction do
+        Candidate.create(id: 123)
+        raise ActiveRecord::Rollback
+      end
+
+      expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
+    end
+
+    it 'does not send update event if the transaction is rolled back' do
+      entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
+      ActiveRecord::Base.transaction do
+        entity.update(email_address: 'bar@baz.com')
+        raise ActiveRecord::Rollback
+      end
+
+      expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
+    end
+
+    it 'does not send delete event if the transaction is rolled back' do
+      entity = Candidate.create(email_address: 'boo@example.com')
+      ActiveRecord::Base.transaction do
+        entity.destroy
+        raise ActiveRecord::Rollback
+      end
+
+      expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
     end
   end
 end
