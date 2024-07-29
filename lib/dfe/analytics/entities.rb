@@ -19,6 +19,9 @@ module DfE
         end
 
         after_update_commit do
+          # in this after_update hook we don't have access to the new fields via
+          # #attributes — we need to dig them out of saved_changes which stores
+          # them in the format { attr: ['old', 'new'] }
           updated_attributes = DfE::Analytics.extract_model_attributes(
             self, saved_changes.transform_values(&:last)
           )
@@ -39,7 +42,7 @@ module DfE
                                      .with_tags(event_tags)
                                      .with_request_uuid(RequestLocals.fetch(:dfe_analytics_request_id) { nil })
 
-        DfE::Analytics::SendEvents.perform_later([event.as_json])
+        DfE::Analytics::SendEvents.do([event.as_json])
       end
     end
   end

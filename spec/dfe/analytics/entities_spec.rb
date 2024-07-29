@@ -115,7 +115,7 @@ RSpec.describe DfE::Analytics::Entities do
           Candidate.create(id: 123, email_address: 'adrienne@example.com')
 
           expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
-            .with([a_hash_including({
+            .with([a_hash_including({ # #match will cause a strict match within hash_including
               'data' => match([
                                 { 'key' => 'id', 'value' => [123] }
                               ])
