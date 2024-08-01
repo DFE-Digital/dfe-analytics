@@ -8,17 +8,17 @@ module DfE
       included do
         attr_accessor :event_tags
 
-        after_create do
+        after_create_commit do
           extracted_attributes = DfE::Analytics.extract_model_attributes(self)
           send_event('create_entity', extracted_attributes) if extracted_attributes.any?
         end
 
-        after_destroy do
+        after_destroy_commit do
           extracted_attributes = DfE::Analytics.extract_model_attributes(self)
           send_event('delete_entity', extracted_attributes) if extracted_attributes.any?
         end
 
-        after_update do
+        after_update_commit do
           # in this after_update hook we don't have access to the new fields via
           # #attributes — we need to dig them out of saved_changes which stores
           # them in the format { attr: ['old', 'new'] }
