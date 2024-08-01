@@ -1,6 +1,17 @@
 # Changelog
 
-## [v1.13.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.13.0) (2024-07-08)
+## [v1.14.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.0) (2024-08-01)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.13.0...v1.14.0)
+
+**Merged pull requests:**
+
+- Update callbacks to have \_commit suffix [\#158](https://github.com/DFE-Digital/dfe-analytics/pull/158) ([ericaporter](https://github.com/ericaporter))
+- Update google\_cloud\_bigquery\_setup.md [\#157](https://github.com/DFE-Digital/dfe-analytics/pull/157) ([alexchristensenedu](https://github.com/alexchristensenedu))
+- Update google\_cloud\_bigquery\_setup.md [\#156](https://github.com/DFE-Digital/dfe-analytics/pull/156) ([alexchristensenedu](https://github.com/alexchristensenedu))
+- Allow certain paths or endpoints to be excluded [\#154](https://github.com/DFE-Digital/dfe-analytics/pull/154) ([ericaporter](https://github.com/ericaporter))
+
+## [v1.13.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.13.0) (2024-07-09)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.12.8...v1.13.0)
 
