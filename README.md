@@ -99,33 +99,60 @@ This will create some configuration files, including `config/initializers/dfe_an
 While you’re setting things up, consider setting `config.async = false` and
 `config.log_only = true` to take ActiveJob and BigQuery out of the loop.
 
-### 2. Set up BigQuery credentials :key:
+### 2. BigQuery setup and configuration
 
-Depending on how your app environments are set up, we recommend you use a
-service account created for the `development` environment to test your local
-machine's integration with BigQuery. This requires that your project is set up
-in Google Cloud as per [the instructions above](docs/google_cloud_bigquery_setup.md).
+Ensure project is set up as per the [Google Cloud setup guide](docs/google_cloud_bigquery_setup.md) above.
 
-1. Access the `development` service account you previously set up
-1. Go to the keys tab, click on "Add key" > "Create new key"
-1. Create a JSON private key. This file will be downloaded to your local system.
-
-The full contents of this JSON file is your `BIGQUERY_API_JSON_KEY`.
-
-Once you have the key, set the following environment variables for your Rails
-app.
+Set the following environment variables for your Rails app.
 
 ```
 BIGQUERY_TABLE_NAME=events
 BIGQUERY_PROJECT_ID=your-bigquery-project-name
 BIGQUERY_DATASET=your-bigquery-dataset-name
+```
+
+If you're stuck with differently-named env vars, you can configure the names in
+`dfe_analytics.rb`.
+
+### 3. BigQuery authentication method
+
+### 3.1 Workload Identity Federation
+
+We recommend using Workload identity federation as your authentication method as detailed in the [Workload Identity Federation Setup](docs/google_cloud_bigquery_setup.md#workload-identity-federation-setup) guide.
+
+To enable the workload identity federation authentication method, update the configuration option in `config/initializers/dfe_analytics.rb`:
+
+```ruby
+config.azure_federated_auth = true
+```
+
+#### 3.2 API Key
+
+Some projects are still using JSON API Keys to authenticate with Google cloud. This method of authentication is still supported for legacy purposes.
+
+To use API Keys, set the following configuration option in `config/initializers/dfe_analytics.rb`:
+
+```ruby
+config.azure_federated_auth = false
+```
+
+To create an API Key follow the steps below:
+
+1. Access the service account in [IAM](https://console.cloud.google.com/iam-admin/serviceaccounts) you previously set up
+2. Go to the keys tab, click on "Add key" > "Create new key"
+3. Create a JSON private key. This file will be downloaded to your local system.
+
+Once you have the key, set the following environment variables for your Rails
+app.
+
+```
 BIGQUERY_API_JSON_KEY=<contents of the JSON, make sure to strip or escape newlines>
 ```
 
 If you're stuck with differently-named env vars, you can configure the names in
 `dfe_analytics.rb`.
 
-### 3. Set up a queue
+### 4. Set up a queue
 
 Unless you are using the `config.async = false` setting (not recommended for
 production), events are sent to BigQuery via ActiveJob.
@@ -156,7 +183,7 @@ Also consider setting the priority of the jobs according to your chosen ActiveJo
 
 High-traffic applications may require a dedicated worker.
 
-### 4. Send database events
+### 5. Send database events
 
 The `dfe:analytics:install` generator will also initialize some empty config files:
 
@@ -196,7 +223,7 @@ Once `analytics.yml` and friends are populated, the associated models will be
 automatically instrumented to send updates to BigQuery via ActiveRecord
 callbacks.
 
-### 5. Send web request events
+### 6. Send web request events
 
 #### Web requests
 
@@ -242,7 +269,7 @@ DfE::Analytics.configure do |config|
 end
 ```
 
-### 6. Import existing data
+### 7. Import existing data
 
 To load the current contents of your database into BigQuery, run
 

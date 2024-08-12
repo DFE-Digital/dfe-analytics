@@ -501,14 +501,81 @@ in the new dataset.
 6. Click "DONE", skipping the steps to grant roles and user access to this
    account. Access will be given to the specific dataset in the next step.
 
-### 4. Give the service account access to your dataset 
+### 4. Give the service account access to your events table
 
 Ensure you have the email address of the service account handy for this.
 
-1. Go to the dataset you created and click "SHARING" > "Permissions" near the
+1. Go to the events table created in step 2 above and click "SHARING" > "Permissions" near the
    top right.
 2. Click "ADD PRINCIPAL".
 3. Paste in the email address of the service account you created into the "New
    principals" box.
 4. Select the "BigQuery Appender Custom" role you created previously.
 5. Click "SAVE" to finish.
+
+
+## Workload Identity Federation Setup
+
+External applications connecting to Google Cloud tend to use [service account keys](https://cloud.google.com/iam/docs/service-account-creds#key-types) to access Google Cloud resources. However, service account keys are powerful credentials, and can present a security risk if they are not managed correctly. Workload Identity Federation eliminates the security risk associated with service account keys.
+
+With Workload Identity Federation (WIF), you can use Identity and Access Management (IAM) to grant to external identities [IAM roles](https://cloud.google.com/iam/docs/overview#roles), direct access on Google Cloud resources. You can also grant access through service account impersonation.
+
+With DfE::Analytics our strong preference is to use WIF where possible. Where WIF is not possible to use then OAuth should be considered. The use of service account API Keys is discouraged.
+
+The diagram below demonstrates our use of WIF within DfE Analytics connecting from an Azure client to BigQuery.
+
+![[azure-gcp-wif.svg]]
+
+
+The steps below outline how to setup WIF for service accounts using either gcloud shell scripts or gcloud console.
+
+### 1. Enable WIF for Azure client
+
+The client process connecting to GCP should have WIF enabled. TS DevOps provide this through terraform configuration.
+
+If the client process is enabled for WIF, then it will have the following properties per environment (namespace):
+
+The following environment variables will be set:
+`AZURE_CLIENT_ID`
+`AZURE_FEDERATED_TOKEN_FILE`
+
+
+Within Azure a managed identity will also exist for each namespace. The managed identity will have the text `gcp-wif` within it's name.
+
+Please note the Managed Identity Object ID for each namespace (environment). This a uuid that will be required in later steps below.
+
+If WIF is not enabled, then contact TS DevOps in the #teacher_services_infra on getting this enabled.
+
+### 2. Workload identity pool
+
+For each project a workload identity pool with the name `azure-cip-identity-pool` should exist.
+
+If this does not exist then one can be created with either the [create gcp workload identity pool](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/create-gcp-workload-identity-pool.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools) gcloud console using the attributes specified in the gcloud script.
+
+### 3. Workload identity pool provider
+
+For each project a workload identity pool with the name `azure-cip-oidc-provider` should exist.
+
+If this does not exist then one can be created with either the [create gcp workload identity pool provider](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/create-gcp-workload-identity-pool-provider.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console using the attributes specified in the gcloud script.
+
+### 4. Service account
+
+A service account with the correct permissions on the events table should exist.
+
+If this does not exist then follow the steps above:
+- [Create an appender service account](#3-create-an-appender-service-account)
+- [Give the service account access to your dataset](#3-create-an-appender-service-account)
+
+### 5. Service account permissions for workload identity federation
+
+The service account defined in step 4 above should be granted access using service account impersonation.
+
+If this does not exist then access can be granted with either the [update wif service account permissions ](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/update-wif-service-account-permissions.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console, by navigating to the "GRANT ACCESS" window. Use the attributes specified in the gcloud script. Note that the subject must be set to the Managed Identity Object ID from azure for each environment (see Step 1 above).
+
+### 6. Download the WIF client credentials
+
+Download the JSON WIF Credentials file and set to following environment variables to the content of this file:
+
+`GOOGLE_CLOUD_CREDENTIALS`
+
+Download the JSON WIF Credentials file either the [create wif client credentials](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/create-wif-client-credentials.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console, by navigating to the "CONNECTED SERVICE ACCOUNTS" tab. Use the the attributes specified in the gcloud script.
