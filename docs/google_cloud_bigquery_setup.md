@@ -513,7 +513,6 @@ Ensure you have the email address of the service account handy for this.
 4. Select the "BigQuery Appender Custom" role you created previously.
 5. Click "SAVE" to finish.
 
-
 ## Workload Identity Federation Setup
 
 External applications connecting to Google Cloud tend to use [service account keys](https://cloud.google.com/iam/docs/service-account-creds#key-types) to access Google Cloud resources. However, service account keys are powerful credentials, and can present a security risk if they are not managed correctly. Workload Identity Federation eliminates the security risk associated with service account keys.
@@ -525,7 +524,6 @@ With DfE::Analytics our strong preference is to use WIF where possible. Where WI
 The diagram below demonstrates our use of WIF within DfE Analytics connecting from an Azure client to BigQuery.
 
 ![[azure-gcp-wif.svg]]
-
 
 The steps below outline how to setup WIF for service accounts using either gcloud shell scripts or gcloud console.
 
@@ -539,10 +537,9 @@ The following environment variables will be set:
 `AZURE_CLIENT_ID`
 `AZURE_FEDERATED_TOKEN_FILE`
 
-
 Within Azure a managed identity will also exist for each namespace. The managed identity will have the text `gcp-wif` within it's name.
 
-Please note the Managed Identity Object ID for each namespace (environment). This a uuid that will be required in later steps below.
+Please note the Managed Identity Object ID for each namespace (environment). This is a uuid that will be required in later steps below.
 
 If WIF is not enabled, then contact TS DevOps in the #teacher_services_infra on getting this enabled.
 
@@ -570,7 +567,7 @@ If this does not exist then follow the steps above:
 
 The service account defined in step 4 above should be granted access using service account impersonation.
 
-If this does not exist then access can be granted with either the [update wif service account permissions ](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/update-wif-service-account-permissions.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console, by navigating to the "GRANT ACCESS" window. Use the attributes specified in the gcloud script. Note that the subject must be set to the Managed Identity Object ID from azure for each environment (see Step 1 above).
+If this does not exist then access can be granted with either the [update wif service account permissions ](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/update-wif-service-account-permissions.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console, by navigating to the "GRANT ACCESS" window. Use the attributes specified in the gcloud script. Note that the subject must be set to the Managed Identity Object ID from Azure for each environment (see Step 1 above).
 
 ### 6. Download the WIF client credentials
 

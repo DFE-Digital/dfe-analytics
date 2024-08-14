@@ -103,7 +103,7 @@ While you’re setting things up, consider setting `config.async = false` and
 
 Ensure project is set up as per the [Google Cloud setup guide](docs/google_cloud_bigquery_setup.md) above.
 
-Set the following environment variables for your Rails app.
+Set the following environment variables for your Rails app:
 
 ```
 BIGQUERY_TABLE_NAME=events
@@ -116,7 +116,7 @@ If you're stuck with differently-named env vars, you can configure the names in
 
 ### 3. BigQuery authentication method
 
-### 3.1 Workload Identity Federation
+#### 3.1 Workload Identity Federation
 
 We recommend using Workload identity federation as your authentication method as detailed in the [Workload Identity Federation Setup](docs/google_cloud_bigquery_setup.md#workload-identity-federation-setup) guide.
 
