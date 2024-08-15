@@ -397,7 +397,7 @@ DEPENDENCIES
   pry (~> 0)
   psych (< 4)
   rails (= 6.0.6)
-  rspec-rails (~> 5.0)
+  rspec-rails
   rubocop (~> 1.54)
   rubocop-rspec (~> 2.22)
   solargraph
