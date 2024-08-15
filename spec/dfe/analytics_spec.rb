@@ -23,8 +23,12 @@ RSpec.describe DfE::Analytics do
   end
 
   describe 'when no database connection is available' do
+    before do
+      allow(Rails).to receive(:version).and_return('7.2')
+      allow(ActiveRecord::Base).to receive(:with_connection).and_raise(ActiveRecord::ConnectionNotEstablished)
+    end
+
     it 'recovers and logs' do
-      allow(ActiveRecord::Base).to receive(:connection).and_raise(ActiveRecord::ConnectionNotEstablished)
       expect(Rails.logger).to receive(:info).with(/No database connection/)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end

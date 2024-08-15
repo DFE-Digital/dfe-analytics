@@ -38,7 +38,14 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
 
   config.around do |example|
-    ActiveRecord::Base.connection.migration_context.migrate
+    if Rails.version.to_f > 7.1
+      ActiveRecord::Base.with_connection do |connection|
+        connection.pool.migration_context.migrate
+      end
+    else
+      ActiveRecord::Base.connection.migration_context.migrate
+    end
+
     DfE::Analytics::InitialisationEvents.initialisation_events_sent = true
     example.run
   end
