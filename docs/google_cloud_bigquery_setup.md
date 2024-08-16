@@ -519,9 +519,9 @@ External applications connecting to Google Cloud tend to use [service account k
 
 With Workload Identity Federation (WIF), you can use Identity and Access Management (IAM) to grant to external identities [IAM roles](https://cloud.google.com/iam/docs/overview#roles), direct access on Google Cloud resources. You can also grant access through service account impersonation.
 
-With DfE::Analytics our strong preference is to use WIF where possible. Where WIF is not possible to use then OAuth should be considered. The use of service account API Keys is discouraged.
+With dfe-analytics our strong preference is to use WIF where possible. Where WIF is not possible to use then OAuth should be considered. The use of service account API Keys is discouraged.
 
-The diagram below demonstrates our use of WIF within DfE Analytics connecting from an Azure client to BigQuery.
+The diagram below demonstrates our use of WIF within dfe-analytics connecting from an Azure client to BigQuery.
 
 ![[azure-gcp-wif.svg]]
 
@@ -537,9 +537,9 @@ The following environment variables will be set:
 `AZURE_CLIENT_ID`
 `AZURE_FEDERATED_TOKEN_FILE`
 
-Within Azure a managed identity will also exist for each namespace. The managed identity will have the text `gcp-wif` within it's name.
+Within Azure a managed identity will also exist for each namespace. The managed identity will have the text `gcp-wif` within its name.
 
-Please note the Managed Identity Object ID for each namespace (environment). This is a uuid that will be required in later steps below.
+Please take note of the Managed Identity Object ID for each namespace (environment). This is a uuid that will be required in later steps below.
 
 If WIF is not enabled, then contact TS DevOps in the #teacher_services_infra on getting this enabled.
 
@@ -551,7 +551,7 @@ If this does not exist then one can be created with either the [create gcp workl
 
 ### 3. Workload identity pool provider
 
-For each project a workload identity pool with the name `azure-cip-oidc-provider` should exist.
+For each project a workload identity pool provider with the name `azure-cip-oidc-provider` should exist.
 
 If this does not exist then one can be created with either the [create gcp workload identity pool provider](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/create-gcp-workload-identity-pool-provider.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console using the attributes specified in the gcloud script.
 
@@ -575,4 +575,4 @@ Download the JSON WIF Credentials file and set to following environment variable
 
 `GOOGLE_CLOUD_CREDENTIALS`
 
-Download the JSON WIF Credentials file either the [create wif client credentials](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/create-wif-client-credentials.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console, by navigating to the "CONNECTED SERVICE ACCOUNTS" tab. Use the the attributes specified in the gcloud script.
+Download the JSON WIF Credentials file with either the [create wif client credentials](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/create-wif-client-credentials.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console, by navigating to the "CONNECTED SERVICE ACCOUNTS" tab. Use the the attributes specified in the gcloud script.

@@ -118,7 +118,9 @@ If you're stuck with differently-named env vars, you can configure the names in
 
 #### 3.1 Workload Identity Federation
 
-We recommend using Workload identity federation as your authentication method as detailed in the [Workload Identity Federation Setup](docs/google_cloud_bigquery_setup.md#workload-identity-federation-setup) guide.
+We recommend using Workload identity federation as your authentication method, to avoid security risks associated with the use of long-lived plain text JSON API Keys.
+
+Workload Identity Federation is detailed in the [Workload Identity Federation Setup](docs/google_cloud_bigquery_setup.md#workload-identity-federation-setup) guide.
 
 To enable the workload identity federation authentication method, update the configuration option in `config/initializers/dfe_analytics.rb`:
 
