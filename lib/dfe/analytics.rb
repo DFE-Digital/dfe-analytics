@@ -108,7 +108,13 @@ module DfE
         return
       end
 
-      raise ActiveRecord::PendingMigrationError if ActiveRecord::Base.connection.migration_context.needs_migration?
+      if Rails.version.to_f > 7.1
+        ActiveRecord::Base.with_connection do |connection|
+          raise ActiveRecord::PendingMigrationError if connection.pool.migration_context.needs_migration?
+        end
+      elsif ActiveRecord::Base.connection.migration_context.needs_migration?
+        raise ActiveRecord::PendingMigrationError
+      end
 
       DfE::Analytics::Fields.check!
 
