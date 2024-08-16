@@ -1,6 +1,15 @@
 # Changelog
 
-## [v1.14.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.0) (2024-08-01)
+## [v1.14.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.1) (2024-08-16)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.14.0...v1.14.1)
+
+**Merged pull requests:**
+
+- Resolve undefined method `migration_context` when upgrading to rails 7.2 [\#162](https://github.com/DFE-Digital/dfe-analytics/pull/162) ([avinhurry](https://github.com/avinhurry))
+- Add workload identity federation docs [\#160](https://github.com/DFE-Digital/dfe-analytics/pull/160) ([asatwal](https://github.com/asatwal))
+
+## [v1.14.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.0) (2024-08-02)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.13.0...v1.14.0)
 
