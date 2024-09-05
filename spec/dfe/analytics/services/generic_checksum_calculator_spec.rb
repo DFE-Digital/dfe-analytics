@@ -35,4 +35,20 @@ RSpec.describe DfE::Analytics::Services::GenericChecksumCalculator do
     expect(row_count).to eq(candidate_table_ids.count)
     expect(checksum).to eq(entity_table_checksum)
   end
+
+  it 'calculates checksum and correct row_count when updated_at has null values' do
+    Candidate.create(id: 1, email_address: 'candidate1@example.com', updated_at: nil)
+    Candidate.create(id: 2, email_address: 'candidate2@example.com', updated_at: nil)
+    Candidate.create(id: 3, email_address: 'candidate3@example.com', updated_at: Time.current - 1.day)
+    Candidate.create(id: 4, email_address: 'candidate4@example.com', updated_at: Time.current - 2.days)
+
+    order_column = 'ID' # defaults to ID when order_columns contain null values
+    expected_ids = [1, 2, 3, 4]
+    expected_checksum = Digest::MD5.hexdigest(expected_ids.join)
+
+    row_count, checksum = described_class.call(candidate_entity, order_column, checksum_calculated_at)
+
+    expect(row_count).to eq(4)
+    expect(checksum).to eq(expected_checksum)
+  end
 end

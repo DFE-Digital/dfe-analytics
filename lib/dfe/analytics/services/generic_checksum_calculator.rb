@@ -62,7 +62,8 @@ module DfE
         def build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
           return '' unless WHERE_CLAUSE_ORDER_COLUMNS.map(&:downcase).include?(order_column.downcase)
 
-          "WHERE #{table_name_sanitized}.#{order_column.downcase} < #{checksum_calculated_at_sanitized}"
+          # Add IS NULL to include records with null updated_at / created_at values
+          "WHERE (#{table_name_sanitized}.#{order_column.downcase} IS NULL OR #{table_name_sanitized}.#{order_column.downcase} < #{checksum_calculated_at_sanitized})"
         end
       end
     end

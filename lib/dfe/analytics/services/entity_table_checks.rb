@@ -67,15 +67,23 @@ module DfE
         end
 
         def determine_order_column(entity_name, columns)
-          if connection.column_exists?(entity_name, :updated_at) && columns.include?('updated_at')
+          if connection.column_exists?(entity_name, :updated_at) && columns.include?('updated_at') && !null_values_in_column?('updated_at')
             'UPDATED_AT'
-          elsif connection.column_exists?(entity_name, :created_at) && columns.include?('created_at')
+          elsif connection.column_exists?(entity_name, :created_at) && columns.include?('created_at') && !null_values_in_column?('created_at')
             'CREATED_AT'
           elsif connection.column_exists?(entity_name, :id) && columns.include?('id')
             'ID'
           else
             Rails.logger.info("DfE::Analytics: Entity checksum: Order column missing in #{entity_name}")
           end
+        end
+
+        def null_values_in_column?(column)
+          connection.select_value(<<-SQL).to_i.positive?
+            SELECT COUNT(*)
+            FROM #{connection.quote_table_name(entity_name)}
+            WHERE #{column} IS NULL
+          SQL
         end
 
         def entity_table_check_data(entity_name, order_column)
