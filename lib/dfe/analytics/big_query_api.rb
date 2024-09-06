@@ -6,6 +6,9 @@ module DfE
     class BigQueryApi
       def self.events_client
         @events_client ||= begin
+          # Load v2 APIs
+          require 'google/apis/bigquery_v2'
+
           missing_config = %i[
             bigquery_project_id
             bigquery_table_name

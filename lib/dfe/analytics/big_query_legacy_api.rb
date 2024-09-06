@@ -6,6 +6,9 @@ module DfE
     class BigQueryLegacyApi
       def self.events_client
         @events_client ||= begin
+          # Load v1 APIs
+          require 'google/cloud/bigquery'
+
           # Check for missing config items - otherwise may get obscure api errors
           missing_config = %i[
             bigquery_project_id
