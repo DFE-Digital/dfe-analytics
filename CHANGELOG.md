@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.14.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.2) (2024-09-10)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.14.1...v1.14.2)
+
+**Merged pull requests:**
+
+- Allow ordering by id if created\_at/updated\_at is null [\#164](https://github.com/DFE-Digital/dfe-analytics/pull/164) ([ericaporter](https://github.com/ericaporter))
+
 ## [v1.14.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.1) (2024-08-16)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.14.0...v1.14.1)
