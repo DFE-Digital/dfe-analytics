@@ -8,6 +8,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
       t.string :email_address
       t.string :first_name
       t.string :last_name
+      t.datetime :created_at
       t.datetime :updated_at
     end
   end
@@ -48,7 +49,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     DfE::Analytics.config.entity_table_checks_enabled = true
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
     allow(DfE::Analytics).to receive(:allowlist).and_return({
-    Candidate.table_name.to_sym => %w[updated_at],
+    Candidate.table_name.to_sym => %w[updated_at created_at id],
     Application.table_name.to_sym => %w[type created_at],
     Course.table_name.to_sym => %w[name duration],
     Department.table_name.to_sym => %w[name],
@@ -94,6 +95,80 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
 
       expect(described_class.call(entity_name: department_entity, entity_type: entity_type, entity_tag: nil)).to be_nil
       expect(Rails.logger).to have_received(:info).with(expected_message)
+    end
+
+    it 'uses updated_at if it exists and has no null values' do
+      Candidate.create!(id: 1, email_address: 'first@example.com', updated_at: Time.current)
+      Candidate.create!(id: 2, email_address: 'second@example.com', updated_at: Time.current + 1.minute)
+
+      table_ids = Candidate.order(:updated_at).pluck(:id)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
+
+      described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+          'data' => [
+            { 'key' => 'row_count', 'value' => [table_ids.size] },
+            { 'key' => 'checksum', 'value' => [checksum] },
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'order_column', 'value' => ['UPDATED_AT'] }
+          ]
+      })])
+    end
+
+    it 'falls back to id when both updated_at and created_at are null' do
+      frozen_time = Time.zone.now.in_time_zone('London')
+      Timecop.freeze(frozen_time)
+
+      candidate1 = Candidate.create!(id: 1, email_address: 'first@example.com')
+      candidate2 = Candidate.create!(id: 2, email_address: 'second@example.com')
+      candidate3 = Candidate.create!(id: 3, email_address: 'third@example.com')
+
+      candidate1.update_columns(created_at: nil, updated_at: nil)
+      candidate2.update_columns(created_at: nil, updated_at: nil)
+      candidate3.update_columns(created_at: nil, updated_at: nil)
+
+      table_ids = Candidate.order(:id).pluck(:id)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
+
+      described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+          'data' => [
+            { 'key' => 'row_count', 'value' => [table_ids.size] },
+            { 'key' => 'checksum', 'value' => [checksum] },
+            { 'key' => 'checksum_calculated_at', 'value' => a_string_including(frozen_time.iso8601(6)) },
+            { 'key' => 'order_column', 'value' => ['ID'] }
+          ]
+      })])
+
+      Timecop.return
+    end
+
+    it 'falls back to created_at when updated_at is null but created_at exists' do
+      Candidate.create!(id: 1, email_address: 'first@example.com', updated_at: nil, created_at: 2.hours.ago)
+      Candidate.create!(id: 2, email_address: 'second@example.com', updated_at: nil, created_at: 1.hour.ago)
+      Candidate.create!(id: 3, email_address: 'third@example.com', updated_at: nil, created_at: 3.hours.ago)
+
+      # Ensure updated_at is nil
+      Candidate.update_all(updated_at: nil)
+
+      table_ids = Candidate.order(:created_at).pluck(:id)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
+
+      described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+          'data' => [
+            { 'key' => 'row_count', 'value' => [table_ids.size] },
+            { 'key' => 'checksum', 'value' => [checksum] },
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'order_column', 'value' => ['CREATED_AT'] }
+          ]
+      })])
     end
 
     it 'orders by created_at if updated_at is missing' do
@@ -147,7 +222,6 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
-      puts "@checksum_calculated_at set to #{checksum_calculated_at}"  # Debugging output
 
       expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
         .with([a_hash_including({
