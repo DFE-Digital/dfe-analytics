@@ -134,10 +134,7 @@ module DfE
       end
 
       def user_identifier_for(user)
-        user_id = DfE::Analytics.user_identifier(user)
-        user_id = DfE::Analytics.pseudonymise(user_id) if user_id.present? && DfE::Analytics.config.pseudonymise_web_request_user_id
-
-        user_id
+        DfE::Analytics.user_identifier(user)
       end
     end
   end

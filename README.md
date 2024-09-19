@@ -2,7 +2,7 @@
 
 **👉 Send every web request and database update to BigQuery**
 
-**✋ Skip or pseudonymise fields containing PII**
+**✋ Skip or hide fields containing PII**
 
 **✌️  Configure and forget**
 
@@ -340,47 +340,6 @@ Once all the events have been constructed, simply send them to your analytics:
 ```ruby
 DfE::Analytics::SendEvents.do([event, event2, event3])
 ```
-
-## Pseudonymisation
-
-For an explanation of pseudonymisation, see [ICO Guidance](https://ico.org.uk/media/about-the-ico/consultations/4019579/chapter-3-anonymisation-guidance.pdf).
-
-### Data Pseudonymisation Algorithm
-
-Generally all PII data should be pseudonymised, including data that directly or
-indirectly references PII, for example database IDs.
-
-DfE::Analytics also pseudonymises such data, if the relevant fields
-appear in `analytics_pii.yml`. If you are pseudonymising
-database IDs in your code (in custom events for example), then you should use
-the same hashing algorithm for pseudonymisation that the gem uses, in order to
-allow joining of pseudonymised data across different database tables.
-
-To ensure values are consistently pseudonymised, use the following method
-whenever manually pseudonoymising:
-
-```ruby
-DfE::Analytics.pseudonymise(value)
-```
-
-### User ID pseudonymisation
-
-The `user_id` in the web request event will not be pseudonymised by default.
-This can be changed by updating the configuration option in
-`config/initializers/dfe_analytics.rb`:
-
-```ruby
-config.pseudonymise_web_request_user_id = true
-```
-
-**DO** pseudonymise web request `user_id`s if the corresponding field in
-the database is in `analytics_pii.yml`: this means the pseudonymised ID will show up
-identically for both web requests and database updates, so analysts can join them up.
-
-**DON'T** pseudonymise web request `user_id`s if the corresponding field in the
-database is only in `analytics.yml`. This would result in the web request
-version being pseudonymised and the database version not being pseudonymised,
-which means they can't be joined up.
 
 ### Entity Table Check Job
 

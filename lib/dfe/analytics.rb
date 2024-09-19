@@ -47,7 +47,6 @@ module DfE
         enable_analytics
         environment
         user_identifier
-        pseudonymise_web_request_user_id
         entity_table_checks_enabled
         rack_page_cached
         bigquery_maintenance_window
@@ -78,7 +77,6 @@ module DfE
       config.async                            ||= true
       config.queue                            ||= :default
       config.user_identifier                  ||= proc { |user| user&.id }
-      config.pseudonymise_web_request_user_id ||= false
       config.entity_table_checks_enabled      ||= false
       config.rack_page_cached                 ||= proc { |_rack_env| false }
       config.bigquery_maintenance_window      ||= ENV.fetch('BIGQUERY_MAINTENANCE_WINDOW', nil)
@@ -142,10 +140,6 @@ module DfE
       Rails.application.config_for(:analytics)
     end
 
-    def self.allowlist_pii
-      Rails.application.config_for(:analytics_pii)
-    end
-
     def self.hidden_pii
       Rails.application.config_for(:analytics_hidden_pii)
     rescue RuntimeError
@@ -203,25 +197,18 @@ module DfE
 
       exportable_attrs = (allowlist[table_name].presence || []).map(&:to_sym)
       hidden_pii_attrs = (hidden_pii[table_name].presence || []).map(&:to_sym)
-      pii_attrs = (allowlist_pii[table_name].presence || []).map(&:to_sym)
-
-      # Validation in fields.rb ensures attributes do not appear on both allowlist_pii and allowlist_hidden_pii
-      exportable_pii_attrs = exportable_attrs & pii_attrs
       exportable_hidden_pii_attrs = exportable_attrs & hidden_pii_attrs
 
-      # Exclude both pii and hidden attributes from allowed_attributes
-      allowed_attrs_to_include = exportable_attrs - (exportable_pii_attrs + exportable_hidden_pii_attrs)
-
+      # Exclude hidden pii attributes from allowed_attributes
+      allowed_attrs_to_include = exportable_attrs - exportable_hidden_pii_attrs
       allowed_attributes = attributes.slice(*allowed_attrs_to_include&.map(&:to_s))
-      obfuscated_attributes = attributes.slice(*exportable_pii_attrs.map(&:to_s))
-                .transform_values { |value| pseudonymise(value) }
       hidden_attributes = attributes.slice(*exportable_hidden_pii_attrs&.map(&:to_s))
 
-      # Allowed attributes (which currently includes the allowlist_pii) must be kept separate from hidden_attributes
-      model_attributes = {}
-      model_attributes.merge!(data: allowed_attributes.deep_merge(obfuscated_attributes)) if allowed_attributes.any? || obfuscated_attributes.any?
-      model_attributes.merge!(hidden_data: hidden_attributes) if hidden_attributes.any?
-      model_attributes
+      # Allowed attributes must be kept separate from hidden_attributes
+      {}.tap do |model_attributes|
+        model_attributes[:data] = allowed_attributes if allowed_attributes.any?
+        model_attributes[:hidden_data] = hidden_attributes if hidden_attributes.any?
+      end
     end
 
     def self.anonymise(value)
