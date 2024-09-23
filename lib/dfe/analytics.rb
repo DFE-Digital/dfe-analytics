@@ -212,10 +212,6 @@ module DfE
     end
 
     def self.anonymise(value)
-      pseudonymise(value)
-    end
-
-    def self.pseudonymise(value)
       # Google SQL equivalent of this is TO_HEX(SHA256(value))
       Digest::SHA2.hexdigest(value.to_s)
     end
