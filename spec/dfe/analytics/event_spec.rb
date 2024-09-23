@@ -167,21 +167,6 @@ RSpec.describe DfE::Analytics::Event do
         expect(output['user_id']).to eq uuid
       end
     end
-
-    context 'pseudonymisation of user_id' do
-      before do
-        allow(DfE::Analytics.config).to receive(:pseudonymise_web_request_user_id).and_return(true)
-      end
-
-      it 'pseudonymises the user id' do
-        event = described_class.new
-        uuid = SecureRandom.uuid
-        pseudonymised_uuid = Digest::SHA2.hexdigest(uuid)
-        output = event.with_user(regular_user_class.new(uuid)).as_json
-
-        expect(output['user_id']).to eq pseudonymised_uuid
-      end
-    end
   end
 
   describe 'with_type' do

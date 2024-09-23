@@ -17,7 +17,7 @@ RSpec.describe DfE::Analytics::InitialisationEvents do
           { 'key' => 'analytics_version', 'value' => [DfE::Analytics::VERSION] },
           {
             'key' => 'config',
-            'value' => ['{"pseudonymise_web_request_user_id":false,"entity_table_checks_enabled":true}']
+            'value' => ['{"entity_table_checks_enabled":true}']
           }
         ]
       }
