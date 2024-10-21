@@ -2,7 +2,6 @@
 
 RSpec.describe DfE::Analytics::Entities do
   let(:allowlist_fields) { [] }
-  let(:pii_fields) { [] }
   let(:hidden_pii_fields) { [] }
 
   with_model :Candidate do
@@ -21,10 +20,6 @@ RSpec.describe DfE::Analytics::Entities do
 
     allow(DfE::Analytics).to receive(:allowlist).and_return({
       Candidate.table_name.to_sym => allowlist_fields
-    })
-
-    allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
-      Candidate.table_name.to_sym => pii_fields
     })
 
     allow(DfE::Analytics).to receive(:hidden_pii).and_return({
@@ -90,26 +85,9 @@ RSpec.describe DfE::Analytics::Entities do
           })])
       end
 
-      context 'and the specified fields are listed as PII' do
-        let(:allowlist_fields) { ['email_address'] }
-        let(:pii_fields) { ['email_address'] }
-
-        it 'hashes those fields' do
-          Candidate.create(email_address: 'adrienne@example.com')
-
-          expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
-            .with([a_hash_including({
-              'data' => [
-                { 'key' => 'email_address',
-                  'value' => ['928b126cb77de8a61bf6714b4f6b0147be7f9d5eb60158930c34ef70f4d502d6'] }
-              ]
-            })])
-        end
-      end
-
-      context 'and other fields are listed as PII' do
+      context 'and other fields are listed as hidden PII' do
         let(:allowlist_fields) { ['id'] }
-        let(:pii_fields) { ['email_address'] }
+        let(:hidden_pii) { ['email_address'] }
 
         it 'does not include the fields only listed as PII' do
           Candidate.create(id: 123, email_address: 'adrienne@example.com')

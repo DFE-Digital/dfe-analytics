@@ -5,10 +5,6 @@ RSpec.describe DfE::Analytics do
     expect(DfE::Analytics::VERSION).not_to be nil
   end
 
-  it 'supports the pseudonymise method' do
-    expect(DfE::Analytics.pseudonymise('foo_bar')).to eq('4928cae8b37b3d1113f5e01e60c967df6c2b9e826dc7d91488d23a62fec715ba')
-  end
-
   it 'supports the anonymise method for backwards compatibility' do
     expect(DfE::Analytics.anonymise('foo_bar')).to eq('4928cae8b37b3d1113f5e01e60c967df6c2b9e826dc7d91488d23a62fec715ba')
   end
@@ -206,9 +202,6 @@ RSpec.describe DfE::Analytics do
       allow(DfE::Analytics).to receive(:allowlist).and_return({
         Candidate.table_name.to_sym => %w[email_address hidden_data age]
       })
-      allow(DfE::Analytics).to receive(:allowlist_pii).and_return({
-        Candidate.table_name.to_sym => %w[email_address]
-      })
       allow(DfE::Analytics).to receive(:hidden_pii).and_return({
         Candidate.table_name.to_sym => %w[hidden_data age]
       })
@@ -220,8 +213,6 @@ RSpec.describe DfE::Analytics do
       result = described_class.extract_model_attributes(candidate)
 
       expect(result[:data].keys).to include('email_address')
-      expect(result[:data]['email_address']).to_not eq(candidate.email_address)
-
       expect(result[:hidden_data]['hidden_data']).to eq('secret')
       expect(result[:hidden_data]['age']).to eq(50)
     end

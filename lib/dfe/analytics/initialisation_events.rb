@@ -41,7 +41,6 @@ module DfE
         {
           analytics_version: DfE::Analytics::VERSION,
           config: {
-            pseudonymise_web_request_user_id: DfE::Analytics.config.pseudonymise_web_request_user_id,
             entity_table_checks_enabled: DfE::Analytics.config.entity_table_checks_enabled
           }
         }

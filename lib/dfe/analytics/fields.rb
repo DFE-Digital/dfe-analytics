@@ -45,15 +45,6 @@ module DfE
           HEREDOC
         end
 
-        if overlapping_pii_fields.any?
-          errors << <<~HEREDOC
-            PII configuration error detected! The following fields are listed in both hidden_pii and allowlist_pii.
-            Fields must only be present in one. Please update the configuration to resolve the conflict:
-
-            #{overlapping_pii_fields.to_yaml}
-          HEREDOC
-        end
-
         configuration_errors = errors.join("\n\n----------------\n\n")
 
         raise(ConfigurationError, configuration_errors) if errors.any?
@@ -69,23 +60,6 @@ module DfE
 
       def self.hidden_pii
         DfE::Analytics.hidden_pii || {}
-      end
-
-      def self.allowlist_pii
-        DfE::Analytics.allowlist_pii || {}
-      end
-
-      def self.overlapping_pii_fields
-        overlapping_fields = []
-        hidden_pii.each do |entity, fields|
-          next if fields.blank?
-
-          if allowlist_pii[entity]
-            overlapping = fields & allowlist_pii[entity]
-            overlapping_fields.concat(overlapping) unless overlapping.blank?
-          end
-        end
-        overlapping_fields
       end
 
       def self.database
