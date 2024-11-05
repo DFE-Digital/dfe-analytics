@@ -11,7 +11,6 @@ module DfE
         FILE
 
         create_file 'config/analytics.yml', { 'shared' => {} }.to_yaml
-        create_file 'config/analytics_pii.yml', { 'shared' => {} }.to_yaml
         create_file 'config/analytics_hidden_pii.yml', { 'shared' => {} }.to_yaml
         create_file 'config/analytics_blocklist.yml', { 'shared' => {} }.to_yaml
       end
