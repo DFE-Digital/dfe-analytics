@@ -1,6 +1,18 @@
 # Changelog
 
-## [v1.14.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.2) (2024-09-10)
+## [v1.15.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.0) (2024-11-06)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.14.2...v1.15.0)
+
+**Implemented enhancements:**
+
+- remove analytics\_pii from generator and READme [\#167](https://github.com/DFE-Digital/dfe-analytics/pull/167) ([goodviber](https://github.com/goodviber))
+
+**Merged pull requests:**
+
+- Remove ability to pseudonymise data [\#166](https://github.com/DFE-Digital/dfe-analytics/pull/166) ([ericaporter](https://github.com/ericaporter))
+
+## [v1.14.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.14.2) (2024-09-11)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.14.1...v1.14.2)
 
@@ -115,14 +127,14 @@
 - Remove fix for ignored columns [\#99](https://github.com/DFE-Digital/dfe-analytics/pull/99) ([ericaporter](https://github.com/ericaporter))
 - Update entity\_check\_job to loop through entities only [\#98](https://github.com/DFE-Digital/dfe-analytics/pull/98) ([ericaporter](https://github.com/ericaporter))
 - Update lookup to SQL if postgres db [\#96](https://github.com/DFE-Digital/dfe-analytics/pull/96) ([ericaporter](https://github.com/ericaporter))
-- Update deprecated exponentially\_longer method [\#95](https://github.com/DFE-Digital/dfe-analytics/pull/95) ([vassyz](https://github.com/vassyz))
+- Update deprecated exponentially\_longer method [\#95](https://github.com/DFE-Digital/dfe-analytics/pull/95) ([zarembas](https://github.com/zarembas))
 - Update scheduling for Entity Table Check Job [\#94](https://github.com/DFE-Digital/dfe-analytics/pull/94) ([ericaporter](https://github.com/ericaporter))
 - Fix for DfE::Analytics crashing on installation [\#93](https://github.com/DFE-Digital/dfe-analytics/pull/93) ([ericaporter](https://github.com/ericaporter))
 - Add ignored\_columns to attributes [\#90](https://github.com/DFE-Digital/dfe-analytics/pull/90) ([ericaporter](https://github.com/ericaporter))
 - Add log message for entities without primary\_key, update README.rb [\#87](https://github.com/DFE-Digital/dfe-analytics/pull/87) ([ericaporter](https://github.com/ericaporter))
 - Prevent duplicate fields in blocklist when using STI [\#86](https://github.com/DFE-Digital/dfe-analytics/pull/86) ([ethax-ross](https://github.com/ethax-ross))
 - Nightly checksum and checksum mismatch detection assertion [\#85](https://github.com/DFE-Digital/dfe-analytics/pull/85) ([ericaporter](https://github.com/ericaporter))
-- Fix single table inheritance deprecation warning bug [\#84](https://github.com/DFE-Digital/dfe-analytics/pull/84) ([vassyz](https://github.com/vassyz))
+- Fix single table inheritance deprecation warning bug [\#84](https://github.com/DFE-Digital/dfe-analytics/pull/84) ([zarembas](https://github.com/zarembas))
 - Remove null values from events [\#82](https://github.com/DFE-Digital/dfe-analytics/pull/82) ([asatwal](https://github.com/asatwal))
 - Do not attempt initialization when the user is changing the database [\#81](https://github.com/DFE-Digital/dfe-analytics/pull/81) ([duncanjbrown](https://github.com/duncanjbrown))
 - Update README.md [\#80](https://github.com/DFE-Digital/dfe-analytics/pull/80) ([duncanjbrown](https://github.com/duncanjbrown))
