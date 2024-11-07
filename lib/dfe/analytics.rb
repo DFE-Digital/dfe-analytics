@@ -57,6 +57,7 @@ module DfE
         gcp_scope
         google_cloud_credentials
         excluded_paths
+        excluded_models_proc
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -82,6 +83,7 @@ module DfE
       config.bigquery_maintenance_window      ||= ENV.fetch('BIGQUERY_MAINTENANCE_WINDOW', nil)
       config.azure_federated_auth             ||= false
       config.excluded_paths                   ||= []
+      config.excluded_models_proc             ||= proc { |_model| false }
 
       return unless config.azure_federated_auth
 
@@ -240,6 +242,7 @@ module DfE
 
         ActiveRecord::Base.descendants
           .reject(&:abstract_class?)
+          .reject(&DfE::Analytics.config.excluded_models_proc)
           .group_by(&:table_name)
           .except(*rails_tables)
       end
