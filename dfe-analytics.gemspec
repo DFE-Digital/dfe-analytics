@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 1.54'
   spec.add_development_dependency 'rubocop-rspec', '~> 2.22'
   spec.add_development_dependency 'solargraph'
-  spec.add_development_dependency 'sqlite3'
+  spec.add_development_dependency 'sqlite3', '~> 2.2'
   spec.add_development_dependency 'timecop'
   spec.add_development_dependency 'webmock', '~> 3.14'
   spec.add_development_dependency 'with_model'
