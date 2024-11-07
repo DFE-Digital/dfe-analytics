@@ -301,4 +301,33 @@ RSpec.describe DfE::Analytics do
       end
     end
   end
+
+  describe 'excluding models via configuration' do
+    with_model :Candidate do
+      table do |t|
+        t.string :email_address
+        t.string :first_name
+        t.string :last_name
+        t.string :dob
+      end
+    end
+
+    with_model :Teacher do
+      table do |t|
+        t.string :email_address
+        t.string :first_name
+        t.string :last_name
+        t.string :dob
+      end
+    end
+
+    before do
+      DfE::Analytics.config.excluded_models_proc = proc { |x| x.to_s =~ /Teacher/ }
+    end
+
+    it 'does not use disabled model' do
+      expect(DfE::Analytics.all_entities_in_application.length).to eq(1)
+      expect(DfE::Analytics.all_entities_in_application.first.to_s).to match(/with_model_candidates/)
+    end
+  end
 end
