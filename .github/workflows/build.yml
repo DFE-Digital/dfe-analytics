@@ -12,7 +12,7 @@ jobs:
     name: Run specs
     strategy:
       matrix:
-        ruby-version: ['3.2']
+        ruby-version: ['3.2', '3.3']
         rails-version: ['rails-7']
     env:
       BUNDLE_WITHOUT: release
