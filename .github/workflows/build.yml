@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         ruby-version: ['3.2', '3.3']
-        rails-version: ['rails-7']
+        rails-version: ['rails-7', rails-7.2']
     env:
       BUNDLE_WITHOUT: release
     steps:
