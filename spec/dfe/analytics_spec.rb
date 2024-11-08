@@ -180,7 +180,7 @@ RSpec.describe DfE::Analytics do
 
       before do
         allow(described_class.config).to receive(:user_identifier)
-                                           .and_return(->(user) { user.identifier })
+                                           .and_return(lambda(&:identifier))
       end
 
       it 'delegates to the provided proc' do

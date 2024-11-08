@@ -15,12 +15,12 @@ module DfE
           @test_mode == :webmock
         end
 
-        def fake!(&block)
-          switch_test_mode(:fake, &block)
+        def fake!(&)
+          switch_test_mode(:fake, &)
         end
 
-        def webmock!(&block)
-          switch_test_mode(:webmock, &block)
+        def webmock!(&)
+          switch_test_mode(:webmock, &)
         end
 
         private
