@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'github_changelog_generator', '~> 1.16'
   spec.add_development_dependency 'json-schema', '~> 2.8'
   spec.add_development_dependency 'pry', '~> 0'
-  spec.add_development_dependency 'rails', '>= 6'
+  spec.add_development_dependency 'rails', '>= 7'
   spec.add_development_dependency 'rspec-rails'
   spec.add_development_dependency 'rubocop', '~> 1.54'
   spec.add_development_dependency 'rubocop-rspec', '~> 2.22'
