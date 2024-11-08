@@ -463,7 +463,7 @@ DEPENDENCIES
   rubocop (~> 1.54)
   rubocop-rspec (~> 2.22)
   solargraph
-  sqlite3 (~> 2.2)
+  sqlite3
   timecop
   webmock (~> 3.14)
   with_model
