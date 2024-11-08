@@ -7,6 +7,6 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 gemspec
 
 group :release do
-  gem 'gem-release', require: false
-  gem 'github_changelog_generator', require: false
+  gem 'gem-release','~> 2.2', require: false
+  gem 'github_changelog_generator','~> 1.16', require: false
 end
