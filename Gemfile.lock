@@ -458,12 +458,12 @@ DEPENDENCIES
   github_changelog_generator (~> 1.16)
   json-schema (~> 2.8)
   pry (~> 0)
-  rails (>= 6)
+  rails (>= 7)
   rspec-rails
   rubocop (~> 1.54)
   rubocop-rspec (~> 2.22)
   solargraph
-  sqlite3 (>= 2.1)
+  sqlite3
   timecop
   webmock (~> 3.14)
   with_model
