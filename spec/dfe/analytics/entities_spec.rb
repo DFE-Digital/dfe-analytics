@@ -250,6 +250,7 @@ RSpec.describe DfE::Analytics::Entities do
   end
 
   describe 'rollback behavior' do
+    let(:allowlist_fields) { %w[email_address first_name] }
     it 'does not send create event if the transaction is rolled back' do
       ActiveRecord::Base.transaction do
         Candidate.create(id: 123)
