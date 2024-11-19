@@ -5,9 +5,9 @@ module DfE
     # For use with for workload identity federation
     class BigQueryApi
       # All times are in seconds
-      ALL_RETRIES_MAX_ELASPED_TIME = 120.seconds
-      RETRY_INITIAL_BASE_INTERVAL = 15.seconds
-      RETRY_MAX_INTERVAL = 60.seconds
+      ALL_RETRIES_MAX_ELASPED_TIME = 120
+      RETRY_INITIAL_BASE_INTERVAL = 15
+      RETRY_MAX_INTERVAL = 60
       RETRY_INTERVAL_MULTIPLIER = 2
 
       def self.events_client

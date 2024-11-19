@@ -107,7 +107,7 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
       expect(described_class.gcp_client_credentials.access_token).to eq(google_access_token)
 
       expiry_leeway_duration =
-        DfE::Analytics::BigQueryApi::ALL_RETRIES_MAX_ELASPED_TIME + DfE::Analytics::AzureFederatedAuth::ACCESS_TOKEN_EXPIRE_TIME_LEEWAY
+        DfE::Analytics::BigQueryApi::ALL_RETRIES_MAX_ELASPED_TIME.seconds + DfE::Analytics::AzureFederatedAuth::ACCESS_TOKEN_EXPIRE_TIME_LEEWAY.seconds
 
       expect(described_class.gcp_client_credentials.expires_at).to be_within(expiry_leeway_duration).of(future_expire_time)
     end
