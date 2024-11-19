@@ -19,7 +19,8 @@ module DfE
 
         google_token, expire_time = google_access_token(azure_google_exchange_token)
 
-        expire_time_with_leeway = expire_time.to_datetime - ACCESS_TOKEN_EXPIRE_TIME_LEEWAY
+        # Expire time with leeway that includes the max time for any retries
+        expire_time_with_leeway = expire_time.to_datetime - ACCESS_TOKEN_EXPIRE_TIME_LEEWAY - DfE::Analytics::BigQueryApi::ALL_RETRIES_MAX_ELASPED_TIME
 
         @gcp_client_credentials = Google::Auth::UserRefreshCredentials.new(access_token: google_token, expires_at: expire_time_with_leeway)
       end
