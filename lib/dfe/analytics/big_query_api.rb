@@ -2,8 +2,14 @@
 
 module DfE
   module Analytics
-    # For use with for workload identity federeation
+    # For use with for workload identity federation
     class BigQueryApi
+      # All times are in seconds
+      ALL_RETRIES_MAX_ELASPED_TIME = 120.seconds
+      RETRY_INITIAL_BASE_INTERVAL = 15.seconds
+      RETRY_MAX_INTERVAL = 60.seconds
+      RETRY_INTERVAL_MULTIPLIER = 2
+
       def self.events_client
         @events_client ||= begin
           missing_config = %i[
@@ -27,9 +33,16 @@ module DfE
       end
 
       def self.insert(events)
-        rows         = events.map { |event| { json: event } }
-        data_request = Google::Apis::BigqueryV2::InsertAllTableDataRequest.new(rows: rows, skip_invalid_rows: true)
-        options      = Google::Apis::RequestOptions.new(retries: DfE::Analytics.config.bigquery_retries)
+        rows            = events.map { |event| { json: event } }
+        data_request    = Google::Apis::BigqueryV2::InsertAllTableDataRequest.new(rows: rows, skip_invalid_rows: true)
+        options         = Google::Apis::RequestOptions.default
+
+        options.authorization    = events_client.authorization
+        options.retries          = DfE::Analytics.config.bigquery_retries
+        options.max_elapsed_time = ALL_RETRIES_MAX_ELASPED_TIME
+        options.base_interval    = RETRY_INITIAL_BASE_INTERVAL
+        options.max_interval     = RETRY_MAX_INTERVAL
+        options.multiplier       = RETRY_INTERVAL_MULTIPLIER
 
         response =
           events_client.insert_all_table_data(
