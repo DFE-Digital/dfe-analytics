@@ -126,6 +126,10 @@ module DfE
       end
 
       def anonymised_user_agent_and_ip(rack_request)
+        # should this be HTTP_X_REAL_IP
+        # or rack_request.get_header('X-REAL-IP')
+        # if this is a RACK::REQUEST object
+        # I think it is an ActionDispatch::Request object
         DfE::Analytics.anonymise(rack_request.user_agent.to_s + rack_request.headers['X-REAL_IP'].to_s) if rack_request.headers['X-REAL-IP'].present?
       end
 

@@ -4,6 +4,7 @@ require 'action_dispatch/http/mime_type'
 require 'action_dispatch/http/parameters'
 require 'action_dispatch/http/content_security_policy'
 require 'action_dispatch/http/request'
+require 'pry'
 
 RSpec.describe DfE::Analytics::Event do
   it 'can append request details' do
@@ -23,7 +24,7 @@ RSpec.describe DfE::Analytics::Event do
   describe 'anonymised_user_agent_and_ip' do
     subject do
       request = fake_request(
-        remote_ip: remote_ip,
+        headers: headers,
         user_agent: user_agent
       )
 
@@ -33,28 +34,28 @@ RSpec.describe DfE::Analytics::Event do
 
     context 'user agent and IP are both present' do
       let(:user_agent) { 'SomeClient' }
-      let(:remote_ip) { '1.2.3.4' }
+      let(:headers) { { 'X-REAL-IP' => '1.2.3.4' } }
 
-      it { is_expected.to eq '90d5c396fe8da875d25688dfec3f2881c52e81507614ba1958262c8443db29c5' }
+      it { is_expected.to eq '897919adf67b3262e7c050be7f4cb5745fd0711753e01a2fd86ade84cbab12ba' }
     end
 
     context 'user agent is present but IP is not' do
       let(:user_agent) { 'SomeClient' }
-      let(:remote_ip) { nil }
+      let(:headers) { { 'X-REAL-IP' => nil } }
 
       it { is_expected.to be_nil }
     end
 
     context 'IP is present but user agent is not' do
       let(:user_agent) { nil }
-      let(:remote_ip) { '1.2.3.4' }
+      let(:headers) { { 'X-REAL-IP' => '1.2.3.4' } }
 
-      it { is_expected.to eq '6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c' }
+      it { is_expected.to eq 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' }
     end
 
     context 'neither IP not user agent is present' do
       let(:user_agent) { nil }
-      let(:remote_ip) { nil }
+      let(:headers) { { 'X-REAL-IP' => nil } }
 
       it { is_expected.to be_nil }
     end
@@ -238,7 +239,7 @@ RSpec.describe DfE::Analytics::Event do
       query_string: 'a=b',
       referer: nil,
       user_agent: 'SomeClient',
-      remote_ip: '1.2.3.4'
+      headers: { 'X-REAL-IP' => '1.2.3.4' }
     }.merge(overrides)
 
     instance_double(ActionDispatch::Request, attrs)
