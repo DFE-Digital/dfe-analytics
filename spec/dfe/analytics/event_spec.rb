@@ -35,7 +35,7 @@ RSpec.describe DfE::Analytics::Event do
       let(:user_agent) { 'SomeClient' }
       let(:headers) { { 'X-REAL-IP' => '1.2.3.4' } }
 
-      it { is_expected.to eq '897919adf67b3262e7c050be7f4cb5745fd0711753e01a2fd86ade84cbab12ba' }
+      it { is_expected.to eq '90d5c396fe8da875d25688dfec3f2881c52e81507614ba1958262c8443db29c5' }
     end
 
     context 'user agent is present but IP is not' do
@@ -49,7 +49,7 @@ RSpec.describe DfE::Analytics::Event do
       let(:user_agent) { nil }
       let(:headers) { { 'X-REAL-IP' => '1.2.3.4' } }
 
-      it { is_expected.to eq 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' }
+      it { is_expected.to eq '6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c' }
     end
 
     context 'neither IP not user agent is present' do
