@@ -66,9 +66,11 @@ module DfE
     class StubClient
       Response = Struct.new(:insert_errors)
 
-      def insert(*)
+      def insert_all_table_data(*)
         Response.new([])
       end
+
+      def authorization; end
     end
 
     module TestOverrides

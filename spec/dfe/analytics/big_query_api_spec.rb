@@ -20,6 +20,7 @@ RSpec.describe DfE::Analytics::BigQueryApi do
     allow(Google::Apis::BigqueryV2::BigqueryService).to receive(:new).and_return(events_client)
     allow(DfE::Analytics::AzureFederatedAuth).to receive(:gcp_client_credentials).and_return(authorization)
     allow(events_client).to receive(:authorization=).and_return(authorization)
+    allow(events_client).to receive(:authorization).and_return(authorization)
 
     DfE::Analytics::Testing.webmock!
   end

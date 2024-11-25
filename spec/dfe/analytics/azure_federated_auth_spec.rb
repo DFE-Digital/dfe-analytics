@@ -105,8 +105,11 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
     it 'returns the expected client credentials' do
       expect(described_class.gcp_client_credentials).to be_an_instance_of(Google::Auth::UserRefreshCredentials)
       expect(described_class.gcp_client_credentials.access_token).to eq(google_access_token)
-      expect(described_class.gcp_client_credentials.expires_at)
-        .to be_within(DfE::Analytics::AzureFederatedAuth::ACCESS_TOKEN_EXPIRE_TIME_LEEWAY).of(future_expire_time)
+
+      expiry_leeway_duration =
+        DfE::Analytics::BigQueryApi::ALL_RETRIES_MAX_ELASPED_TIME.seconds + DfE::Analytics::AzureFederatedAuth::ACCESS_TOKEN_EXPIRE_TIME_LEEWAY.seconds
+
+      expect(described_class.gcp_client_credentials.expires_at).to be_within(expiry_leeway_duration).of(future_expire_time)
     end
 
     context 'token expiry' do

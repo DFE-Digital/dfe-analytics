@@ -7,8 +7,8 @@ module DfE
     # - Event contains the dfe analytics version, config and other items
     class InitialisationEvents
       # Disable rubocop class variable warnings for class - class variable required to control sending of event
-      # rubocop:disable Style:ClassVars
-      @@initialisation_events_sent = false # rubocop:disable Style:ClassVars
+      # rubocop:disable Style/ClassVars
+      @@initialisation_events_sent = false # rubocop:disable Style/ClassVars
 
       def self.trigger_initialisation_events
         new.send_initialisation_events
@@ -19,7 +19,7 @@ module DfE
       end
 
       def self.initialisation_events_sent=(value)
-        @@initialisation_events_sent = value # rubocop:disable Style:ClassVars
+        @@initialisation_events_sent = value # rubocop:disable Style/ClassVars
       end
 
       def send_initialisation_events
@@ -32,7 +32,7 @@ module DfE
 
         DfE::Analytics::SendEvents.perform_for([initialise_analytics_event])
 
-        @@initialisation_events_sent = true # rubocop:disable Style:ClassVars
+        @@initialisation_events_sent = true # rubocop:disable Style/ClassVars
       end
 
       private
@@ -45,7 +45,7 @@ module DfE
           }
         }
       end
-      # rubocop:enable Style:ClassVars
+      # rubocop:enable Style/ClassVars
     end
   end
 end
