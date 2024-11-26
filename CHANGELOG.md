@@ -1,5 +1,17 @@
 # Changelog
 
+## [v1.15.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.1) (2024-11-26)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.0...v1.15.1)
+
+**Merged pull requests:**
+
+- Fix WIF api call options [\#174](https://github.com/DFE-Digital/dfe-analytics/pull/174) ([asatwal](https://github.com/asatwal))
+
+- Upgrade to Ruby 3.3 [\#171](https://github.com/DFE-Digital/dfe-analytics/pull/171) ([goodviber](https://github.com/goodviber))
+
+- Config option to exclude models [\#169](https://github.com/DFE-Digital/dfe-analytics/pull/169) ([slawosz](https://github.com/slawosz))
+
 ## [v1.15.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.0) (2024-11-06)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.14.2...v1.15.0)
