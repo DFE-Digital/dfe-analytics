@@ -61,7 +61,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
                       { key: 'array_param[]',
                         value: %w[1 2] }],
       request_referer: nil,
-      anonymised_user_agent_and_ip: '16859db7ca4ec906925a0a2cb227bf307740a0c919ab9e2f7efeadf37779e770',
+      anonymised_user_agent_and_ip: '6b3f52c670279e133a78a03e34eea436c65395417ec264eb9f8c1e6da4f5ed56',
       response_content_type: 'text/plain; charset=utf-8',
       response_status: 200,
       namespace: 'example_namespace',
@@ -80,7 +80,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
       perform_enqueued_jobs do
         get('/example/path',
             params: { page: '1', per_page: '25', array_param: %w[1 2] },
-            headers: { 'HTTP_USER_AGENT' => 'Test agent' })
+            headers: { 'HTTP_USER_AGENT' => 'Test agent', 'X-REAL-IP' => '1.2.3.4' })
       end
     end
 
@@ -100,7 +100,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
         request_path: '/unauthenticated_example',
         request_query: [],
         request_referer: nil,
-        anonymised_user_agent_and_ip: '12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0',
+        anonymised_user_agent_and_ip: '6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c',
         response_content_type: 'text/plain; charset=utf-8',
         response_status: 200 }
     end
@@ -110,7 +110,8 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
 
       DfE::Analytics::Testing.webmock! do
         perform_enqueued_jobs do
-          get('/unauthenticated_example')
+          get('/unauthenticated_example',
+              headers: { 'X-REAL-IP' => '1.2.3.4' })
         end
       end
 
@@ -131,7 +132,7 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
         request_path: '/unauthenticated_example',
         request_query: [],
         request_referer: nil,
-        anonymised_user_agent_and_ip: '12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0',
+        anonymised_user_agent_and_ip: '6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c',
         response_content_type: 'text/html; charset=utf-8',
         response_status: 304 }
     end
@@ -156,7 +157,8 @@ RSpec.describe DfE::Analytics::Requests, type: :request do
 
       DfE::Analytics::Testing.webmock! do
         perform_enqueued_jobs do
-          get('/unauthenticated_example')
+          get('/unauthenticated_example',
+              headers: { 'X-REAL-IP' => '1.2.3.4' })
         end
       end
 
