@@ -59,7 +59,6 @@ module DfE
         config.bigquery_timeout                 ||= 120
         config.environment                      ||= ENV.fetch('RAILS_ENV', 'development')
         config.log_only                         ||= false
-        config.async                            ||= true
         config.queue                            ||= :default
         config.user_identifier                  ||= proc { |user| user&.id }
         config.entity_table_checks_enabled      ||= false
@@ -74,6 +73,8 @@ module DfE
         config.airbyte_client_secret            ||= ENV.fetch('AIRBYTE_CLIENT_SECRET', nil)
         config.airbyte_server_url               ||= ENV.fetch('AIRBYTE_SERVER_URL', nil)
         config.airbyte_workspace_id             ||= ENV.fetch('AIRBYTE_WORKSPACE_ID', nil)
+
+        config.async = true if config.async.nil?
 
         config.airbyte_stream_config_path = File.join(Rails.root, config.airbyte_stream_config_path) if config.airbyte_stream_config_path.present?
 
