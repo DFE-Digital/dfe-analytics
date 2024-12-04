@@ -189,6 +189,28 @@ RSpec.describe DfE::Analytics do
     end
   end
 
+  describe '.async?' do
+    context 'when the async config has been set to true' do
+      before do
+        described_class.configure { |config| config.async = true }
+      end
+
+      it 'returns true' do
+        expect(described_class.async?).to be true
+      end
+    end
+
+    context 'when the async config has been set to false' do
+      before do
+        described_class.configure { |config| config.async = false }
+      end
+
+      it 'returns false' do
+        expect(described_class.async?).to be false
+      end
+    end
+  end
+
   describe '.extract_model_attributes' do
     with_model :Candidate do
       table do |t|
