@@ -74,7 +74,6 @@ module DfE
       config.bigquery_timeout                 ||= 120
       config.environment                      ||= ENV.fetch('RAILS_ENV', 'development')
       config.log_only                         ||= false
-      config.async                            ||= true
       config.queue                            ||= :default
       config.user_identifier                  ||= proc { |user| user&.id }
       config.entity_table_checks_enabled      ||= false
@@ -83,6 +82,7 @@ module DfE
       config.azure_federated_auth             ||= false
       config.excluded_paths                   ||= []
       config.excluded_models_proc             ||= proc { |_model| false }
+      config.async = true if config.async.nil?
 
       return unless config.azure_federated_auth
 
