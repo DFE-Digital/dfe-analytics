@@ -300,7 +300,7 @@ If you wish to send custom analytics event, for example if you have data about e
 ```yaml
 shared:
   - some_custom_event
-  - another_custom_event 
+  - another_custom_event
 ```
 
 Then in the code create your custom event and attach all the information you want to pass:
@@ -311,7 +311,7 @@ event = DfE::Analytics::Event.new
   .with_user(current_user)
   .with_request_details(request)
   .with_namespace('some_namespace')
-  .with_data(some: 'custom details about event')
+  .with_data(data: { some: 'custom details about event' })
 ```
 
 If you need to include hidden PII, you can use the `hidden_data` key which will allow all fields listed to be sent separately to BigQuery where they will be hidden.
@@ -323,11 +323,11 @@ event = DfE::Analytics::Event.new
   .with_request_details(request)
   .with_namespace('some_namespace')
   .with_data(
-    data: 
-    { 
+    data:
+    {
       some: 'custom details about event'
     },
-    hidden_data: { 
+    hidden_data: {
       some_hidden: 'some data to be hidden',
       more_hidden: 'more data to be hidden,
     }
@@ -391,7 +391,7 @@ it "sends a DFE Analytics web request event" do
   end.to have_sent_analytics_event_types(:web_request)
 end
 
-# have_been_enqueued_as_analytics_events expects that as part of the spec, event types 
+# have_been_enqueued_as_analytics_events expects that as part of the spec, event types
 # have been sent
 it "sends DFE Analytics request and entity events" do
   perform_user_sign
