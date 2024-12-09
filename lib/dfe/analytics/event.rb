@@ -76,6 +76,9 @@ module DfE
         @event_hash.deep_merge!(data: hash_to_kv_pairs(hash[:data])) if hash.include?(:data)
         @event_hash.deep_merge!(hidden_data: hash_to_kv_pairs(hash[:hidden_data])) if hash.include?(:hidden_data)
 
+        # For backwards compatibility pre v1.13.0 add hash with :data key IF :data nor :hidden_data keys exist
+        @event_hash.deep_merge!(data: hash_to_kv_pairs(hash)) if hash.exclude?(:data) && hash.exclude?(:hidden_data)
+
         self
       end
 
