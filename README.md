@@ -345,7 +345,7 @@ Backwards compatability for the `with_data` method was added after v1.15.2 that 
     )
 ```
 
-Backwards compatibility was missing in analytics versions v1.13.0 - v1.15.2 inclusive. This means that any custom events or other events using the `with_data` method for adding event data, sent from applications wth analytics versions not backwards compatible, would have lost those events (unless event data is sent using the  `data` and/or `hidden_data` keys).
+Backwards compatibility was missing in analytics versions v1.13.0 - v1.15.2 inclusive. This means that any custom events or other events using the `with_data` method for adding event data, sent from applications with analytics versions not backwards compatible, would have lost those events (unless event data is sent using the  `data` and/or `hidden_data` keys).
 
 Once all the events have been constructed, simply send them to your analytics:
 
