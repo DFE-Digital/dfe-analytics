@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.15.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.3) (2024-12-10)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.2...v1.15.3)
+
+**Merged pull requests:**
+
+- Breaking change on events with\_data\(\) method introduced with v1.13.0 release [\#184](https://github.com/DFE-Digital/dfe-analytics/pull/184) ([asatwal](https://github.com/asatwal))
+
 ## [v1.15.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.2) (2024-12-03)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.1...v1.15.2)
