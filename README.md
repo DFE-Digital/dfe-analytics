@@ -311,7 +311,7 @@ event = DfE::Analytics::Event.new
   .with_user(current_user)
   .with_request_details(request)
   .with_namespace('some_namespace')
-  .with_data(some: 'custom details about event')
+  .with_data(data: { some: 'custom details about event' })
 ```
 
 If you need to include hidden PII, you can use the `hidden_data` key which will allow all fields listed to be sent separately to BigQuery where they will be hidden.
@@ -323,16 +323,29 @@ event = DfE::Analytics::Event.new
   .with_request_details(request)
   .with_namespace('some_namespace')
   .with_data(
-    data: 
-    { 
+    data:
+    {
       some: 'custom details about event'
     },
-    hidden_data: { 
+    hidden_data: {
       some_hidden: 'some data to be hidden',
       more_hidden: 'more data to be hidden,
     }
   )
 ```
+
+**NOTE**:
+
+Backwards compatability for the `with_data` method was added after v1.15.2 that allows the following call:
+
+```ruby
+  event
+    .with_data(
+       some: 'custom details about event'
+    )
+```
+
+Backwards compatibility was missing in analytics versions v1.13.0 - v1.15.2 inclusive. This means that any custom events or other events using the `with_data` method for adding event data, sent from applications with analytics versions not backwards compatible, would have lost those events (unless event data is sent using the  `data` and/or `hidden_data` keys).
 
 Once all the events have been constructed, simply send them to your analytics:
 
