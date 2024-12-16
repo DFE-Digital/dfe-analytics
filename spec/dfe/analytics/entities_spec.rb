@@ -250,18 +250,18 @@ RSpec.describe DfE::Analytics::Entities do
   end
 
   describe 'rollback behavior' do
+    let(:allowlist_fields) { %w[email_address first_name] }
     it 'does not send create event if the transaction is rolled back' do
       ActiveRecord::Base.transaction do
         Candidate.create(id: 123)
         raise ActiveRecord::Rollback
       end
-
       expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
     end
 
     it 'does not send update event if the transaction is rolled back' do
-      entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
       ActiveRecord::Base.transaction do
+        entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
         entity.update(email_address: 'bar@baz.com')
         raise ActiveRecord::Rollback
       end
@@ -270,8 +270,8 @@ RSpec.describe DfE::Analytics::Entities do
     end
 
     it 'does not send delete event if the transaction is rolled back' do
-      entity = Candidate.create(email_address: 'boo@example.com')
       ActiveRecord::Base.transaction do
+        entity = Candidate.create(email_address: 'boo@example.com')
         entity.destroy
         raise ActiveRecord::Rollback
       end
