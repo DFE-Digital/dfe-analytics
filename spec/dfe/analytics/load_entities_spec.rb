@@ -9,6 +9,24 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
+  with_model :Setting do
+    table do |t|
+      t.json :settings_values
+    end
+
+    model do
+      include DfE::Analytics::Entities # needs to be explicit
+
+      def filter_event_attributes(data)
+        allowed_attributes = %w[foo]
+        filtered_data = data[:data]['settings_values'].slice(*allowed_attributes)
+        data[:data]['settings_values'] = filtered_data
+
+        data
+      end
+    end
+  end
+
   with_model :ModelWithCustomPrimaryKey do
     table id: false do |t|
       t.string :custom_key
@@ -97,5 +115,30 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
     expect { described_class.new(entity_name: ModelWithoutPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
     expect(Rails.logger).to have_received(:info).with(/Not processing #{ModelWithoutPrimaryKey.table_name} as it does not have a primary key/)
+  end
+
+  context 'overriding model attributes' do
+    before do
+      allow(DfE::Analytics).to receive(:allowlist).and_return({
+                                                                Setting.table_name.to_sym => ['settings_values']
+                                                              })
+    end
+
+    it 'sends a filtered entity’s fields to BQ' do
+      Setting.create(settings_values: { foo: 'bar', field_with_pii: 'foo@bar.com' })
+      described_class.new(entity_name: Setting.table_name).run(entity_tag: entity_tag)
+
+      # import process
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_now).once do |payload|
+        schema = DfE::Analytics::EventSchema.new.as_json
+        schema_validator = JSONSchemaValidator.new(schema, payload.first)
+
+        expect(schema_validator).to be_valid, schema_validator.failure_message
+
+        expect(payload.first['data']).to eq(
+          [{ 'key' => 'settings_values', 'value' => ['{"foo":"bar"}'] }]
+        )
+      end
+    end
   end
 end
