@@ -13,6 +13,24 @@ RSpec.describe DfE::Analytics::Entities do
     end
   end
 
+  with_model :Setting do
+    table do |t|
+      t.json :settings_values
+    end
+
+    model do
+      include DfE::Analytics::Entities # needs to be explicit
+
+      def filter_event_attributes(data)
+        allowed_attributes = %w[foo]
+        filtered_data = data[:data]['settings_values'].slice(*allowed_attributes)
+        data[:data]['settings_values'] = filtered_data
+
+        data
+      end
+    end
+  end
+
   before do
     stub_const('Teacher', Class.new(Candidate))
     allow(DfE::Analytics::SendEvents).to receive(:perform_later)
@@ -100,6 +118,28 @@ RSpec.describe DfE::Analytics::Entities do
             })])
         end
       end
+
+      context 'overriding model attributes' do
+        before do
+          allow(DfE::Analytics).to receive(:allowlist).and_return({
+                                                                    Setting.table_name.to_sym => ['settings_values']
+                                                                  })
+        end
+
+        it 'sends a filtered entity’s fields to BQ' do
+          Setting.create(settings_values: { foo: 'bar', field_with_pii: 'foo@bar.com' })
+
+          expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+                                                  .with([a_hash_including({
+                                                                            'entity_table_name' => Setting.table_name,
+                                                                            'event_type' => 'create_entity',
+                                                                            'data' => [
+                                                                              # {"key"=>"settings_values", "value"=>["{\"foo\":\"bar\",\"field_with_pii\":\"foo@bar.com\"}"]}
+                                                                              { 'key' => 'settings_values', 'value' => ['{"foo":"bar"}'] }
+                                                                            ]
+                                                                          })])
+        end
+      end
     end
 
     context 'when no fields are specified in the analytics file' do
@@ -172,6 +212,29 @@ RSpec.describe DfE::Analytics::Entities do
       end
     end
 
+    context 'overriding model attributes' do
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return({
+                                                                  Setting.table_name.to_sym => ['settings_values']
+                                                                })
+      end
+
+      it 'sends a filtered entity’s fields to BQ' do
+        s = Setting.create(settings_values: { foo: 'bar', field_with_pii: 'foo@bar.com' })
+        s.update(settings_values: { foo: 'baz', field_with_pii: 'foo@bar.com' })
+
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+                                                .with([a_hash_including({
+                                                                          'entity_table_name' => Setting.table_name,
+                                                                          'event_type' => 'update_entity',
+                                                                          'data' => [
+                                                                            # {"key"=>"settings_values", "value"=>["{\"foo\":\"baz\",\"field_with_pii\":\"foo@bar.com\"}"]}
+                                                                            { 'key' => 'settings_values', 'value' => ['{"foo":"baz"}'] }
+                                                                          ]
+                                                                        })])
+      end
+    end
+
     context 'when no fields are specified in the analytics file' do
       let(:allowlist_fields) { [] }
 
@@ -229,6 +292,29 @@ RSpec.describe DfE::Analytics::Entities do
             { 'key' => 'email_address', 'value' => ['boo@example.com'] }
           ]
         })])
+    end
+
+    context 'overriding model attributes' do
+      before do
+        allow(DfE::Analytics).to receive(:allowlist).and_return({
+                                                                  Setting.table_name.to_sym => ['settings_values']
+                                                                })
+      end
+
+      it 'sends a filtered entity’s fields to BQ' do
+        s = Setting.create(settings_values: { foo: 'bar', field_with_pii: 'foo@bar.com' })
+        s.destroy
+
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+                                                .with([a_hash_including({
+                                                                          'entity_table_name' => Setting.table_name,
+                                                                          'event_type' => 'delete_entity',
+                                                                          'data' => [
+                                                                            # {"key"=>"settings_values", "value"=>["{\"foo\":\"bar\",\"field_with_pii\":\"foo@bar.com\"}"]}
+                                                                            { 'key' => 'settings_values', 'value' => ['{"foo":"bar"}'] }
+                                                                          ]
+                                                                        })])
+      end
     end
 
     context 'when fields are specified in the analytics and hidden_pii file' do

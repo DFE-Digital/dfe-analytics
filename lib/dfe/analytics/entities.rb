@@ -32,13 +32,17 @@ module DfE
         end
       end
 
+      def filter_event_attributes(data)
+        data
+      end
+
       def send_event(type, data)
         return unless DfE::Analytics.enabled?
 
         event = DfE::Analytics::Event.new
                                      .with_type(type)
                                      .with_entity_table_name(self.class.table_name)
-                                     .with_data(data)
+                                     .with_data(filter_event_attributes(data))
                                      .with_tags(event_tags)
                                      .with_request_uuid(RequestLocals.fetch(:dfe_analytics_request_id) { nil })
 
