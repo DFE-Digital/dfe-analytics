@@ -26,7 +26,7 @@ module DfE
             self, saved_changes.transform_values(&:last)
           )
           Rails.logger.info("log_updated_attributes: #{updated_attributes}")
-          Rails.logger.info("model: #{self}")
+          Rails.logger.info("log_model: #{self}")
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
 
           send_event('update_entity', allowed_attributes) if updated_attributes.any?
