@@ -18,7 +18,7 @@ module DfE
           send_event('delete_entity', extracted_attributes) if extracted_attributes.any?
         end
 
-        after_update do
+        after_update_commit do
           # in this after_update hook we don't have access to the new fields via
           # #attributes — we need to dig them out of saved_changes which stores
           # them in the format { attr: ['old', 'new'] }

@@ -2,12 +2,11 @@
 
 require 'active_record'
 
-# This module provides functionality to track changes to ActiveRecord attributes
-# within a database transaction. It ensures that changes are tracked and reset
-# appropriately during commit and rollback operations.
-
 module DfE
   module Analytics
+    # This module provides functionality to track changes to ActiveRecord attributes
+    # within a database transaction. It ensures that changes are tracked and reset
+    # appropriately during commit and rollback operations.
     module TransactionChanges
       def _run_commit_callbacks
         super
