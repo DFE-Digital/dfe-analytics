@@ -27,6 +27,7 @@ module DfE
           )
           Rails.logger.info("log_previous_changes: #{previous_changes}")
           Rails.logger.info("log_saved_changes: #{saved_changes}")
+          Rails.logger.info("log_trans_changes: #{transaction_changed_attributes}")
           Rails.logger.info("log_updated_attributes: #{updated_attributes}")
           Rails.logger.info("log_model: #{self}")
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
