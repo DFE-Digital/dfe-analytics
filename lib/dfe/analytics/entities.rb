@@ -32,7 +32,6 @@ module DfE
           transaction_changed_attributes.each do |name, old_value|
             old_attributes.merge!(name => old_value)
           end
-        
 
           updated_attributes = DfE::Analytics.extract_model_attributes(
             self, saved_changes.transform_values(&:last)
