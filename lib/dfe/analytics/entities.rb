@@ -24,7 +24,7 @@ module DfE
           # them in the format { attr: ['old', 'new'] }
           trans_attributes = {}
           transaction_changed_attributes.each do |name, old_value|
-            trans_attributes.merge!(name => old_value, name => name.inspect)
+            trans_attributes.merge!(name => old_value, name => send(name).inspect)
           end
           updated_attributes = DfE::Analytics.extract_model_attributes(
             self, saved_changes.transform_values(&:last)
