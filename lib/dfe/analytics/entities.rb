@@ -28,12 +28,18 @@ module DfE
           end
           transaction_attrs = DfE::Analytics.extract_model_attributes(self, trans_attributes)
 
+          old_attributes = {}
+          transaction_changed_attributes.each do |name, old_value|
+            old_attributes.merge!(name => old_value)
+          end
+        
+
           updated_attributes = DfE::Analytics.extract_model_attributes(
             self, saved_changes.transform_values(&:last)
           )
           Rails.logger.info("log_previous_changes: #{previous_changes}")
           Rails.logger.info("log_saved_changes: #{saved_changes}")
-          Rails.logger.info("log_trans_changes: #{trans_attributes}")
+          Rails.logger.info("log_old_values: #{old_attributes}")
           Rails.logger.info("log_transaction_attrs: #{transaction_attrs}")
           Rails.logger.info("log_updated_attributes: #{updated_attributes}")
           Rails.logger.info("log_model: #{self}")
