@@ -22,30 +22,29 @@ module DfE
           # in this after_update hook we don't have access to the new fields via
           # #attributes — we need to dig them out of saved_changes which stores
           # them in the format { attr: ['old', 'new'] }
-          trans_attributes = {}
-          transaction_changed_attributes.each_key do |name|
-            trans_attributes.merge!(name => send(name))
-          end
-          transaction_attrs = DfE::Analytics.extract_model_attributes(self, trans_attributes)
 
-          old_attributes = {}
-          transaction_changed_attributes.each do |name, old_value|
-            old_attributes.merge!(name => old_value)
-          end
+          #changed_attributes = {}
+          #transaction_changed_attributes.each_key do |name|
+          #  changed_attributes.merge!(name => send(name))
+          #end
 
-          updated_attributes = DfE::Analytics.extract_model_attributes(
-            self, saved_changes.transform_values(&:last)
-          )
-          Rails.logger.info("log_previous_changes: #{previous_changes}")
-          Rails.logger.info("log_saved_changes: #{saved_changes}")
-          Rails.logger.info("log_old_values: #{old_attributes}")
-          Rails.logger.info("log_transaction_attrs: #{transaction_attrs}")
+          updated_attributes = DfE::Analytics.extract_model_attributes(self, changed_attributes)
+
           Rails.logger.info("log_updated_attributes: #{updated_attributes}")
           Rails.logger.info("log_model: #{self}")
+
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
 
           send_event('update_entity', allowed_attributes) if updated_attributes.any?
         end
+      end
+
+      def changed_attributes
+        changed_attributes = {}
+        transaction_changed_attributes.each_key do |name|
+          changed_attributes.merge!(name => send(name))
+        end
+        changed_attributes
       end
 
       def send_event(type, data)
