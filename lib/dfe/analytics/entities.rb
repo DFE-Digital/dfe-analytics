@@ -22,12 +22,16 @@ module DfE
           # in this after_update hook we don't have access to the new fields via
           # #attributes — we need to dig them out of saved_changes which stores
           # them in the format { attr: ['old', 'new'] }
+          trans_attributes = {}
+          transaction_changed_attributes.each do |name, old_value|
+            trans_attributes.merge!(name => old_value, name => name.inspect)
+          end
           updated_attributes = DfE::Analytics.extract_model_attributes(
             self, saved_changes.transform_values(&:last)
           )
           Rails.logger.info("log_previous_changes: #{previous_changes}")
           Rails.logger.info("log_saved_changes: #{saved_changes}")
-          Rails.logger.info("log_trans_changes: #{transaction_changed_attributes}")
+          Rails.logger.info("log_trans_changes: #{trans_attributes}")
           Rails.logger.info("log_updated_attributes: #{updated_attributes}")
           Rails.logger.info("log_model: #{self}")
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
