@@ -224,6 +224,23 @@ Once `analytics.yml` and friends are populated, the associated models will be
 automatically instrumented to send updates to BigQuery via ActiveRecord
 callbacks.
 
+#### Transactions
+
+In order to correctly record data changes in transactions, specifically in regard to rollbacks and updates, we need to include the TransactionChanges module in all ActiveRecord models, so add this to config/initializers/dfe-analytics.rb
+
+```ruby
+ActiveSupport.on_load(:active_record) do
+  include DfE::Analytics::TransactionChanges
+end
+```
+
+This can conflict with other gems who modify the `active_record#write_attribute` method, e.g. `globalize` gem. The solution is to require this gem first, e.g.
+
+```
+gem 'dfe-analytics'
+gem 'globalize' require: ['dfe-analytics', 'globalize']
+```
+
 ### 6. Send web request events
 
 #### Web requests
