@@ -58,5 +58,26 @@ RSpec.describe DfE::Analytics::TransactionChanges do
         expect(entity.stored_transaction_changes).to eq({ 'email_address' => ['foo@bar', 'bar@baz'] })
       end
     end
+
+    context 'with transaction rollback' do
+      it 'create tracks changes to attributes' do
+        ActiveRecord::Base.transaction do
+          @entity = Candidate.create(email_address: 'foo@bar')
+          raise ActiveRecord::Rollback
+        end
+
+        expect(@entity.stored_transaction_changes).to be_nil
+      end
+
+      it 'update tracks changes to attributes' do
+        entity = Candidate.create(email_address: 'foo@bar')
+        ActiveRecord::Base.transaction do
+          entity.update(email_address: 'bar@baz')
+          raise ActiveRecord::Rollback
+        end
+
+        expect(entity.stored_transaction_changes).to eq({ 'email_address' => [nil, 'foo@bar'], 'id' => [nil, 1] })
+      end
+    end
   end
 end
