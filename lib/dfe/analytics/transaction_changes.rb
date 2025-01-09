@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'active_record'
-
 module DfE
   module Analytics
     # This module provides functionality to track changes to ActiveRecord attributes
