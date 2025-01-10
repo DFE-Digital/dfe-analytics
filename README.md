@@ -226,7 +226,7 @@ callbacks.
 
 #### Transactions
 
-In order to correctly record data changes in transactions, specifically in regard to rollbacks and updates, we need to include the TransactionChanges module in all ActiveRecord models, so add this to config/initializers/dfe-analytics.rb
+In order to correctly record data changes in transactions, specifically in regard to rollbacks and updates, we need to include the TransactionChanges module in all ActiveRecord models, so ensure this is present in config/initializers/dfe-analytics.rb
 
 ```ruby
 ActiveSupport.on_load(:active_record) do
