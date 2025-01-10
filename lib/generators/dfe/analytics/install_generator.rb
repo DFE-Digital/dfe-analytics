@@ -5,29 +5,10 @@ module DfE
 
       def install
         create_file 'config/initializers/dfe_analytics.rb', <<~FILE
-          DfE::Analytics.configure do |config|
-          #{indent(config_options.map(&:strip).join("\n\n").gsub(/# $/, '#').chomp.chomp, 2)}
-          end
           ActiveSupport.on_load(:active_record) do
             include DfE::Analytics::TransactionChanges
           end
         FILE
-
-        create_file 'config/analytics.yml', { 'shared' => {} }.to_yaml
-        create_file 'config/analytics_hidden_pii.yml', { 'shared' => {} }.to_yaml
-        create_file 'config/analytics_blocklist.yml', { 'shared' => {} }.to_yaml
-      end
-
-      private
-
-      def config_options
-        DfE::Analytics.config.members.map do |option|
-          <<~DESC
-            # #{I18n.t("dfe.analytics.config.#{option}.description").lines.join('# ').chomp}
-            #
-            # config.#{option} = #{I18n.t("dfe.analytics.config.#{option}.default")}\n
-          DESC
-        end
       end
     end
   end
