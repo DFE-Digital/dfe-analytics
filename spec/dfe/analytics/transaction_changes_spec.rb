@@ -13,6 +13,7 @@ RSpec.describe DfE::Analytics::TransactionChanges do
     end
 
     model do
+      include DfE::Analytics::TransactionChanges
       attr_accessor :stored_transaction_changes
 
       after_commit :store_transaction_changes_for_tests
