@@ -11,10 +11,6 @@ RSpec.describe DfE::Analytics::Entities do
       t.string :first_name
       t.string :dob
     end
-
-    model do
-      include DfE::Analytics::TransactionChanges
-    end
   end
 
   before do
