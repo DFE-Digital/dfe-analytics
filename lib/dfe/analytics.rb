@@ -121,7 +121,6 @@ module DfE
 
       entities_for_analytics.each do |entity|
         models_for_entity(entity).each do |m|
-          m.include(TransactionChanges)
           if m.include?(DfE::Analytics::Entities)
             Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{m.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
           else
@@ -129,6 +128,16 @@ module DfE
             break
           end
         end
+        # rubocop:disable Style/CombinableLoops
+        models_for_entity(entity).each do |m|
+          if m.include?(DfE::Analytics::TransactionChanges)
+            Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Transaction was manually included in a model (#{m.name}), but it's included automatically. To silence this warning, remove the include from model definitions in app/models.")
+          else
+            m.include(DfE::Analytics::TransactionChanges)
+            break
+          end
+        end
+        # rubocop:enable Style/CombinableLoops
       end
     rescue ActiveRecord::PendingMigrationError
       Rails.logger.info('Database requires migration; DfE Analytics not initialized')
