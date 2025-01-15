@@ -8,9 +8,6 @@ module DfE
           DfE::Analytics.configure do |config|
           #{indent(config_options.map(&:strip).join("\n\n").gsub(/# $/, '#').chomp.chomp, 2)}
           end
-          ActiveSupport.on_load(:active_record) do
-            include DfE::Analytics::TransactionChanges
-          end
         FILE
 
         create_file 'config/analytics.yml', { 'shared' => {} }.to_yaml
