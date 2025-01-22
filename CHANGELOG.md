@@ -1,6 +1,23 @@
 # Changelog
 
-## [v1.15.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.3) (2024-12-10)
+## [v1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.4) (2025-01-22)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.3...v1.15.4)
+
+**Fixed bugs:**
+
+- Fix after\_update\_commit [\#188](https://github.com/DFE-Digital/dfe-analytics/pull/188) ([goodviber](https://github.com/goodviber))
+- update transaction tests [\#186](https://github.com/DFE-Digital/dfe-analytics/pull/186) ([goodviber](https://github.com/goodviber))
+
+**Closed issues:**
+
+- Breaking change on custom events interface introduced with v1.13.0 release [\#182](https://github.com/DFE-Digital/dfe-analytics/issues/182)
+
+**Merged pull requests:**
+
+- Add docs/deciding\_what\_data\_to\_stream\_with\_dfe\_analytics.md [\#178](https://github.com/DFE-Digital/dfe-analytics/pull/178) ([stevenleggdfe](https://github.com/stevenleggdfe))
+
+## [v1.15.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.3) (2024-12-11)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.2...v1.15.3)
 
