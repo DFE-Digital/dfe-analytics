@@ -453,6 +453,12 @@ be leaked.
 > **NB:** It may be easier to perform these instructions with two browser tabs
 > open, one for BigQuery and the other for IAM
 
+### Terraform Automation
+
+The per project setup for datasets, events table and service accounts should be automated through terraform and this should be the preferred option. See the [dfe analytics terraform documentation](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/dfe_analytics/README.md#create-new-dataset-and-events-table) for instructions on how to do this.
+
+If datasets, events table and service accounts have been setup using terraform, then steps 1, 2, 3 and 4 below can be skipped, otherwise manual setup will be required as described in these steps.
+
 ### 1. Create dataset(s)
 
 Start by creating a dataset.
@@ -557,9 +563,9 @@ If this does not exist then one can be created with either the [create gcp workl
 
 ### 4. Terraform automation
 
-The per project setup for WIF service accounts, permissions and client credentials should be automated through terraform. See the [dfe analytics terraform documentation](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/dfe_analytics/README.md) for instructions on how to do this.
+The per project setup for WIF service accounts, permissions and client credentials should be automated through terraform and this should be the preferred option. See the [dfe analytics terraform documentation](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/dfe_analytics/README.md) for instructions on how to do this.
 
-If WIF has been setup using terraform, then steps 5,6 and 7 below can be skipped, otherwise manual setup will be required as described in these steps.
+If WIF has been setup using terraform, then steps 5, 6 and 7 below can be skipped, otherwise manual setup will be required as described in these steps.
 
 ### 5. Service account
 
