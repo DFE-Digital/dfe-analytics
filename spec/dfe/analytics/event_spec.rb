@@ -117,6 +117,21 @@ RSpec.describe DfE::Analytics::Event do
       expect(updated_event_hash['data']).to eq([])
       expect(updated_event_hash['hidden_data']).to eq([])
     end
+
+    it 'remain backwards compatible when with_data is called without the :data and :hidden_data keys' do
+      event.with_data(some: 'custom details about event', ethnic_background: 'Red')
+      updated_event_hash = event.as_json
+
+      data_some_key = updated_event_hash['data'].find { |d| d['key'] == 'some' }
+      expect(data_some_key).not_to be_nil
+      expect(data_some_key['value']).to eq(['custom details about event'])
+
+      data_ethnic_background_key = updated_event_hash['data'].find { |d| d['key'] == 'ethnic_background' }
+      expect(data_ethnic_background_key).not_to be_nil
+      expect(data_ethnic_background_key['value']).to eq(['Red'])
+
+      expect(updated_event_hash['hidden_data']).to be_nil
+    end
   end
 
   describe 'handling invalid UTF-8' do

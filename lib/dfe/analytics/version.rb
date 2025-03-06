@@ -2,6 +2,6 @@
 
 module DfE
   module Analytics
-    VERSION = '1.15.2'
+    VERSION = '1.15.4'
   end
 end

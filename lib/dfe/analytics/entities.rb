@@ -20,16 +20,23 @@ module DfE
 
         after_update_commit do
           # in this after_update hook we don't have access to the new fields via
-          # #attributes — we need to dig them out of saved_changes which stores
-          # them in the format { attr: ['old', 'new'] }
-          updated_attributes = DfE::Analytics.extract_model_attributes(
-            self, saved_changes.transform_values(&:last)
-          )
+          # attributes or saved changes in transactions, so we use the
+          # TransactionChanges module
+
+          updated_attributes = DfE::Analytics.extract_model_attributes(self, changed_attributes)
 
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
 
           send_event('update_entity', allowed_attributes) if updated_attributes.any?
         end
+      end
+
+      def changed_attributes
+        changed_attributes = {}
+        transaction_changed_attributes.each_key do |name|
+          changed_attributes.merge!(name => send(name))
+        end
+        changed_attributes
       end
 
       def send_event(type, data)

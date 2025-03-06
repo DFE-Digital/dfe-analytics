@@ -250,18 +250,18 @@ RSpec.describe DfE::Analytics::Entities do
   end
 
   describe 'rollback behavior' do
+    let(:allowlist_fields) { %w[email_address first_name] }
     it 'does not send create event if the transaction is rolled back' do
       ActiveRecord::Base.transaction do
         Candidate.create(id: 123)
         raise ActiveRecord::Rollback
       end
-
       expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
     end
 
     it 'does not send update event if the transaction is rolled back' do
-      entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
       ActiveRecord::Base.transaction do
+        entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
         entity.update(email_address: 'bar@baz.com')
         raise ActiveRecord::Rollback
       end
@@ -270,13 +270,64 @@ RSpec.describe DfE::Analytics::Entities do
     end
 
     it 'does not send delete event if the transaction is rolled back' do
-      entity = Candidate.create(email_address: 'boo@example.com')
       ActiveRecord::Base.transaction do
+        entity = Candidate.create(email_address: 'boo@example.com')
         entity.destroy
         raise ActiveRecord::Rollback
       end
 
       expect(DfE::Analytics::SendEvents).not_to have_received(:perform_later)
+    end
+  end
+
+  describe 'transaction behaviour' do
+    let(:allowlist_fields) { %w[email_address first_name] }
+
+    it 'sends transaction create event with the correct data' do
+      ActiveRecord::Base.transaction do
+        Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
+      end
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+      .with([a_hash_including({
+            'entity_table_name' => Candidate.table_name,
+            'event_type' => 'create_entity',
+            'data' => [
+              { 'key' => 'email_address', 'value' => ['foo@bar.com'] },
+              { 'key' => 'first_name', 'value' => ['Jason'] }
+            ]
+          })])
+    end
+
+    it 'sends transaction delete event with the correct data' do
+      entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
+      ActiveRecord::Base.transaction do
+        entity.destroy
+      end
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+          'entity_table_name' => Candidate.table_name,
+          'event_type' => 'delete_entity',
+          'data' => [
+            { 'key' => 'email_address', 'value' => ['foo@bar.com'] },
+            { 'key' => 'first_name', 'value' => ['Jason'] }
+          ]
+        })])
+    end
+
+    it 'sends transaction update event with the correct data' do
+      entity = Candidate.create(email_address: 'foo@bar.com', first_name: 'Jason')
+      ActiveRecord::Base.transaction do
+        entity.update(email_address: 'bar@baz.com')
+      end
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+      .with([a_hash_including({
+            'entity_table_name' => Candidate.table_name,
+            'event_type' => 'update_entity',
+            'data' => [
+              { 'key' => 'email_address', 'value' => ['bar@baz.com'] },
+              { 'key' => 'first_name', 'value' => ['Jason'] }
+            ]
+          })])
     end
   end
 end
