@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'byebug'
 require 'request_store_rails'
 require 'i18n'
 require 'httparty'
@@ -198,7 +198,7 @@ module DfE
       # if no list of attrs specified, consider all attrs belonging to this model
       attributes ||= model.attributes
       table_name = model.class.table_name.to_sym
-
+byebug
       exportable_attrs = (allowlist[table_name].presence || []).map(&:to_sym)
       hidden_pii_attrs = (hidden_pii[table_name].presence || []).map(&:to_sym)
       exportable_hidden_pii_attrs = exportable_attrs & hidden_pii_attrs
