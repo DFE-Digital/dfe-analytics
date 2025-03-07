@@ -11,6 +11,7 @@ module DfE
         after_create_commit do
           extracted_attributes = DfE::Analytics.extract_model_attributes(self)
           send_event('create_entity', extracted_attributes) if extracted_attributes.any?
+          Rails.logger.info("Entity created with attributes: #{extracted_attributes}")
         end
 
         after_destroy_commit do
