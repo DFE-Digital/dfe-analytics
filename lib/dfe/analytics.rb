@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'byebug'
+
 require 'request_store_rails'
 require 'i18n'
 require 'httparty'
