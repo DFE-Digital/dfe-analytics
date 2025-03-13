@@ -10,7 +10,10 @@ module DfE
 
         after_create_commit do
           extracted_attributes = DfE::Analytics.extract_model_attributes(self)
+          object_id = self.object_id
           send_event('create_entity', extracted_attributes) if extracted_attributes.any?
+          Rails.logger.info("Entity created with attributes: #{self}, #{object_id}")
+          Rails.logger.info("Entity created with attributes: #{extracted_attributes}")
         end
 
         after_destroy_commit do
@@ -28,6 +31,8 @@ module DfE
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
 
           send_event('update_entity', allowed_attributes) if updated_attributes.any?
+          Rails.logger.info("Entity updated with attributes: #{self}")
+          Rails.logger.info("Entity updated with attributes: #{allowed_attributes}")
         end
       end
 
