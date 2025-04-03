@@ -5,7 +5,7 @@ module DfE
     class SendEvents < AnalyticsJob
       def self.do(events)
         unless DfE::Analytics.enabled?
-          Rails.logger.info('DfE::Analytics::SendEvents.do() called but DfE::Analytics is disabled. Please check DfE::Analytics.enabled? before sending events to BigQuery')
+          Rails.logger.warn('DfE::Analytics::SendEvents.do() called but DfE::Analytics is disabled. Please check DfE::Analytics.enabled? before sending events to BigQuery')
           return
         end
 
