@@ -1,5 +1,17 @@
 # Changelog
 
+## [v1.15.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.5) (2025-04-07)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.4...v1.15.5)
+
+**Implemented enhancements:**
+
+- update error levels [\#192](https://github.com/DFE-Digital/dfe-analytics/pull/192) ([goodviber](https://github.com/goodviber))
+
+**Merged pull requests:**
+
+- Add link to DfE Analytics terraform docs from setup readme. [\#190](https://github.com/DFE-Digital/dfe-analytics/pull/190) ([asatwal](https://github.com/asatwal))
+
 ## [v1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.4) (2025-01-22)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.3...v1.15.4)
