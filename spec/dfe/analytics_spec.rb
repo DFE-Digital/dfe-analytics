@@ -25,7 +25,7 @@ RSpec.describe DfE::Analytics do
     end
 
     it 'recovers and logs' do
-      expect(Rails.logger).to receive(:info).with(/No database connection/)
+      expect(Rails.logger).to receive(:error).with(/No database connection/)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
@@ -37,7 +37,7 @@ RSpec.describe DfE::Analytics do
     end
 
     it 'recovers and logs' do
-      expect(Rails.logger).to receive(:info).with(/No database connection/)
+      expect(Rails.logger).to receive(:error).with(/No database connection/)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
@@ -46,7 +46,7 @@ RSpec.describe DfE::Analytics do
     it 'recovers and logs' do
       allow(DfE::Analytics::Fields).to receive(:check!).and_raise(ActiveRecord::PendingMigrationError)
 
-      expect(Rails.logger).to receive(:info).with(/Database requires migration/)
+      expect(Rails.logger).to receive(:error).with(/Database requires migration/)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
@@ -55,7 +55,7 @@ RSpec.describe DfE::Analytics do
     it 'recovers and logs' do
       hide_const('ActiveRecord')
 
-      expect(Rails.logger).to receive(:info).with(/ActiveRecord not loaded/)
+      expect(Rails.logger).to receive(:error).with(/ActiveRecord not loaded/)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
@@ -137,11 +137,11 @@ RSpec.describe DfE::Analytics do
       end
 
       it 'logs deprecation warnings' do
-        allow(Rails.logger).to receive(:info).and_call_original
+        allow(Rails.logger).to receive(:warn).and_call_original
 
         DfE::Analytics.initialize!
 
-        expect(Rails.logger).to have_received(:info).twice.with(/DEPRECATION WARNING/)
+        expect(Rails.logger).to have_received(:warn).twice.with(/DEPRECATION WARNING/)
       end
     end
   end
@@ -260,7 +260,7 @@ RSpec.describe DfE::Analytics do
       end
 
       it 'logs an error and returns [nil, nil]' do
-        expect(Rails.logger).to receive(:info).with(/Start time is after end time/)
+        expect(Rails.logger).to receive(:warn).with(/Start time is after end time/)
         expect(described_class.parse_maintenance_window).to eq([nil, nil])
       end
     end
@@ -272,7 +272,7 @@ RSpec.describe DfE::Analytics do
       end
 
       it 'logs an error and returns [nil, nil]' do
-        expect(Rails.logger).to receive(:info).with(/Unexpected error/)
+        expect(Rails.logger).to receive(:error).with(/Unexpected error/)
         expect(described_class.parse_maintenance_window).to eq([nil, nil])
       end
     end
