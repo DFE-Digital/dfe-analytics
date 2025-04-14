@@ -102,7 +102,7 @@ module DfE
       if defined?(ActiveRecord)
         setup_entities
       else
-        Rails.logger.info('ActiveRecord not loaded; DfE Analytics will only track web requests.')
+        Rails.logger.info('ActiveRecord not loaded; DfE Analytics will only track non-database requests.')
       end
     end
 
