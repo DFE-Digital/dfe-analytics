@@ -55,7 +55,7 @@ RSpec.describe DfE::Analytics do
     it 'recovers and logs' do
       hide_const('ActiveRecord')
 
-      expect(Rails.logger).to receive(:info).with(/ActiveRecord not loaded; DfE Analytics will only track web requests/)
+      expect(Rails.logger).to receive(:info).with(/ActiveRecord not loaded; DfE Analytics will only track non-database requests./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
