@@ -6,7 +6,7 @@ module DfE
   module Analytics
     class Event
       EVENT_TYPES = %w[
-        web_request create_entity update_entity delete_entity import_entity initialise_analytics entity_table_check import_entity_table_check
+        web_request create_entity update_entity delete_entity import_entity initialise_analytics entity_table_check import_entity_table_check api_request
       ].freeze
 
       def initialize

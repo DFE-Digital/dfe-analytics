@@ -14,12 +14,19 @@ RSpec.describe 'have_been_enqueued_as_analytics_events matcher' do
   end
 
   let(:web_request_event) { DfE::Analytics::Event.new.with_type('web_request') }
+  let(:api_request_event) { DfE::Analytics::Event.new.with_type('api_request') }
   let(:update_entity_event) { DfE::Analytics::Event.new.with_type('update_entity') }
 
-  it 'passes when the given event type was triggered' do
+  it 'passes when the web request event type was triggered' do
     DfE::Analytics::SendEvents.do([web_request_event.as_json])
 
     expect(:web_request).to have_been_enqueued_as_analytics_events
+  end
+
+  it 'passes when the api request event type was triggered' do
+    DfE::Analytics::SendEvents.do([api_request_event.as_json])
+
+    expect(:api_request).to have_been_enqueued_as_analytics_events
   end
 
   it 'accepts multiple event types' do
@@ -49,9 +56,11 @@ RSpec.describe 'have_been_enqueued_as_analytics_events matcher' do
   it 'passes if other analytics events were triggered in addition to the specified analytics type' do
     DfE::Analytics::SendEvents.do([update_entity_event.as_json])
     DfE::Analytics::SendEvents.do([web_request_event.as_json])
+    DfE::Analytics::SendEvents.do([api_request_event.as_json])
 
     expect(:update_entity).to have_been_enqueued_as_analytics_events
     expect(:web_request).to have_been_enqueued_as_analytics_events
+    expect(:api_request).to have_been_enqueued_as_analytics_events
   end
 
   it 'passes if other jobs were triggered in addition to the specified analytics type' do

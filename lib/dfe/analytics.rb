@@ -29,6 +29,7 @@ require 'dfe/analytics/big_query_api'
 require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
 require 'dfe/analytics/transaction_changes'
+require 'dfe/analytics/api_requests'
 
 module DfE
   module Analytics
