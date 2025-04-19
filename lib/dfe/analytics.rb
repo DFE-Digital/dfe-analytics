@@ -12,6 +12,7 @@ require 'dfe/analytics/services/checksum_calculator'
 require 'dfe/analytics/services/generic_checksum_calculator'
 require 'dfe/analytics/services/postgres_checksum_calculator'
 require 'dfe/analytics/shared/service_pattern'
+require 'dfe/analytics/concerns/requestable'
 require 'dfe/analytics/event'
 require 'dfe/analytics/event_matcher'
 require 'dfe/analytics/analytics_job'
@@ -29,6 +30,7 @@ require 'dfe/analytics/big_query_api'
 require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
 require 'dfe/analytics/transaction_changes'
+require 'dfe/analytics/api_requests'
 
 module DfE
   module Analytics
