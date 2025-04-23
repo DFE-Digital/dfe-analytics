@@ -14,12 +14,19 @@ RSpec.describe 'have_sent_analytics_event_types matcher' do
   end
 
   let(:web_request_event) { DfE::Analytics::Event.new.with_type('web_request') }
+  let(:api_request_event) { DfE::Analytics::Event.new.with_type('api_request') }
   let(:update_entity_event) { DfE::Analytics::Event.new.with_type('update_entity') }
 
-  it 'passes when the given event type was triggered' do
+  it 'passes when the web request event type was triggered' do
     expect do
       DfE::Analytics::SendEvents.do([web_request_event.as_json])
     end.to have_sent_analytics_event_types(:web_request)
+  end
+
+  it 'passes when the api request event type was triggered' do
+    expect do
+      DfE::Analytics::SendEvents.do([api_request_event.as_json])
+    end.to have_sent_analytics_event_types(:api_request)
   end
 
   it 'accepts multiple event types' do
@@ -32,7 +39,7 @@ RSpec.describe 'have_sent_analytics_event_types matcher' do
   it 'fails if only one event type has been sent' do
     expect do
       DfE::Analytics::SendEvents.do([update_entity_event.as_json])
-    end.not_to have_sent_analytics_event_types(:web_request, :update_entity)
+    end.not_to have_sent_analytics_event_types(:api_request, :web_request, :update_entity)
   end
 
   it 'fails when no event is triggered' do

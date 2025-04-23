@@ -235,7 +235,7 @@ gem 'dfe-analytics'
 gem 'globalize' require: ['dfe-analytics', 'globalize']
 ```
 
-### 6. Send web request events
+### 6. Send request events
 
 #### Web requests
 
@@ -259,7 +259,29 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-Web request events will try to add a `user_id` to the event data sent to
+#### API requests
+
+Including `DfE::Analytics::ApiRequests` in your `ApiController` will cause
+it and all inheriting controllers to send api request events to BigQuery. (This
+is probably what you want).
+
+```ruby
+class ApiController < ActionController::API
+  include DfE::Analytics::ApiRequests
+
+  # This method MAY be present in your controller, returning
+  # either nil or an object implementing an .id method.
+  #
+  # def current_user; end
+
+  # This method MAY be present in your controller. If so, it should
+  # return a string - return value will be attached to api_request events.
+  #
+  # def current_namespace; end
+end
+```
+
+Request events will try to add a `user_id` to the event data sent to
 BigQuery. The `user_id` will only be populated if the controller defines a
 `current_user` method whose return value responds to `.id`.
 
@@ -270,7 +292,7 @@ user identifier proc can be defined in `config/initializers/dfe_analytics.rb`:
 DfE::Analytics.config.user_identifier = proc { |user| user&.uid }
 ```
 
-You can specify paths that should be excluded from logging using the skip_web_requests configuration option. This is useful for endpoints like health checks that are frequently hit and do not need to be logged.
+You can specify paths that should be excluded from sending request events using the excluded_paths configuration option. This is useful for endpoints like health checks that are frequently hit and do not need to generate an event.
 
 ```ruby
 DfE::Analytics.configure do |config|
