@@ -9,6 +9,7 @@ require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
 require 'dfe/analytics/shared/service_pattern'
+require 'dfe/analytics/concerns/requestable'
 require 'dfe/analytics/event'
 require 'dfe/analytics/event_matcher'
 require 'dfe/analytics/analytics_job'
@@ -25,6 +26,7 @@ require 'dfe/analytics/railtie'
 require 'dfe/analytics/big_query_api'
 require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
+require 'dfe/analytics/api_requests'
 
 module DfE
   module Analytics
