@@ -55,7 +55,7 @@ RSpec.describe DfE::Analytics do
     it 'recovers and logs' do
       hide_const('ActiveRecord')
 
-      expect(Rails.logger).to receive(:error).with(/ActiveRecord not loaded/)
+      expect(Rails.logger).to receive(:info).with(/ActiveRecord not loaded; DfE Analytics will only track non-database requests./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
@@ -328,6 +328,16 @@ RSpec.describe DfE::Analytics do
     it 'does not use disabled model' do
       expect(DfE::Analytics.all_entities_in_application.length).to eq(1)
       expect(DfE::Analytics.all_entities_in_application.first.to_s).to match(/with_model_candidates/)
+    end
+  end
+
+  describe 'when ActiveRecord is not available' do
+    before do
+      hide_const('ActiveRecord')
+    end
+
+    it 'initializes without errors' do
+      expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
 end

@@ -4,13 +4,10 @@ require 'request_store_rails'
 require 'i18n'
 require 'httparty'
 require 'google/cloud/bigquery'
+require 'dfe/analytics/activerecord' if defined?(ActiveRecord)
 require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
-require 'dfe/analytics/services/entity_table_checks'
-require 'dfe/analytics/services/checksum_calculator'
-require 'dfe/analytics/services/generic_checksum_calculator'
-require 'dfe/analytics/services/postgres_checksum_calculator'
 require 'dfe/analytics/shared/service_pattern'
 require 'dfe/analytics/concerns/requestable'
 require 'dfe/analytics/event'
@@ -29,7 +26,6 @@ require 'dfe/analytics/railtie'
 require 'dfe/analytics/big_query_api'
 require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
-require 'dfe/analytics/transaction_changes'
 require 'dfe/analytics/api_requests'
 
 module DfE
@@ -98,12 +94,6 @@ module DfE
     end
 
     def self.initialize!
-      unless defined?(ActiveRecord)
-        # bail if we don't have AR at all
-        Rails.logger.error('ActiveRecord not loaded; DfE Analytics not initialized')
-        return
-      end
-
       unless Rails.env.production? || File.exist?(Rails.root.join('config/initializers/dfe_analytics.rb'))
         message = "Warning: DfE Analytics is not set up. Run: 'bundle exec rails generate dfe:analytics:install'"
         Rails.logger.error(message)
@@ -111,6 +101,14 @@ module DfE
         return
       end
 
+      if defined?(ActiveRecord)
+        setup_entities
+      else
+        Rails.logger.info('ActiveRecord not loaded; DfE Analytics will only track non-database requests.')
+      end
+    end
+
+    def self.setup_entities
       if Rails.version.to_f > 7.1
         ActiveRecord::Base.with_connection do |connection|
           raise ActiveRecord::PendingMigrationError if connection.pool.migration_context.needs_migration?
