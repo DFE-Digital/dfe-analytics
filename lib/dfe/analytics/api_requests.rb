@@ -7,12 +7,14 @@ module DfE
       extend ActiveSupport::Concern
 
       included do
-        after_action :trigger_api_request_event
+        around_action :trigger_api_request_event
       end
 
       include Dfe::Analytics::Concerns::Requestable
 
       def trigger_api_request_event
+        yield # Let the request lifecycle proceed
+      ensure
         trigger_request_event('api_request')
       end
     end
