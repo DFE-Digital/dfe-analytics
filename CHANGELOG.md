@@ -1,8 +1,18 @@
 # Changelog
 
+## [v1.15.6](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.6) (2025-04-30)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.5...v1.15.6)
+
+**Merged pull requests:**
+
+- Ensure API Request events always sent [\#197](https://github.com/DFE-Digital/dfe-analytics/pull/197) ([asatwal](https://github.com/asatwal))
+- Add support for api\_request events [\#196](https://github.com/DFE-Digital/dfe-analytics/pull/196) ([asatwal](https://github.com/asatwal))
+- Make the gem work without ActiveRecord [\#195](https://github.com/DFE-Digital/dfe-analytics/pull/195) ([hrmtl](https://github.com/hrmtl))
+
 ## [v1.15.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.5) (2025-04-07)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.4...v1.15.5)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v.1.15.4...v1.15.5)
 
 **Implemented enhancements:**
 
@@ -11,6 +21,10 @@
 **Merged pull requests:**
 
 - Add link to DfE Analytics terraform docs from setup readme. [\#190](https://github.com/DFE-Digital/dfe-analytics/pull/190) ([asatwal](https://github.com/asatwal))
+
+## [v.1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v.1.15.4) (2025-01-22)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.4...v.1.15.4)
 
 ## [v1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.4) (2025-01-22)
 
