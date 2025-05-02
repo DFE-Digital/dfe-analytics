@@ -453,6 +453,12 @@ be leaked.
 > **NB:** It may be easier to perform these instructions with two browser tabs
 > open, one for BigQuery and the other for IAM
 
+### Terraform Automation
+
+The per project setup for datasets, events table and service accounts should be automated through terraform and this should be the preferred option. See the [dfe analytics terraform documentation](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/dfe_analytics/README.md#create-new-dataset-and-events-table) for instructions on how to do this.
+
+If datasets, events table and service accounts have been setup using terraform, then steps 1, 2, 3 and 4 below can be skipped, otherwise manual setup will be required as described in these steps.
+
 ### 1. Create dataset(s)
 
 Start by creating a dataset.
@@ -523,7 +529,7 @@ With dfe-analytics our strong preference is to use WIF where possible. Where WIF
 
 The diagram below demonstrates our use of WIF within dfe-analytics connecting from an Azure client to BigQuery.
 
-![[azure-gcp-wif.svg]]
+<img src="https://raw.githubusercontent.com/DFE-Digital/dfe-analytics/refs/heads/main/docs/azure-gcp-wif.svg">
 
 The steps below outline how to setup WIF for service accounts using either gcloud shell scripts or gcloud console.
 
@@ -555,7 +561,13 @@ For each project a workload identity pool provider with the name `azure-cip-oidc
 
 If this does not exist then one can be created with either the [create gcp workload identity pool provider](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/create-gcp-workload-identity-pool-provider.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console using the attributes specified in the gcloud script.
 
-### 4. Service account
+### 4. Terraform automation
+
+The per project setup for WIF service accounts, permissions and client credentials should be automated through terraform and this should be the preferred option. See the [dfe analytics terraform documentation](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/dfe_analytics/README.md) for instructions on how to do this.
+
+If WIF has been setup using terraform, then steps 5, 6 and 7 below can be skipped, otherwise manual setup will be required as described in these steps.
+
+### 5. Service account
 
 A service account with the correct permissions on the events table should exist.
 
@@ -563,13 +575,13 @@ If this does not exist then follow the steps above:
 - [Create an appender service account](#3-create-an-appender-service-account)
 - [Give the service account access to your dataset](#3-create-an-appender-service-account)
 
-### 5. Service account permissions for workload identity federation
+### 6. Service account permissions for workload identity federation
 
 The service account defined in step 4 above should be granted access using service account impersonation.
 
 If this does not exist then access can be granted with either the [update wif service account permissions ](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/scripts/gcloud/update-wif-service-account-permissions.sh) gcloud script or from the [IAM](https://console.cloud.google.com/iam-admin/workload-identity-pools/pool/azure-cip-identity-pool) gcloud console, by navigating to the "GRANT ACCESS" window. Use the attributes specified in the gcloud script. Note that the subject must be set to the Managed Identity Object ID from Azure for each environment (see Step 1 above).
 
-### 6. Download the WIF client credentials
+### 7. Download the WIF client credentials
 
 Download the JSON WIF Credentials file and set to following environment variables to the content of this file:
 

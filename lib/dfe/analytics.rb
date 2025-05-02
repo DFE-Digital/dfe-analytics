@@ -4,14 +4,12 @@ require 'request_store_rails'
 require 'i18n'
 require 'httparty'
 require 'google/cloud/bigquery'
+require 'dfe/analytics/activerecord' if defined?(ActiveRecord)
 require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
-require 'dfe/analytics/services/entity_table_checks'
-require 'dfe/analytics/services/checksum_calculator'
-require 'dfe/analytics/services/generic_checksum_calculator'
-require 'dfe/analytics/services/postgres_checksum_calculator'
 require 'dfe/analytics/shared/service_pattern'
+require 'dfe/analytics/concerns/requestable'
 require 'dfe/analytics/event'
 require 'dfe/analytics/event_matcher'
 require 'dfe/analytics/analytics_job'
@@ -28,7 +26,7 @@ require 'dfe/analytics/railtie'
 require 'dfe/analytics/big_query_api'
 require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
-require 'dfe/analytics/transaction_changes'
+require 'dfe/analytics/api_requests'
 
 module DfE
   module Analytics
@@ -96,19 +94,21 @@ module DfE
     end
 
     def self.initialize!
-      unless defined?(ActiveRecord)
-        # bail if we don't have AR at all
-        Rails.logger.info('ActiveRecord not loaded; DfE Analytics not initialized')
-        return
-      end
-
       unless Rails.env.production? || File.exist?(Rails.root.join('config/initializers/dfe_analytics.rb'))
         message = "Warning: DfE Analytics is not set up. Run: 'bundle exec rails generate dfe:analytics:install'"
-        Rails.logger.info(message)
+        Rails.logger.error(message)
         puts message
         return
       end
 
+      if defined?(ActiveRecord)
+        setup_entities
+      else
+        Rails.logger.info('ActiveRecord not loaded; DfE Analytics will only track non-database requests.')
+      end
+    end
+
+    def self.setup_entities
       if Rails.version.to_f > 7.1
         ActiveRecord::Base.with_connection do |connection|
           raise ActiveRecord::PendingMigrationError if connection.pool.migration_context.needs_migration?
@@ -123,7 +123,7 @@ module DfE
         models_for_entity(entity).each do |m|
           m.include(DfE::Analytics::TransactionChanges)
           if m.include?(DfE::Analytics::Entities)
-            Rails.logger.info("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{m.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
+            Rails.logger.warn("DEPRECATION WARNING: DfE::Analytics::Entities was manually included in a model (#{m.name}), but it's included automatically since v1.4. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove the include from model definitions in app/models.")
           else
             m.include(DfE::Analytics::Entities)
             break
@@ -131,9 +131,9 @@ module DfE
         end
       end
     rescue ActiveRecord::PendingMigrationError
-      Rails.logger.info('Database requires migration; DfE Analytics not initialized')
+      Rails.logger.error('Database requires migration; DfE Analytics not initialized')
     rescue ActiveRecord::ActiveRecordError
-      Rails.logger.info('No database connection; DfE Analytics not initialized')
+      Rails.logger.error('No database connection; DfE Analytics not initialized')
     end
 
     def self.enabled?
@@ -276,13 +276,13 @@ module DfE
         end_time = Time.zone.parse(parsed_end_time.to_s)
 
         if start_time > end_time
-          Rails.logger.info('Start time is after end time in maintenance window configuration')
+          Rails.logger.warn('Start time is after end time in maintenance window configuration')
           return [nil, nil]
         end
 
         [start_time, end_time]
       rescue ArgumentError => e
-        Rails.logger.info("DfE::Analytics: Unexpected error in maintenance window configuration: #{e.message}")
+        Rails.logger.error("DfE::Analytics: Unexpected error in maintenance window configuration: #{e.message}")
         [nil, nil]
       end
     end
