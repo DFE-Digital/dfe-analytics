@@ -274,7 +274,6 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
 
     it 'orders records by created_at truncated to milliseconds' do
-      time_base = Time.zone.now.beginning_of_minute
       Candidate.create(email_address: 'first@example.com')
       Candidate.create(email_address: 'second@example.com')
 
