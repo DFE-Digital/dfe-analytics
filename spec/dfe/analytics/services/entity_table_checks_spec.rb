@@ -213,6 +213,29 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
       end
     end
 
+    it 'does not send the event if created_at is greater than checksum_calculated_at' do
+      Candidate.create(id: '123')
+      Candidate.create(id: '124')
+      Candidate.create(id: '125')
+
+      Candidate.update_all(created_at: DateTime.parse(checksum_calculated_at) - 1.hour)
+
+      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(:updated_at).pluck(:id)
+      checksum = Digest::MD5.hexdigest(table_ids.join)
+
+      described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_later)
+        .with([a_hash_including({
+          'data' => [
+            { 'key' => 'row_count', 'value' => [table_ids.size] },
+            { 'key' => 'checksum', 'value' => [checksum] },
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
+            { 'key' => 'order_column', 'value' => [order_column] }
+          ]
+      })])
+    end
+
     it 'returns zero rows and checksum if table is empty' do
       table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(created_at: :asc).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
