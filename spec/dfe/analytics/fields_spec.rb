@@ -11,10 +11,12 @@ RSpec.describe DfE::Analytics::Fields do
 
     let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address] } }
     let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[id] } }
+    let(:existing_airbytelist) { { Candidate.table_name.to_sym => %w[email_address] } }
 
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return(existing_allowlist)
       allow(DfE::Analytics).to receive(:blocklist).and_return(existing_blocklist)
+      allow(DfE::Analytics::AirbyteStreamConfig).to receive(:entity_attributes).and_return(existing_airbytelist)
     end
 
     describe '.allowlist' do
@@ -68,6 +70,34 @@ RSpec.describe DfE::Analytics::Fields do
 
         it 'returns nothing' do
           conflicts = described_class.conflicting_fields
+          expect(conflicts).to be_empty
+        end
+      end
+    end
+
+    describe '.airbyte_conflicting_fields' do
+      context 'when fields conflict' do
+        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address id first_name dob] } }
+        let(:existing_airbytelist) { { Candidate.table_name.to_sym => %w[email_address first_name] } }
+
+        it 'returns the conflicting fields' do
+          conflicts = described_class.airbyte_conflicting_fields
+          expect(conflicts[Candidate.table_name.to_sym]).to eq(%w[id dob])
+        end
+
+        describe '.check!' do
+          it 'raises an error' do
+            expect { DfE::Analytics::Fields.check! }.to raise_error(DfE::Analytics::ConfigurationError, /Conflict detected/)
+          end
+        end
+      end
+
+      context 'when there are no conflicts' do
+        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[id email_address] } }
+        let(:existing_airbytelist) { { Candidate.table_name.to_sym => %w[email_address id] } }
+
+        it 'returns nothing' do
+          conflicts = described_class.airbyte_conflicting_fields
           expect(conflicts).to be_empty
         end
       end

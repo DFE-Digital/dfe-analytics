@@ -45,6 +45,20 @@ module DfE
           HEREDOC
         end
 
+        if DfE::Analytics.airbyte_enabled? && airbyte_conflicting_fields.any?
+          errors << <<~HEREDOC
+            Differences detected between analytics.yml and #{File.basename(DfE::Analytics.config.airbyte_stream_config_path)}!
+
+            The following field differences exist. To upgrade the airbyte stream config, run:
+
+            bundle exec rails dfe:analytics:regenerate_airbyte_stream_config
+
+            Field Differences:
+
+            #{airbyte_conflicting_fields.to_yaml}
+          HEREDOC
+        end
+
         configuration_errors = errors.join("\n\n----------------\n\n")
 
         raise(ConfigurationError, configuration_errors) if errors.any?
@@ -86,6 +100,13 @@ module DfE
 
       def self.conflicting_fields
         diff_between(allowlist, diff_between(allowlist, blocklist))
+      end
+
+      def self.airbyte_conflicting_fields
+        diff_between(
+          allowlist.transform_values(&:uniq),
+          DfE::Analytics::AirbyteStreamConfig.entity_attributes
+        )
       end
 
       # extract and concatenate the fields associated with an entity in 1 or

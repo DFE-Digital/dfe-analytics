@@ -55,7 +55,20 @@ RSpec.describe DfE::Analytics do
     it 'recovers and logs' do
       hide_const('ActiveRecord')
 
-      expect(Rails.logger).to receive(:info).with(/ActiveRecord not loaded; DfE Analytics will only track non-database requests./)
+      expect(Rails.logger)
+        .to receive(:info)
+        .with(/ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events./)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
+
+  describe 'when database events are not enabled' do
+    before { allow(described_class.config).to receive(:database_events_enabled).and_return(false) }
+
+    it 'does not setup database entities and logs' do
+      expect(Rails.logger)
+        .to receive(:info)
+        .with(/ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
