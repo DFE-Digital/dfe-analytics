@@ -27,6 +27,7 @@ require 'dfe/analytics/big_query_api'
 require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
 require 'dfe/analytics/api_requests'
+require 'dfe/analytics/airbyte_stream_config'
 
 module DfE
   module Analytics
@@ -57,6 +58,9 @@ module DfE
         google_cloud_credentials
         excluded_paths
         excluded_models_proc
+        database_events_enabled
+        airbyte_enabled
+        airbyte_stream_config_path
       ]
 
       @config ||= Struct.new(*configurables).new
@@ -83,6 +87,10 @@ module DfE
       config.azure_federated_auth             ||= false
       config.excluded_paths                   ||= []
       config.excluded_models_proc             ||= proc { |_model| false }
+      config.database_events_enabled          ||= true
+      config.airbyte_enabled                  ||= false
+
+      config.airbyte_stream_config_path = File.join(Rails.root, config.airbyte_stream_config_path) if config.airbyte_stream_config_path.present?
 
       return unless config.azure_federated_auth
 
@@ -101,10 +109,10 @@ module DfE
         return
       end
 
-      if defined?(ActiveRecord)
+      if defined?(ActiveRecord) && database_events_enabled?
         setup_entities
       else
-        Rails.logger.info('ActiveRecord not loaded; DfE Analytics will only track non-database requests.')
+        Rails.logger.info('ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events.')
       end
     end
 
@@ -162,6 +170,12 @@ module DfE
 
     def self.event_debug_filters
       Rails.application.config_for(:analytics_event_debug)
+    rescue RuntimeError
+      {}
+    end
+
+    def self.airbyte_stream_config
+      JSON.parse(File.read(DfE::Analytics.config.airbyte_stream_config_path)).deep_symbolize_keys
     rescue RuntimeError
       {}
     end
@@ -262,6 +276,14 @@ module DfE
 
     def self.entity_table_checks_enabled?
       config.entity_table_checks_enabled
+    end
+
+    def self.database_events_enabled?
+      config.database_events_enabled
+    end
+
+    def self.airbyte_enabled?
+      config.airbyte_enabled
     end
 
     def self.parse_maintenance_window

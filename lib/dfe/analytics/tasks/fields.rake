@@ -12,5 +12,13 @@ namespace :dfe do
         { shared: DfE::Analytics::Fields.generate_blocklist }.to_yaml
       )
     end
+
+    desc 'Generate a new airbyte stream config listing all fields to be send to Bigquery from analytics.yml'
+    task regenerate_airbyte_stream_config: :environment do
+      File.write(
+        DfE::Analytics.config.airbyte_stream_config_path,
+        DfE::Analytics::AirbyteStreamConfig.generate_for(DfE::Analytics.allowlist)
+      )
+    end
   end
 end

@@ -101,3 +101,15 @@ en:
             it wont be used by the application. Eg: proc { |x| x.to_s =~ /Namespace::/ } will exclude all
             models namespaced with Namespace
           default: proc { |_model| false }
+        database_events_enabled:
+          description: |
+            Whether to send database events
+          default: true
+        airbyte_enabled:
+          description: |
+            Perform airbyte checks on startup and allow airbyte config generation
+          default: false
+        airbyte_stream_config_path:
+          description: |
+            Path of airbyte stream config file relative to the App root (Rails.root)
+          default: /terraform/aks/workspace-variables/airbyte_streams.json
