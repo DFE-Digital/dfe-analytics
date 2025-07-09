@@ -67,11 +67,11 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
         expect(stream['name']).to eq('users')
         expect(stream['primaryKey']).to eq([['id']])
         expect(stream['selectedFields']).to match_array([
-          { 'fieldPath' => ['_ab_cdc_lsn'] },
-          { 'fieldPath' => ['id'] },
-          { 'fieldPath' => ['name'] },
-          { 'fieldPath' => ['email'] }
-        ])
+                                                          { 'fieldPath' => ['_ab_cdc_lsn'] },
+                                                          { 'fieldPath' => ['id'] },
+                                                          { 'fieldPath' => ['name'] },
+                                                          { 'fieldPath' => ['email'] }
+                                                        ])
       end
     end
 
@@ -131,4 +131,3 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
     end
   end
 end
-
