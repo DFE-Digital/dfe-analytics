@@ -39,6 +39,10 @@ RSpec.describe DfE::Analytics::Config do
         allow(ENV).to receive(:fetch).with('BIGQUERY_API_JSON_KEY', nil).and_return(nil)
         allow(ENV).to receive(:fetch).with('BIGQUERY_MAINTENANCE_WINDOW', nil).and_return(nil)
         allow(ENV).to receive(:fetch).with('RAILS_ENV', 'development').and_return('test')
+        allow(ENV).to receive(:fetch).with('AIRBYTE_CLIENT_ID', nil).and_return('my_client_id')
+        allow(ENV).to receive(:fetch).with('AIRBYTE_CLIENT_SECRET', nil).and_return('my_client_secret')
+        allow(ENV).to receive(:fetch).with('AIRBYTE_SERVER_URL', nil).and_return('my_server_url')
+        allow(ENV).to receive(:fetch).with('AIRBYTE_WORKSPACE_ID', nil).and_return('my_workspace_id')
 
         # Azure-related ENV values
         allow(ENV).to receive(:fetch).with('AZURE_CLIENT_ID', nil).and_return('client-123')
