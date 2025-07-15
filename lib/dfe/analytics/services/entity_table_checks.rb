@@ -59,7 +59,7 @@ module DfE
 
         def order_column_exposed_for_entity?(entity_name, columns)
           return false if columns.nil?
-          return true if columns.any? { |column| %w[updated_at created_at id].include?(column) }
+          return true if columns.any? { |column| %w[created_at id].include?(column) }
 
           Rails.logger.info("DfE::Analytics Processing entity: Order columns missing in analytics.yml for #{entity_name} - Skipping checks")
 
@@ -67,9 +67,7 @@ module DfE
         end
 
         def determine_order_column(entity_name, columns)
-          if connection.column_exists?(entity_name, :updated_at) && columns.include?('updated_at') && !null_values_in_column?('updated_at')
-            'UPDATED_AT'
-          elsif connection.column_exists?(entity_name, :created_at) && columns.include?('created_at') && !null_values_in_column?('created_at')
+          if connection.column_exists?(entity_name, :created_at) && columns.include?('created_at') && !null_values_in_column?('created_at')
             'CREATED_AT'
           elsif connection.column_exists?(entity_name, :id) && columns.include?('id')
             'ID'

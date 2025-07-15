@@ -8,8 +8,6 @@ module DfE
       class PostgresChecksumCalculator
         include ServicePattern
 
-        WHERE_CLAUSE_ORDER_COLUMNS = %w[CREATED_AT UPDATED_AT].freeze
-
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity
           @order_column = order_column
@@ -50,13 +48,13 @@ module DfE
 
         def build_select_and_order_clause(order_column, table_name_sanitized)
           order_alias = case order_column
-                        when 'UPDATED_AT', 'CREATED_AT'
+                        when 'CREATED_AT'
                           "#{order_column.downcase}_alias"
                         else
                           'id_alias'
                         end
           select_clause = case order_column
-                          when 'UPDATED_AT', 'CREATED_AT'
+                          when 'CREATED_AT'
                             "DATE_TRUNC('milliseconds', #{table_name_sanitized}.#{order_column.downcase}) AS \"#{order_alias}\""
                           else
                             "#{table_name_sanitized}.id::TEXT AS \"#{order_alias}\""
@@ -65,9 +63,9 @@ module DfE
         end
 
         def build_where_clause(order_column, table_name_sanitized, checksum_calculated_at_sanitized)
-          return '' unless WHERE_CLAUSE_ORDER_COLUMNS.map(&:downcase).include?(order_column.downcase)
+          return '' unless order_column.downcase == 'created_at'
 
-          # Add IS NULL to include records with null updated_at / created_at values
+          # Add IS NULL to include records with null created_at values
           "WHERE (#{table_name_sanitized}.#{order_column.downcase} IS NULL OR DATE_TRUNC('milliseconds', #{table_name_sanitized}.#{order_column.downcase}) < DATE_TRUNC('milliseconds', #{checksum_calculated_at_sanitized}::timestamp))"
         end
       end
