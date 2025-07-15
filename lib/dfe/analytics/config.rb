@@ -31,6 +31,10 @@ module DfE
         database_events_enabled
         airbyte_enabled
         airbyte_stream_config_path
+        airbyte_client_id
+        airbyte_client_secret
+        airbyte_server_url
+        airbyte_workspace_id
       ].freeze
 
       def self.params
@@ -58,6 +62,10 @@ module DfE
         config.excluded_models_proc             ||= proc { |_model| false }
         config.database_events_enabled          ||= true
         config.airbyte_enabled                  ||= false
+        config.airbyte_client_id                ||= ENV.fetch('AIRBYTE_CLIENT_ID', nil)
+        config.airbyte_client_secret            ||= ENV.fetch('AIRBYTE_CLIENT_SECRET', nil)
+        config.airbyte_server_url               ||= ENV.fetch('AIRBYTE_SERVER_URL', nil)
+        config.airbyte_workspace_id             ||= ENV.fetch('AIRBYTE_WORKSPACE_ID', nil)
 
         config.airbyte_stream_config_path = File.join(Rails.root, config.airbyte_stream_config_path) if config.airbyte_stream_config_path.present?
 
