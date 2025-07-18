@@ -1,0 +1,5 @@
+require 'services/airbyte/access_token'
+require 'services/airbyte/connection_list'
+require 'services/airbyte/discover_schema'
+require 'services/airbyte/connection_update'
+require 'services/airbyte/connection_refresh'
