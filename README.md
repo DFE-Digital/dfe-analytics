@@ -550,6 +550,22 @@ end
 
 Please note that page caching is project specific and each project must carefully consider how pages are cached and whether web request events are sent. If page caching on your project results in web request events not being sent, and the above does not resolve the issue, then please get in touch with the data insights team though slack.
 
+## Data health import issues
+
+1. Avoid the use of default scopes, used named scopes if possible. Otherwise the import task will not  catch unscoped entities
+2. If delete events do not occur at model-level, the after_commit callbacks we use will not be activated.
+E.g. manual deletes in rails console, or relying on a ON DELETE CASCADE in database schema.
+```
+# db/schema.rb
+
+add_foreign_key "adviser_sign_up_requests", "application_forms", on_delete: :cascade
+```
+3. We need correctly modelled `dependent: :destroy` application logic in model associations to ensure accurate delete_events are sent.
+4. Use `model.destroy` and `destroy_all` instead of `model.delete` and `delete_all` for deletions.
+5. Classes derived from the Notice gem, e.g. noticed_notifications should be in the blocklist unless specifically required.
+6. Destroying ActiveStorage blobs and attachments may not be recorderd if the owner model has been `dup`ed, i.e. shallow copied without creating a new attachment. Routine imports will be needed in this case.
+7. Nested transactions may create more than one instance that references the same database object. In this case we will only catch the callback associated with the first instance.
+8. We have noticed unexpected behaviour with update_events when using the `event` block with the `aasm` gem - under low priority investigation.
 
 ## Contributing
 
