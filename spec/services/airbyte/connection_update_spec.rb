@@ -59,7 +59,7 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     end
 
     it 'calls the Airbyte API and returns parsed response' do
-      result = described_class.call( access_token:, connection_id:, allowed_list:, discovered_schema:)
+      result = described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
 
       expect(result).to eq({ 'status' => 'ok' })
 
@@ -80,7 +80,7 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
         expect(Rails.logger).to receive(:error).with(/Stream definition not found/)
 
         expect do
-          described_class.call( access_token:, connection_id:, allowed_list:, discovered_schema:)
+          described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
         end.to raise_error(Services::Airbyte::ConnectionUpdate::Error)
       end
     end
@@ -99,7 +99,7 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
         expect(Rails.logger).to receive(:error).with(/Error calling Airbyte discover_schema API/)
 
         expect do
-          described_class.call( access_token:, connection_id:, allowed_list:, discovered_schema:)
+          described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
         end.to raise_error(Services::Airbyte::ConnectionUpdate::Error)
       end
     end

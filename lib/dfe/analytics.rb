@@ -29,6 +29,7 @@ require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
 require 'dfe/analytics/api_requests'
 require 'dfe/analytics/airbyte_stream_config'
+require 'dfe/analytics/big_query_apply_policy_tags'
 require 'services/airbyte'
 
 module DfE

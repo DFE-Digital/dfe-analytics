@@ -67,10 +67,13 @@ RSpec.configure do |config|
 
   include DfE::Analytics::Testing::Helpers
 
+  # Include Rails time helpers globally
+  config.include ActiveSupport::Testing::TimeHelpers
+
   config.before do
     DfE::Analytics.instance_variable_set(:@entity_model_mapping, nil)
     DfE::Analytics::BigQueryLegacyApi.instance_variable_set(:@events_client, nil)
-    DfE::Analytics::BigQueryApi.instance_variable_set(:@events_client, nil)
+    DfE::Analytics::BigQueryApi.instance_variable_set(:@client, nil)
     DfE::Analytics::AzureFederatedAuth.instance_variable_set(:@gcp_client_credentials, nil)
   end
 

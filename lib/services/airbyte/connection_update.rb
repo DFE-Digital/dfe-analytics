@@ -71,7 +71,7 @@ module Services
                   supportedSyncModes: discovered_stream.dig('stream', 'supportedSyncModes'),
                   defaultCursorField: discovered_stream.dig('stream', 'defaultCursorField'),
                   sourceDefinedCursor: discovered_stream.dig('stream', 'sourceDefinedCursor'),
-                  sourceDefinedPrimaryKey: discovered_stream.dig('stream', 'sourceDefinedPrimaryKey'),
+                  sourceDefinedPrimaryKey: discovered_stream.dig('stream', 'sourceDefinedPrimaryKey')
                 },
                 config: {
                   syncMode: discovered_stream.dig('config', 'syncMode') || SYNC_MODE,

@@ -11,7 +11,9 @@ module DfE
         bigquery_table_name
         bigquery_project_id
         bigquery_dataset
+        bigquery_airbyte_dataset
         bigquery_api_json_key
+        bigquery_hidden_policy_tag
         bigquery_retries
         bigquery_timeout
         enable_analytics
@@ -46,7 +48,9 @@ module DfE
         config.bigquery_table_name              ||= ENV.fetch('BIGQUERY_TABLE_NAME', nil)
         config.bigquery_project_id              ||= ENV.fetch('BIGQUERY_PROJECT_ID', nil)
         config.bigquery_dataset                 ||= ENV.fetch('BIGQUERY_DATASET', nil)
+        config.bigquery_airbyte_dataset         ||= ENV.fetch('BIGQUERY_AIRBYTE_DATASET', nil)
         config.bigquery_api_json_key            ||= ENV.fetch('BIGQUERY_API_JSON_KEY', nil)
+        config.bigquery_hidden_policy_tag       ||= ENV.fetch('BIGQUERY_HIDDEN_POLICY_TAG', nil)
         config.bigquery_retries                 ||= 3
         config.bigquery_timeout                 ||= 120
         config.environment                      ||= ENV.fetch('RAILS_ENV', 'development')
@@ -77,6 +81,14 @@ module DfE
         config.azure_scope              ||= DfE::Analytics::AzureFederatedAuth::DEFAULT_AZURE_SCOPE
         config.gcp_scope                ||= DfE::Analytics::AzureFederatedAuth::DEFAULT_GCP_SCOPE
       end
+
+      def self.check_missing_config!(config)
+        missing_config = config.select { |val| DfE::Analytics.config.send(val).blank? }
+
+        raise(ConfigurationError, "DfE::Analytics: missing required config values: #{missing_config.join(', ')}") if missing_config.any?
+      end
+
+      class ConfigurationError < StandardError; end
     end
   end
 end

@@ -9,27 +9,31 @@ module DfE
       RETRY_INITIAL_BASE_INTERVAL = 15
       RETRY_MAX_INTERVAL = 60
       RETRY_INTERVAL_MULTIPLIER = 2
+      BIGQUERY_MANDATORY_CONFIG = %i[
+        bigquery_project_id
+        bigquery_table_name
+        bigquery_dataset
+        azure_client_id
+        azure_token_path
+        azure_scope
+        gcp_scope
+        google_cloud_credentials
+      ].freeze
+      BIGQUERY_AIRBYTE_MANDATORY_CONFIG = %i[
+        bigquery_airbyte_dataset
+        bigquery_hidden_policy_tag
+      ].freeze
 
-      def self.events_client
-        @events_client ||= begin
-          missing_config = %i[
-            bigquery_project_id
-            bigquery_table_name
-            bigquery_dataset
-            azure_client_id
-            azure_token_path
-            azure_scope
-            gcp_scope
-            google_cloud_credentials
-          ].select { |val| DfE::Analytics.config.send(val).blank? }
-
-          raise(ConfigurationError, "DfE::Analytics: missing required config values: #{missing_config.join(', ')}") if missing_config.any?
+      def self.client
+        @client ||= begin
+          DfE::Analytics::Config.check_missing_config!(BIGQUERY_MANDATORY_CONFIG)
+          DfE::Analytics::Config.check_missing_config!(BIGQUERY_AIRBYTE_MANDATORY_CONFIG) if DfE::Analytics.airbyte_enabled?
 
           Google::Apis::BigqueryV2::BigqueryService.new
         end
 
-        @events_client.authorization = DfE::Analytics::AzureFederatedAuth.gcp_client_credentials
-        @events_client
+        @client.authorization = DfE::Analytics::AzureFederatedAuth.gcp_client_credentials
+        @client
       end
 
       def self.insert(events)
@@ -37,7 +41,7 @@ module DfE
         data_request    = Google::Apis::BigqueryV2::InsertAllTableDataRequest.new(rows: rows, skip_invalid_rows: true)
         options         = Google::Apis::RequestOptions.default
 
-        options.authorization    = events_client.authorization
+        options.authorization    = client.authorization
         options.retries          = DfE::Analytics.config.bigquery_retries
         options.max_elapsed_time = ALL_RETRIES_MAX_ELASPED_TIME
         options.base_interval    = RETRY_INITIAL_BASE_INTERVAL
@@ -45,7 +49,7 @@ module DfE
         options.multiplier       = RETRY_INTERVAL_MULTIPLIER
 
         response =
-          events_client.insert_all_table_data(
+          client.insert_all_table_data(
             DfE::Analytics.config.bigquery_project_id,
             DfE::Analytics.config.bigquery_dataset,
             DfE::Analytics.config.bigquery_table_name,
@@ -77,8 +81,46 @@ module DfE
         "DfE::Analytics BigQuery API insert error for #{response.insert_errors.length} event(s):\n#{message}"
       end
 
-      class ConfigurationError < StandardError; end
+      def self.apply_policy_tags(tables, policy_tag)
+        tables.each do |table_name, column_names|
+          begin
+            table = client.get_table(
+              DfE::Analytics.config.bigquery_project_id,
+              DfE::Analytics.config.bigquery_airbyte_dataset,
+              table_name.to_s
+            )
+          rescue Google::Apis::ClientError => e
+            error_message = "DfE::Analytics Failed to retrieve table: #{table_name}: #{e.message}"
+            Rails.logger.error(error_message)
+            raise PolicyTagError, error_message
+          end
+
+          updated_fields = table.schema.fields.map do |field|
+            field.policy_tags = Google::Apis::BigqueryV2::TableFieldSchema::PolicyTags.new(names: [policy_tag]) if column_names.include?(field.name)
+            field
+          end
+
+          new_schema = Google::Apis::BigqueryV2::TableSchema.new(fields: updated_fields)
+          updated_table = Google::Apis::BigqueryV2::Table.new(schema: new_schema)
+
+          begin
+            client.patch_table(
+              DfE::Analytics.config.bigquery_project_id,
+              DfE::Analytics.config.bigquery_airbyte_dataset,
+              table_name.to_s,
+              updated_table,
+              fields: 'schema'
+            )
+          rescue Google::Apis::ClientError => e
+            error_message = "DfE::Analytics  Failed to update table: #{table_name}: #{e.message}"
+            Rails.logger.error(error_message)
+            raise PolicyTagError, error_message
+          end
+        end
+      end
+
       class SendEventsError < StandardError; end
+      class PolicyTagError < StandardError; end
     end
   end
 end

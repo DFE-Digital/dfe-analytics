@@ -36,7 +36,9 @@ RSpec.describe DfE::Analytics::Config do
         allow(ENV).to receive(:fetch).with('BIGQUERY_TABLE_NAME', nil).and_return('my_table')
         allow(ENV).to receive(:fetch).with('BIGQUERY_PROJECT_ID', nil).and_return('my_project')
         allow(ENV).to receive(:fetch).with('BIGQUERY_DATASET', nil).and_return('my_dataset')
+        allow(ENV).to receive(:fetch).with('BIGQUERY_AIRBYTE_DATASET', nil).and_return('my_airbyte_dataset')
         allow(ENV).to receive(:fetch).with('BIGQUERY_API_JSON_KEY', nil).and_return(nil)
+        allow(ENV).to receive(:fetch).with('BIGQUERY_HIDDEN_POLICY_TAG', nil).and_return('my_policy_tag')
         allow(ENV).to receive(:fetch).with('BIGQUERY_MAINTENANCE_WINDOW', nil).and_return(nil)
         allow(ENV).to receive(:fetch).with('RAILS_ENV', 'development').and_return('test')
         allow(ENV).to receive(:fetch).with('AIRBYTE_CLIENT_ID', nil).and_return('my_client_id')
@@ -70,6 +72,37 @@ RSpec.describe DfE::Analytics::Config do
 
       it 'resolves the full path from Rails.root' do
         expect(config.airbyte_stream_config_path).to eq(Rails.root.join('config/airbyte.json').to_s)
+      end
+    end
+  end
+
+  describe '.check_missing_config!' do
+    let(:config_keys) { %i[foo bar baz] }
+
+    before do
+      allow(DfE::Analytics.config).to receive(:foo).and_return('value')
+      allow(DfE::Analytics.config).to receive(:bar).and_return(nil)
+      allow(DfE::Analytics.config).to receive(:baz).and_return('')
+    end
+
+    context 'when all required config values are present' do
+      before do
+        allow(DfE::Analytics.config).to receive(:bar).and_return('present')
+        allow(DfE::Analytics.config).to receive(:baz).and_return('also_present')
+      end
+
+      it 'does not raise an error' do
+        expect do
+          described_class.check_missing_config!(config_keys)
+        end.not_to raise_error
+      end
+    end
+
+    context 'when some config values are missing' do
+      it 'raises ConfigurationError with the missing keys' do
+        expect do
+          described_class.check_missing_config!(config_keys)
+        end.to raise_error(DfE::Analytics::Config::ConfigurationError, /missing required config values: bar, baz/)
       end
     end
   end
