@@ -2,7 +2,7 @@
 
 module Services
   module Airbyte
-    # Fetches the the current schema for given sourec - Also reloads cache
+    # Fetches the the current schema for given source - Also reloads cache
     class DiscoverSchema
       class Error < StandardError; end
 

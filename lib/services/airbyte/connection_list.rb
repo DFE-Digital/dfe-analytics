@@ -2,7 +2,7 @@
 
 module Services
   module Airbyte
-    # Fetches the connection info for given worksapce - Assumes single connection
+    # Fetches the connection info for given workspace - Assumes single connection
     class ConnectionList
       class Error < StandardError; end
 
