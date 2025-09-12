@@ -4,10 +4,11 @@ module Services
   module Airbyte
     # Fetches the the current schema for given source - Also reloads cache
     class ConnectionUpdate
-      CURSOR_FIELD = '_ab_cdc_lsn'
+      CURSOR_FIELD = %w[_ab_cdc_lsn].freeze
+      AIRBYTE_FIELDS = %w[_ab_cdc_deleted_at _ab_cdc_updated_at].freeze
       DEFAULT_PRIMARY_KEY = 'id'
       SYNC_MODE = 'incremental'
-      DESTINATION_SYNC_MODE = 'append_dedup'
+      DESTINATION_SYNC_MODE = 'append'
 
       class Error < StandardError; end
 
@@ -74,14 +75,14 @@ module Services
                   sourceDefinedPrimaryKey: discovered_stream.dig('stream', 'sourceDefinedPrimaryKey')
                 },
                 config: {
-                  syncMode: discovered_stream.dig('config', 'syncMode') || SYNC_MODE,
-                  destinationSyncMode: discovered_stream.dig('config', 'destinationSyncMode') || DESTINATION_SYNC_MODE,
-                  cursorField: discovered_stream.dig('config', 'cursorField') || [CURSOR_FIELD],
+                  syncMode: SYNC_MODE,
+                  destinationSyncMode: DESTINATION_SYNC_MODE,
+                  cursorField: discovered_stream.dig('config', 'cursorField') || CURSOR_FIELD,
                   primaryKey: discovered_stream.dig('config', 'primaryKey') || [[DEFAULT_PRIMARY_KEY]],
                   aliasName: stream_name.to_s,
                   selected: true,
                   fieldSelectionEnabled: true,
-                  selectedFields: ([CURSOR_FIELD] + fields).uniq.map { |f| { fieldPath: [f] } }
+                  selectedFields: (CURSOR_FIELD + AIRBYTE_FIELDS + fields).uniq.map { |f| { fieldPath: [f] } }
                 }
               }
             end

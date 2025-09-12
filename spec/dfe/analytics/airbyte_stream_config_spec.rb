@@ -17,6 +17,8 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
                 name: 'users',
                 selectedFields: [
                   { fieldPath: ['_ab_cdc_lsn'] },
+                  { fieldPath: ['_ab_cdc_updated_at'] },
+                  { fieldPath: ['_ab_cdc_deleted_at'] },
                   { fieldPath: ['email'] },
                   { fieldPath: ['name'] }
                 ]
@@ -68,6 +70,8 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
         expect(stream['primaryKey']).to eq([['id']])
         expect(stream['selectedFields']).to match_array([
                                                           { 'fieldPath' => ['_ab_cdc_lsn'] },
+                                                          { 'fieldPath' => ['_ab_cdc_updated_at'] },
+                                                          { 'fieldPath' => ['_ab_cdc_deleted_at'] },
                                                           { 'fieldPath' => ['id'] },
                                                           { 'fieldPath' => ['name'] },
                                                           { 'fieldPath' => ['email'] }
@@ -103,6 +107,8 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
                 name: 'schools',
                 selectedFields: [
                   { fieldPath: ['_ab_cdc_lsn'] },
+                  { fieldPath: ['_ab_cdc_updated_at'] },
+                  { fieldPath: ['_ab_cdc_deleted_at'] },
                   { fieldPath: ['urn'] },
                   { fieldPath: ['name'] }
                 ]
@@ -111,6 +117,8 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
                 name: 'teachers',
                 selectedFields: [
                   { fieldPath: ['_ab_cdc_lsn'] },
+                  { fieldPath: ['_ab_cdc_updated_at'] },
+                  { fieldPath: ['_ab_cdc_deleted_at'] },
                   { fieldPath: ['trn'] },
                   { fieldPath: ['dob'] }
                 ]

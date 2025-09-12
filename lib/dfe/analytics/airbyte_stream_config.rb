@@ -4,9 +4,10 @@ module DfE
   module Analytics
     # Airbyte stream config generator
     class AirbyteStreamConfig
-      CURSOR_FIELD = '_ab_cdc_lsn'
+      CURSOR_FIELD = %w[_ab_cdc_lsn].freeze
+      AIRBYTE_FIELDS = %w[_ab_cdc_deleted_at _ab_cdc_updated_at].freeze
       DEFAULT_PRIMARY_KEY = 'id'
-      SYNC_MODE = 'incremental_deduped_history'
+      SYNC_MODE = 'incremental'
 
       def self.config
         JSON.parse(File.read(DfE::Analytics.config.airbyte_stream_config_path)).deep_symbolize_keys
@@ -27,7 +28,7 @@ module DfE
         config[:configurations][:streams].each_with_object({}) do |stream, memo|
           stream_name = stream[:name]
           fields = stream[:selectedFields].map { |field| field[:fieldPath].first }
-          memo[stream_name] = fields - [CURSOR_FIELD]
+          memo[stream_name] = fields - CURSOR_FIELD - AIRBYTE_FIELDS
         end.deep_symbolize_keys
       end
 
@@ -41,9 +42,9 @@ module DfE
         {
           name: entity,
           syncMode: SYNC_MODE,
-          cursorField: [CURSOR_FIELD],
+          cursorField: CURSOR_FIELD,
           primaryKey: [[primary_key_for(attributes)]],
-          selectedFields: ([CURSOR_FIELD] + attributes).uniq.map { |attribute| { fieldPath: [attribute] } }
+          selectedFields: (CURSOR_FIELD + AIRBYTE_FIELDS + attributes).uniq.map { |attribute| { fieldPath: [attribute] } }
         }
       end
 

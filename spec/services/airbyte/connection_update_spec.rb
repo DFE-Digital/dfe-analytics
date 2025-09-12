@@ -24,7 +24,7 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
             },
             'config' => {
               'syncMode' => 'incremental',
-              'destinationSyncMode' => 'append_dedup',
+              'destinationSyncMode' => 'append',
               'cursorField' => ['_ab_cdc_lsn'],
               'primaryKey' => [['id']]
             }
@@ -101,6 +101,36 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
         expect do
           described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
         end.to raise_error(Services::Airbyte::ConnectionUpdate::Error)
+      end
+    end
+
+    it 'sends the correct connection update payload structure' do
+      described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
+
+      expect(HTTParty).to have_received(:post) do |url, options|
+        expect(url).to eq('https://fake.airbyte.api/api/v1/connections/update')
+
+        payload = JSON.parse(options[:body])
+
+        expect(payload['connectionId']).to eq(connection_id)
+        expect(payload['syncCatalog']).to be_a(Hash)
+        expect(payload['syncCatalog']['streams'].size).to eq(1)
+
+        stream = payload['syncCatalog']['streams'].first
+
+        expect(stream['stream']['name']).to eq('academic_cycles')
+        expect(stream['stream']['namespace']).to eq('public')
+        expect(stream['config']['syncMode']).to eq('incremental')
+        expect(stream['config']['destinationSyncMode']).to eq('append')
+        expect(stream['config']['cursorField']).to eq(['_ab_cdc_lsn'])
+        expect(stream['config']['primaryKey']).to eq([['id']])
+
+        expected_selected_fields = %w[
+          _ab_cdc_lsn _ab_cdc_deleted_at _ab_cdc_updated_at
+          created_at end_date id start_date updated_at
+        ].map { |f| { 'fieldPath' => [f] } }
+
+        expect(stream['config']['selectedFields']).to match_array(expected_selected_fields)
       end
     end
   end
