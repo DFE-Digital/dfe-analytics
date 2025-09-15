@@ -81,6 +81,7 @@ We require the following datasets for the Airbyte setup.
 1. A dataset for the internal airbyte raw tables with fixed name: `airbyte_internal`
     - One required per BigQuery project
 	- The expiry on the table should be set to 1 day
+	- Encryption should be changed to the project Cloud KMS Key
 	- The GCP Service account used by Airbyte should have permissions below on this dataset:
 	  `BigQuery Data Owner`
 	  `Data Catalog Admin`
@@ -89,6 +90,7 @@ We require the following datasets for the Airbyte setup.
    `<service_name>_airbyte_<environment>` Eg. `register_airbyte_qa`
 	- One required per service
 	- An expiry should NOT be set
+	- Encryption should be changed to the project Cloud KMS Key
 	- The GCP Service account used by Airbyte should have permissions below on this dataset:
 	  `BigQuery Data Owner`
 	  `Data Catalog Admin`	  
@@ -157,7 +159,23 @@ Download the JSON WIF Credentials file either the  [create wif client credential
 
 In the JSON WIF Credentials file, set the credential source to the [dfe-azure-access-token](https://github.com/DFE-Digital/dfe-azure-access-token) API endpoint. These credentials can then be used to set the Service Account Key JSON in the airbyte destination connector.
 
-SD DevOps create and configure the JSON WIF Credentials file through terraform configuration. 
+SD DevOps create and configure the JSON WIF Credentials file through terraform configuration.
+
+## Migration from DfE Analytics database events to Airbyte
+
+Migration of sending events from DfE Analytics to Airbyte will be done in several phases.
+
+The first phase will focus on migrating the database create, update and delete events from being sent  as events to database replication using Airbyte. Subsequent phase will focus on  the mechanism used to send Web request events, API request events, Custom events from being emitted using queueing to database replication of an `events` database table.
+
+A more detailed document on the migration can be in the [Data Ingestion Migration Plan](https://educationgovuk-my.sharepoint.com.mcas.ms/:w:/r/personal/elizabeth_karina_education_gov_uk/_layouts/15/doc2.aspx?sourcedoc=%7BBDF5AF1F-443C-4FC0-AD10-D5CB87444714%7D&file=Data%20Ingestion%20Migration%20Plan.docx&action=default&mobileredirect=true&ovuser=fad277c9-c60a-4da1-b5f3-b3b8b34a82f9%2CAmarjit.SINGH-ATWAL%40EDUCATION.GOV.UK&clickparams=eyJBcHBOYW1lIjoiVGVhbXMtRGVza3RvcCIsIkFwcFZlcnNpb24iOiIxNDE1LzI1MDgxNTAwNzE3IiwiSGFzRmVkZXJhdGVkVXNlciI6ZmFsc2V9).
+
+In summary the first phase of the migration will focus on the following:
+- Designing and implementing dual-running for DfE::Analytics and Airbyte for database events
+- Amending dfe-analytics-dataform project to support Airbyte-based replicated data
+- Validation and reconciliation of data between old and new sources
+- Updating lineage, documentation, and metadata for transitioned datasets
+- Health checks and monitoring integrations for Airbyte jobs
+- Coordinating service-by-service migration across multiple BigQuery projects
 
 ## Airbyte Issues, Mitigations and Risk
 
@@ -168,8 +186,3 @@ SD DevOps create and configure the JSON WIF Credentials file through terraform c
 | Single Airbyte instance per namespace maybe overloaded for projects with numerous services.                                    | Add CPU/Memory monitoring and alerts and resize CPU/Memory if required                                                                                                                        | M               |
 | Airbyte outage may cause replication log bloat and lead to a service database outage.<br><br>                                  | Limit max replication log size to prevent log bloat.<br>This must be customised per service. <br>May result in changes being missed during Airbyte outage.<br><br>Add replication monitoring, | M               |
 | Airbyte ongoing version maintenance.<br>Upgrades nay break APIs being called if APIs are not backwards compatible.             | Check release notes before version upgrades.<br><br>                                                                                                                                          | L               |
-
-
-
-
-[^1]: 
