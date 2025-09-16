@@ -10,7 +10,7 @@ module DfE
           errors << <<~HEREDOC
             Database field removed! Please remove it from analytics.yml and then run
 
-            bundle exec rails dfe:analytics:regenerate_blocklist
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_blocklist
 
             Removed fields:
 
@@ -23,7 +23,7 @@ module DfE
             New database field detected! You need to decide whether or not to send it
             to BigQuery. To send, add it to config/analytics.yml. To ignore, run:
 
-            bundle exec rails dfe:analytics:regenerate_blocklist
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_blocklist
 
             New fields:
 
@@ -37,7 +37,7 @@ module DfE
 
             The following fields exist in both files. To remove from the blocklist, run:
 
-            bundle exec rails dfe:analytics:regenerate_blocklist
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_blocklist
 
             Conflicting fields:
 
@@ -51,7 +51,7 @@ module DfE
 
             The following field differences exist. To upgrade the airbyte stream config, run:
 
-            bundle exec rails dfe:analytics:regenerate_airbyte_stream_config
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_airbyte_stream_config
 
             Field Differences:
 
