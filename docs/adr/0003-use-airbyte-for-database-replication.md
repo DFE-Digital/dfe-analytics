@@ -1,6 +1,6 @@
-# 3. Connections to DTTP Dynamics
+# 3. Use Airbtye for database replication
 
-Date: 2020-09-11
+Date: 2025-09-11
 ## Status
 
 Accepted
@@ -65,7 +65,7 @@ In considering the options, some of the most fundamental criteria are as follows
 - Parity with the current DfE Analytics solution is also an important factor
 - Costs of the product and ease of maintenance should also be important considerations
 
-The list of the option below summarises the most fundamental pros and cons , with details in the comparison table above. 
+The list of the options below summarises the most fundamental pros and cons, with details in the comparison table above.
 ### 1. GCP Products
 
 #### [GCP BigQuery transfer service](https://cloud.google.com/bigquery/docs/dts-introduction)
