@@ -6,7 +6,7 @@ An alternative to sending DfE::Analytics database events is database replication
 
 DfE::Analytics database events are also used for replicating data. However, there have been a number issues outlined in the [Data health import issues](https://github.com/DFE-Digital/dfe-analytics/blob/main/README.md#data-health-import-issues) section. Using Airbyte database replication avoids these issues.
 
-Airbyte is a an open source data integration platform that handles database replication reliably. The decision to use Airbyte for database replication is documented in this ADR.
+Airbyte is a an open source data integration platform that handles database replication reliably. The decision to use Airbyte for database replication is documented in this [ADR](https://github.com/DFE-Digital/dfe-analytics/blob/main/docs/adr/003-use-airbyte-for-database-replication.md).
 
 ## Airbyte Architecture
 
