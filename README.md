@@ -2,6 +2,8 @@
 
 **👉 Send every web request and database update to BigQuery**
 
+**👋 Database replication to BigQuery using Airbyte available as alternative to database events**
+
 **✋ Skip or hide fields containing PII**
 
 **✌️  Configure and forget**
@@ -19,6 +21,7 @@ before you started sending events.
 
 To set the gem up follow the steps in [Installation](#installation), below.
 
+There is now an alternative available for synchronising the service database with BigQuery using Airbyte. See the [Airbyte Documentation](docs/airbyte.md)
 ## See also
 
 [dfe-analytics-dataform](https://github.com/DFE-Digital/dfe-analytics-dataform) provides a JavaScript package designed to generate SQL queries executed in [Dataform](https://dataform.co/) that transform data streamed into BigQuery by this gem into useful tables for quicker analysis and visualisation.

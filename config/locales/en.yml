@@ -28,6 +28,13 @@ en:
           description: |
             The name of the BigQuery dataset we're writing to.
           default: ENV['BIGQUERY_DATASET']
+        bigquery_airbyte_dataset:
+          description: |
+            The name of the BigQuery airbyte dataset we're writing to.
+          default: ENV['BIGQUERY_AIRBYTE_DATASET']
+        bigquery_hidden_policy_tag:
+          description: The name of the BigQuery hidden policy tag applied to PII in raw airbyte tables.
+          default: ENV['BIGQUERY_HIDDEN_POLICY_TAG']
         bigquery_retries:
           description: |
             Passed directly to the retries: option on the BigQuery client
@@ -101,3 +108,31 @@ en:
             it wont be used by the application. Eg: proc { |x| x.to_s =~ /Namespace::/ } will exclude all
             models namespaced with Namespace
           default: proc { |_model| false }
+        database_events_enabled:
+          description: |
+            Whether to send database events
+          default: true
+        airbyte_enabled:
+          description: |
+            Perform airbyte checks on startup and allow airbyte config generation
+          default: false
+        airbyte_stream_config_path:
+          description: |
+            Path of airbyte stream config file relative to the App root (Rails.root)
+          default: /terraform/aks/workspace-variables/airbyte_streams.json
+        airbyte_client_id:
+          description: |
+            Airbyte Client Id for retrieving access token
+          default: ENV['AIRBYTE_CLIENT_ID']
+        airbyte_client_secret:
+          description: |
+            Airbyte Client secret for retrieving access token
+          default: ENV['AIRBYTE_CLIENT_SECRET']
+        airbyte_server_url:
+          description: |
+            Airbyte server base URL
+          default: ENV['AIRBYTE_SERVER_URL']
+        airbyte_workspace_id:
+          description: |
+            Airbyte Workspace Id for this App contains source, destination and connection
+          default: ENV['AIRBYTE_WORKSPACE_ID']
