@@ -74,7 +74,7 @@ module DfE
     end
 
     module TestOverrides
-      def events_client
+      def client
         if DfE::Analytics::Testing.fake?
           StubClient.new
         else

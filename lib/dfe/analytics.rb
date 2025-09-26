@@ -5,6 +5,7 @@ require 'i18n'
 require 'httparty'
 require 'google/cloud/bigquery'
 require 'dfe/analytics/activerecord' if defined?(ActiveRecord)
+require 'dfe/analytics/config'
 require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'
 require 'dfe/analytics/entities'
@@ -27,70 +28,22 @@ require 'dfe/analytics/big_query_api'
 require 'dfe/analytics/big_query_legacy_api'
 require 'dfe/analytics/azure_federated_auth'
 require 'dfe/analytics/api_requests'
+require 'dfe/analytics/airbyte_stream_config'
+require 'dfe/analytics/big_query_apply_policy_tags'
+require 'services/airbyte'
 
 module DfE
   module Analytics
     class ConfigurationError < StandardError; end
 
     def self.config
-      configurables = %i[
-        log_only
-        async
-        queue
-        bigquery_table_name
-        bigquery_project_id
-        bigquery_dataset
-        bigquery_api_json_key
-        bigquery_retries
-        bigquery_timeout
-        enable_analytics
-        environment
-        user_identifier
-        entity_table_checks_enabled
-        rack_page_cached
-        bigquery_maintenance_window
-        azure_federated_auth
-        azure_client_id
-        azure_token_path
-        azure_scope
-        gcp_scope
-        google_cloud_credentials
-        excluded_paths
-        excluded_models_proc
-      ]
-
-      @config ||= Struct.new(*configurables).new
+      @config ||= DfE::Analytics::Config.params
     end
 
     def self.configure
       yield(config)
 
-      config.enable_analytics                 ||= proc { true }
-      config.bigquery_table_name              ||= ENV.fetch('BIGQUERY_TABLE_NAME', nil)
-      config.bigquery_project_id              ||= ENV.fetch('BIGQUERY_PROJECT_ID', nil)
-      config.bigquery_dataset                 ||= ENV.fetch('BIGQUERY_DATASET', nil)
-      config.bigquery_api_json_key            ||= ENV.fetch('BIGQUERY_API_JSON_KEY', nil)
-      config.bigquery_retries                 ||= 3
-      config.bigquery_timeout                 ||= 120
-      config.environment                      ||= ENV.fetch('RAILS_ENV', 'development')
-      config.log_only                         ||= false
-      config.async                            ||= true
-      config.queue                            ||= :default
-      config.user_identifier                  ||= proc { |user| user&.id }
-      config.entity_table_checks_enabled      ||= false
-      config.rack_page_cached                 ||= proc { |_rack_env| false }
-      config.bigquery_maintenance_window      ||= ENV.fetch('BIGQUERY_MAINTENANCE_WINDOW', nil)
-      config.azure_federated_auth             ||= false
-      config.excluded_paths                   ||= []
-      config.excluded_models_proc             ||= proc { |_model| false }
-
-      return unless config.azure_federated_auth
-
-      config.azure_client_id          ||= ENV.fetch('AZURE_CLIENT_ID', nil)
-      config.azure_token_path         ||= ENV.fetch('AZURE_FEDERATED_TOKEN_FILE', nil)
-      config.google_cloud_credentials ||= JSON.parse(ENV.fetch('GOOGLE_CLOUD_CREDENTIALS', '{}')).deep_symbolize_keys
-      config.azure_scope              ||= DfE::Analytics::AzureFederatedAuth::DEFAULT_AZURE_SCOPE
-      config.gcp_scope                ||= DfE::Analytics::AzureFederatedAuth::DEFAULT_GCP_SCOPE
+      DfE::Analytics::Config.configure(config)
     end
 
     def self.initialize!
@@ -101,10 +54,10 @@ module DfE
         return
       end
 
-      if defined?(ActiveRecord)
+      if defined?(ActiveRecord) && database_events_enabled?
         setup_entities
       else
-        Rails.logger.info('ActiveRecord not loaded; DfE Analytics will only track non-database requests.')
+        Rails.logger.info('ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events.')
       end
     end
 
@@ -162,6 +115,12 @@ module DfE
 
     def self.event_debug_filters
       Rails.application.config_for(:analytics_event_debug)
+    rescue RuntimeError
+      {}
+    end
+
+    def self.airbyte_stream_config
+      JSON.parse(File.read(DfE::Analytics.config.airbyte_stream_config_path)).deep_symbolize_keys
     rescue RuntimeError
       {}
     end
@@ -262,6 +221,14 @@ module DfE
 
     def self.entity_table_checks_enabled?
       config.entity_table_checks_enabled
+    end
+
+    def self.database_events_enabled?
+      config.database_events_enabled
+    end
+
+    def self.airbyte_enabled?
+      config.airbyte_enabled
     end
 
     def self.parse_maintenance_window

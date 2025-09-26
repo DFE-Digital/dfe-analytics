@@ -10,7 +10,7 @@ module DfE
           errors << <<~HEREDOC
             Database field removed! Please remove it from analytics.yml and then run
 
-            bundle exec rails dfe:analytics:regenerate_blocklist
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_blocklist
 
             Removed fields:
 
@@ -23,7 +23,7 @@ module DfE
             New database field detected! You need to decide whether or not to send it
             to BigQuery. To send, add it to config/analytics.yml. To ignore, run:
 
-            bundle exec rails dfe:analytics:regenerate_blocklist
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_blocklist
 
             New fields:
 
@@ -37,11 +37,25 @@ module DfE
 
             The following fields exist in both files. To remove from the blocklist, run:
 
-            bundle exec rails dfe:analytics:regenerate_blocklist
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_blocklist
 
             Conflicting fields:
 
             #{conflicting_fields.to_yaml}
+          HEREDOC
+        end
+
+        if DfE::Analytics.airbyte_enabled? && airbyte_conflicting_fields.any?
+          errors << <<~HEREDOC
+            Differences detected between analytics.yml and #{File.basename(DfE::Analytics.config.airbyte_stream_config_path)}!
+
+            The following field differences exist. To upgrade the airbyte stream config, run:
+
+            SUPPRESS_DFE_ANALYTICS_INIT=1 bundle exec rails dfe:analytics:regenerate_airbyte_stream_config
+
+            Field Differences:
+
+            #{airbyte_conflicting_fields.to_yaml}
           HEREDOC
         end
 
@@ -86,6 +100,13 @@ module DfE
 
       def self.conflicting_fields
         diff_between(allowlist, diff_between(allowlist, blocklist))
+      end
+
+      def self.airbyte_conflicting_fields
+        diff_between(
+          allowlist.transform_values(&:uniq),
+          DfE::Analytics::AirbyteStreamConfig.entity_attributes
+        )
       end
 
       # extract and concatenate the fields associated with an entity in 1 or
