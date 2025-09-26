@@ -23,7 +23,7 @@ module DfE
           # attributes or saved changes in transactions, so we use the
           # TransactionChanges module
 
-          updated_attributes = DfE::Analytics.extract_model_attributes(self, changed_attributes)
+          updated_attributes = DfE::Analytics.extract_model_attributes(self, all_changed_attributes)
 
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
 
@@ -31,7 +31,7 @@ module DfE
         end
       end
 
-      def changed_attributes
+      def all_changed_attributes
         changed_attributes = {}
         transaction_changed_attributes.each_key do |name|
           changed_attributes.merge!(name => send(name))
