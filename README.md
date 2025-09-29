@@ -555,7 +555,7 @@ Please note that page caching is project specific and each project must carefull
 
 ## Data health import issues
 
-1. Avoid the use of default scopes, used named scopes if possible. Otherwise the import task will not  catch unscoped entities
+1. Avoid the use of default scopes, used named scopes if possible. Otherwise the import task will not catch unscoped entities
 2. If delete events do not occur at model-level, the after_commit callbacks we use will not be activated.
 E.g. manual deletes in rails console, or relying on a ON DELETE CASCADE in database schema.
 ```
