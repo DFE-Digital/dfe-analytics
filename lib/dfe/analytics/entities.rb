@@ -32,9 +32,7 @@ module DfE
       end
 
       def changed_attributes_for_dfe_analytics
-        transaction_changed_attributes.each_key.with_object({}) do |name, changes_with_values|
-          changes_with_values[name] = send(name)
-        end
+        transaction_changed_attributes.keys.index_with { send(_1) }
       end
 
       def send_event(type, data)
