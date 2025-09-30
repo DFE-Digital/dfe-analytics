@@ -9,6 +9,17 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
+  with_model :CandidateWithDefaultScope do
+    table do |t|
+      t.string  :email_address
+      t.boolean :active, default: true, null: false
+    end
+
+    model do
+      default_scope { where(active: true) }
+    end
+  end
+
   with_model :ModelWithCustomPrimaryKey do
     table id: false do |t|
       t.string :custom_key
@@ -97,5 +108,30 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
     expect { described_class.new(entity_name: ModelWithoutPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
     expect(Rails.logger).to have_received(:info).with(/Not processing #{ModelWithoutPrimaryKey.table_name} as it does not have a primary key/)
+  end
+
+  describe 'ignore_default_scope behaviour' do
+    before do
+      stub_const('DfE::Analytics::LoadEntities::BQ_BATCH_ROWS', 1)
+
+      CandidateWithDefaultScope.create!(email_address: 'active@example.com',   active: true)
+      CandidateWithDefaultScope.create!(email_address: 'inactive@example.com', active: false)
+    end
+
+    it 'respects the default scope when ignore_default_scope is false' do
+      allow(DfE::Analytics.config).to receive(:ignore_default_scope).and_return(false)
+
+      described_class.new(entity_name: CandidateWithDefaultScope.table_name).run(entity_tag: entity_tag)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(1).time
+    end
+
+    it 'processes unscoped records when ignore_default_scope is true' do
+      allow(DfE::Analytics.config).to receive(:ignore_default_scope).and_return(true)
+
+      described_class.new(entity_name: CandidateWithDefaultScope.table_name).run(entity_tag: entity_tag)
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(2).times
+    end
   end
 end
