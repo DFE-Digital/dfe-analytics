@@ -16,7 +16,6 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
 
     model do
-      # records with active: true only when default scope is applied
       default_scope { where(active: true) }
     end
   end
@@ -113,10 +112,9 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
   describe 'ignore_default_scope behaviour' do
     before do
-      # Force 1 row per batch so the SendEvents call count reflects rows processed
+
       stub_const('DfE::Analytics::LoadEntities::BQ_BATCH_ROWS', 1)
 
-      # One active (visible to default scope) and one inactive (hidden by default scope)
       CandidateWithDefaultScope.create!(email_address: 'active@example.com',   active: true)
       CandidateWithDefaultScope.create!(email_address: 'inactive@example.com', active: false)
     end
