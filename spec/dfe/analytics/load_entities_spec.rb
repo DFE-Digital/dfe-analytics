@@ -112,7 +112,6 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
   describe 'ignore_default_scope behaviour' do
     before do
-
       stub_const('DfE::Analytics::LoadEntities::BQ_BATCH_ROWS', 1)
 
       CandidateWithDefaultScope.create!(email_address: 'active@example.com',   active: true)
