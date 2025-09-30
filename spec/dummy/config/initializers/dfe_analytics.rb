@@ -1,4 +1,8 @@
 DfE::Analytics.configure do |config|
+  # Whether to ignore default scopes when importing to Big Query.
+  #
+  # config.ignore_default_scope = true
+
   # Whether to log events instead of sending them to BigQuery.
   #
   # config.log_only = true
