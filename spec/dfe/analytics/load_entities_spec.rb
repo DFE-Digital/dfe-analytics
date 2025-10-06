@@ -113,18 +113,18 @@ RSpec.describe DfE::Analytics::LoadEntities do
   describe 'default scope handling' do
     before do
       stub_const('DfE::Analytics::LoadEntities::BQ_BATCH_ROWS', 1)
-  
+
       # one active (visible via default scope) and one inactive (hidden)
       CandidateWithDefaultScope.create!(email_address: 'active@example.com',   active: true)
       CandidateWithDefaultScope.create!(email_address: 'inactive@example.com', active: false)
     end
-  
+
     def run_import
       described_class
         .new(entity_name: CandidateWithDefaultScope.table_name)
         .run(entity_tag: entity_tag)
     end
-  
+
     cases = [
       {
         desc: 'respects the default scope when global flag is false and model is not listed',
@@ -140,21 +140,21 @@ RSpec.describe DfE::Analytics::LoadEntities do
       },
       {
         desc: 'global flag true takes precedence even if the model is listed',
-        global: true,  listed: true,  expected: 2
+        global: true, listed: true, expected: 2
       }
     ]
-  
+
     cases.each do |c|
       it c[:desc] do
         allow(DfE::Analytics.config).to receive(:ignore_default_scope).and_return(c[:global])
-  
+
         list = c[:listed] ? [CandidateWithDefaultScope.table_name] : []
         allow(DfE::Analytics.config).to receive(:ignore_default_scope_entities).and_return(list)
-  
+
         run_import
-  
+
         expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(c[:expected]).times
       end
     end
-  end  
+  end
 end
