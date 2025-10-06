@@ -7,7 +7,7 @@ module DfE
       CURSOR_FIELD = %w[_ab_cdc_lsn].freeze
       AIRBYTE_FIELDS = %w[_ab_cdc_deleted_at _ab_cdc_updated_at].freeze
       DEFAULT_PRIMARY_KEY = 'id'
-      SYNC_MODE = 'incremental'
+      SYNC_MODE = 'incremental_append'
 
       def self.config
         JSON.parse(File.read(DfE::Analytics.config.airbyte_stream_config_path)).deep_symbolize_keys
