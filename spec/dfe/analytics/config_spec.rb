@@ -17,6 +17,7 @@ RSpec.describe DfE::Analytics::Config do
 
       it 'sets sane defaults for booleans and procs' do
         expect(config.ignore_default_scope).to eq(false)
+        expect(config.ignore_default_scope_entities).to eq([])
         expect(config.enable_analytics.call).to eq(true)
         expect(config.log_only).to eq(false)
         expect(config.async).to eq(true)

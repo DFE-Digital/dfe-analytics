@@ -6,6 +6,7 @@ module DfE
     module Config
       CONFIGURABLES = %i[
         ignore_default_scope
+        ignore_default_scope_entities
         log_only
         async
         queue
@@ -46,6 +47,7 @@ module DfE
 
       def self.configure(config)
         config.ignore_default_scope             ||= false
+        config.ignore_default_scope_entities    ||= []
         config.enable_analytics                 ||= proc { true }
         config.bigquery_table_name              ||= ENV.fetch('BIGQUERY_TABLE_NAME', nil)
         config.bigquery_project_id              ||= ENV.fetch('BIGQUERY_PROJECT_ID', nil)
