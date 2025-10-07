@@ -9,6 +9,17 @@ RSpec.describe DfE::Analytics::LoadEntities do
     end
   end
 
+  with_model :CandidateWithDefaultScope do
+    table do |t|
+      t.string  :email_address
+      t.boolean :active, default: true, null: false
+    end
+
+    model do
+      default_scope { where(active: true) }
+    end
+  end
+
   with_model :ModelWithCustomPrimaryKey do
     table id: false do |t|
       t.string :custom_key
@@ -97,5 +108,53 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
     expect { described_class.new(entity_name: ModelWithoutPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
     expect(Rails.logger).to have_received(:info).with(/Not processing #{ModelWithoutPrimaryKey.table_name} as it does not have a primary key/)
+  end
+
+  describe 'default scope handling' do
+    before do
+      stub_const('DfE::Analytics::LoadEntities::BQ_BATCH_ROWS', 1)
+
+      # one active (visible via default scope) and one inactive (hidden)
+      CandidateWithDefaultScope.create!(email_address: 'active@example.com',   active: true)
+      CandidateWithDefaultScope.create!(email_address: 'inactive@example.com', active: false)
+    end
+
+    def run_import
+      described_class
+        .new(entity_name: CandidateWithDefaultScope.table_name)
+        .run(entity_tag: entity_tag)
+    end
+
+    cases = [
+      {
+        desc: 'respects the default scope when global flag is false and model is not listed',
+        global: false, listed: false, expected: 1
+      },
+      {
+        desc: 'processes unscoped records when global flag is true (overrides per-model settings)',
+        global: true,  listed: false, expected: 2
+      },
+      {
+        desc: 'ingests unscoped records when the model is listed and global flag is false',
+        global: false, listed: true,  expected: 2
+      },
+      {
+        desc: 'global flag true takes precedence even if the model is listed',
+        global: true, listed: true, expected: 2
+      }
+    ]
+
+    cases.each do |c|
+      it c[:desc] do
+        allow(DfE::Analytics.config).to receive(:ignore_default_scope).and_return(c[:global])
+
+        list = c[:listed] ? [CandidateWithDefaultScope.table_name] : []
+        allow(DfE::Analytics.config).to receive(:ignore_default_scope_entities).and_return(list)
+
+        run_import
+
+        expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(c[:expected]).times
+      end
+    end
   end
 end

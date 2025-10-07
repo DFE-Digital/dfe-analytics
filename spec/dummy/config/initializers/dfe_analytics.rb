@@ -1,4 +1,13 @@
 DfE::Analytics.configure do |config|
+  # Whether to ignore ALL default scopes when importing to Big Query.
+  #
+  # config.ignore_default_scope = true
+
+  # A list of models (class names or table_names) for which to ignore default scopes.
+  # This is ignored if `ignore_default_scope` is set to true.
+  #
+  # config.ignore_default_scope_entities = ['Candidate', 'ApplicationForm']
+
   # Whether to log events instead of sending them to BigQuery.
   #
   # config.log_only = true
