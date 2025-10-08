@@ -15,6 +15,9 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
             streams: [
               {
                 name: 'users',
+                syncMode: 'incremental_append',
+                cursorField: ['_ab_cdc_lsn'],
+                primaryKey: [['id']],
                 selectedFields: [
                   { fieldPath: ['_ab_cdc_lsn'] },
                   { fieldPath: ['_ab_cdc_updated_at'] },
@@ -67,6 +70,8 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
         stream = parsed_config['configurations']['streams'].first
 
         expect(stream['name']).to eq('users')
+        expect(stream['syncMode']).to eq('incremental_append')
+        expect(stream['cursorField']).to eq(['_ab_cdc_lsn'])
         expect(stream['primaryKey']).to eq([['id']])
         expect(stream['selectedFields']).to match_array([
                                                           { 'fieldPath' => ['_ab_cdc_lsn'] },
@@ -105,20 +110,28 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
             streams: [
               {
                 name: 'schools',
+                syncMode: 'incremental_append',
+                cursorField: ['_ab_cdc_lsn'],
+                primaryKey: [['id']],
                 selectedFields: [
                   { fieldPath: ['_ab_cdc_lsn'] },
                   { fieldPath: ['_ab_cdc_updated_at'] },
                   { fieldPath: ['_ab_cdc_deleted_at'] },
+                  { fieldPath: ['id'] },
                   { fieldPath: ['urn'] },
                   { fieldPath: ['name'] }
                 ]
               },
               {
                 name: 'teachers',
+                syncMode: 'incremental_append',
+                cursorField: ['_ab_cdc_lsn'],
+                primaryKey: [['id']],
                 selectedFields: [
                   { fieldPath: ['_ab_cdc_lsn'] },
                   { fieldPath: ['_ab_cdc_updated_at'] },
                   { fieldPath: ['_ab_cdc_deleted_at'] },
+                  { fieldPath: ['id'] },
                   { fieldPath: ['trn'] },
                   { fieldPath: ['dob'] }
                 ]
@@ -132,8 +145,8 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
 
       it 'removes the cursor field and returns attributes' do
         expect(described_class.entity_attributes).to eq(
-          schools: %w[urn name],
-          teachers: %w[trn dob]
+          schools: %w[id urn name],
+          teachers: %w[id trn dob]
         )
       end
     end
