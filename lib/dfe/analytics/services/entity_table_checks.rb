@@ -46,13 +46,11 @@ module DfE
 
         def fetch_current_timestamp_in_time_zone
           utc_timestamp = case connection.adapter_name.downcase
-                  when 'postgresql', 'postgis'
-                    connection.select_value("SELECT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::text AS current_timestamp_utc")
-                  when 'sqlite3', 'sqlite'
-                    connection.select_value("SELECT CURRENT_TIMESTAMP AS current_timestamp_utc")
-                  else
-                    nil
-                  end
+                          when 'postgresql', 'postgis'
+                            connection.select_value("SELECT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::text AS current_timestamp_utc")
+                          when 'sqlite3', 'sqlite'
+                            connection.select_value('SELECT CURRENT_TIMESTAMP AS current_timestamp_utc')
+                          end
 
           if utc_timestamp.present?
             Time.use_zone(TIME_ZONE) do
