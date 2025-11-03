@@ -50,7 +50,7 @@ RSpec.describe DfE::Analytics::SendEvents do
           # expect(log_message).to include('{"key" => "first_name", "value" => ["HIDDEN"]}')
           # expect(log_message).to include('{"key" => "email", "value" => "user@example.com"}')
           # expect(log_message).to include('{"key" => "phone_number", "value" => "1234567890"}')
-          expect(log_message).to eql('DfE::Analytics: {"entity_table_name" => "user_profiles", "event_type" => "update_entity", "data" => [{"key" => "email", "value" => "user@example.com"}, {"key" => "phone_number", "value" => "1234567890"}], "hidden_data" => [{"key" => "dob", "value" => ["HIDDEN"]}, {"key" => "first_name", "value" => ["HIDDEN"]}]}')
+          expect(log_message).to eq('DfE::Analytics: {"entity_table_name"=>"user_profiles", "event_type"=>"update_entity", "data"=>[{"key" => "email", "value"=>"user@example.com"}, {"key"=>"phone_number", "value"=>"1234567890"}], "hidden_data"=>[{"key"=>"dob", "value"=>["HIDDEN"]}, {"key"=>"first_name", "value"=>["HIDDEN"]}]}')
         end
 
         described_class.new.perform([hidden_pii_event])
