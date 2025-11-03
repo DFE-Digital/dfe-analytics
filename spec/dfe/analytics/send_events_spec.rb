@@ -46,11 +46,7 @@ RSpec.describe DfE::Analytics::SendEvents do
 
       it 'logs events with all sensitive data masked' do
         expect(Rails.logger).to receive(:info) do |log_message|
-          # expect(log_message).to include('{"key" => "dob", "value" => ["HIDDEN"]}')
-          # expect(log_message).to include('{"key" => "first_name", "value" => ["HIDDEN"]}')
-          # expect(log_message).to include('{"key" => "email", "value" => "user@example.com"}')
-          # expect(log_message).to include('{"key" => "phone_number", "value" => "1234567890"}')
-          expect(log_message).to eq('DfE::Analytics: {"entity_table_name"=>"user_profiles", "event_type"=>"update_entity", "data"=>[{"key" => "email", "value"=>"user@example.com"}, {"key"=>"phone_number", "value"=>"1234567890"}], "hidden_data"=>[{"key"=>"dob", "value"=>["HIDDEN"]}, {"key"=>"first_name", "value"=>["HIDDEN"]}]}')
+          expect(log_message.gsub(/\s*=>\s*/, '=>')).to eq('DfE::Analytics: {"entity_table_name"=>"user_profiles", "event_type"=>"update_entity", "data"=>[{"key"=>"email", "value"=>"user@example.com"}, {"key"=>"phone_number", "value"=>"1234567890"}], "hidden_data"=>[{"key"=>"dob", "value"=>["HIDDEN"]}, {"key"=>"first_name", "value"=>["HIDDEN"]}]}')
         end
 
         described_class.new.perform([hidden_pii_event])
@@ -122,10 +118,12 @@ RSpec.describe DfE::Analytics::SendEvents do
 
       it 'masks sensitive data in the log output' do
         expect(Rails.logger).to receive(:info) do |log_message|
-          expect(log_message).to include('{"key" => "dob", "value" => ["HIDDEN"]}')
-          expect(log_message).to include('{"key" => "first_name", "value" => ["HIDDEN"]}')
-          expect(log_message).to include('{"key" => "email", "value" => "user@example.com"}')
-          expect(log_message).to include('{"key" => "phone_number", "value" => "1234567890"}')
+          puts log_message
+          expect(log_message.gsub(/\s*=>\s*/, '=>')).to eq('DfE::Analytics processing: {"entity_table_name"=>"user_profiles", "event_type"=>"update_entity", "data"=>[{"key"=>"email", "value"=>"user@example.com"}, {"key"=>"phone_number", "value"=>"1234567890"}], "hidden_data"=>[{"key"=>"dob", "value"=>["HIDDEN"]}, {"key"=>"first_name", "value"=>["HIDDEN"]}]}')
+          # expect(log_message).to include('{"key" => "dob", "value" => ["HIDDEN"]}')
+          # expect(log_message).to include('{"key" => "first_name", "value" => ["HIDDEN"]}')
+          # expect(log_message).to include('{"key" => "email", "value" => "user@example.com"}')
+          # expect(log_message).to include('{"key" => "phone_number", "value" => "1234567890"}')
         end
 
         described_class.new.perform([hidden_pii_event])
