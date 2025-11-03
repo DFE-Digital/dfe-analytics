@@ -45,8 +45,8 @@ module DfE
         end
 
         def fetch_current_timestamp_in_time_zone
-          #result = connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp')
-          #result.first['current_timestamp'].in_time_zone(TIME_ZONE).iso8601(6)
+          #  result = connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp')
+          # result.first['current_timestamp'].in_time_zone(TIME_ZONE).iso8601(6)
           Time.use_zone(TIME_ZONE) { Time.zone.now.iso8601(6) }
         end
 
