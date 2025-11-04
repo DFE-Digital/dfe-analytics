@@ -118,7 +118,6 @@ RSpec.describe DfE::Analytics::SendEvents do
 
       it 'masks sensitive data in the log output' do
         expect(Rails.logger).to receive(:info) do |log_message|
-          puts log_message
           expect(log_message.gsub(/\s*=>\s*/, '=>')).to eq('DfE::Analytics processing: {"entity_table_name"=>"user_profiles", "event_type"=>"update_entity", "data"=>[{"key"=>"email", "value"=>"user@example.com"}, {"key"=>"phone_number", "value"=>"1234567890"}], "hidden_data"=>[{"key"=>"dob", "value"=>["HIDDEN"]}, {"key"=>"first_name", "value"=>["HIDDEN"]}]}')
         end
 
