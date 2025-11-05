@@ -19,7 +19,7 @@ module DfE
               fake_bigquery_key = { 'type' => 'service_account',
                                     'project_id' => 'abc',
                                     'private_key_id' => 'abc',
-                                    'private_key' => OpenSSL::PKey::RSA.new(2014).export,
+                                    'private_key' => OpenSSL::PKey::RSA.new(2048).export,
                                     'client_email' => 'abc@example.com',
                                     'client_id' => '123',
                                     'auth_uri' => 'https://accounts.google.com/o/oauth2/auth',

@@ -2,8 +2,9 @@
 
 source "https://rubygems.org"
 
-gem "rails", "7.1"
-gem "sqlite3", "~> 1.4"
+gem "rails", "8.0"
+gem "rspec-rails", "8.0.2"
+gem "sqlite3", ">= 2.1"
 
 group :release do
   gem "gem-release", require: false
