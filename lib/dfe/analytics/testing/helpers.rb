@@ -87,10 +87,10 @@ module DfE
             }
           end
 
-          request_body = "{\"grant_type\":\"client_credentials\"," \
-                         "\"client_id\":\"fake_az_client_id_1234\",\"scope\":\"fake_az_scope\"," \
-                         "\"client_assertion_type\":\"urn:ietf:params:oauth:client-assertion-type:jwt-bearer\"," \
-                         "\"client_assertion\":\"fake_az_token\"}"
+          request_body = '{"grant_type":"client_credentials",' \
+                         '"client_id":"fake_az_client_id_1234","scope":"fake_az_scope",' \
+                         '"client_assertion_type":"urn:ietf:params:oauth:client-assertion-type:jwt-bearer",' \
+                         '"client_assertion":"fake_az_token"}'
 
           response_body = {
             'token_type' => 'Bearer',
@@ -161,10 +161,10 @@ module DfE
             }
           end
 
-          request_body = "{\"grant_type\":\"urn:ietf:params:oauth:grant-type:token-exchange\"," \
-                         "\"audience\":\"fake_gcp_aud\",\"scope\":\"fake_gcp_scope\"," \
-                         "\"requested_token_type\":\"urn:ietf:params:oauth:token-type:access_token\"," \
-                         "\"subject_token\":\"fake_az_response_token\",\"subject_token_type\":\"fake_sub_token_type\"}"
+          request_body = '{"grant_type":"urn:ietf:params:oauth:grant-type:token-exchange",' \
+                         '"audience":"fake_gcp_aud","scope":"fake_gcp_scope",' \
+                         '"requested_token_type":"urn:ietf:params:oauth:token-type:access_token",' \
+                         '"subject_token":"fake_az_response_token","subject_token_type":"fake_sub_token_type"}'
 
           response_body = {
             token_type: 'Bearer',
@@ -228,7 +228,7 @@ module DfE
             }
           end
 
-          request_body = "{\"scope\":\"fake_gcp_scope\"}"
+          request_body = '{"scope":"fake_gcp_scope"}'
 
           response_body = {
             expireTime: '2024-03-09T14:38:02Z',
