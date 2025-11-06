@@ -87,10 +87,13 @@ module DfE
             }
           end
 
-          request_body = '{"grant_type":"client_credentials",' \
-                         '"client_id":"fake_az_client_id_1234","scope":"fake_az_scope",' \
-                         '"client_assertion_type":"urn:ietf:params:oauth:client-assertion-type:jwt-bearer",' \
-                         '"client_assertion":"fake_az_token"}'
+          request_body = {
+            'grant_type' => 'client_credentials',
+            'client_id' => 'fake_az_client_id_1234',
+            'scope' => 'fake_az_scope',
+            'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+            'client_assertion' => 'fake_az_token'
+          }
 
           response_body = {
             'token_type' => 'Bearer',
@@ -99,12 +102,13 @@ module DfE
             'access_token' => 'fake_az_response_token'
           }.to_json
 
-          stub_request(:get, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
+          stub_request(:post, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
             .with(
               body: request_body,
               headers: {
                'Accept' => '*/*',
                'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+               'Content-Type' => 'application/x-www-form-urlencoded',
                'User-Agent' => 'Ruby'
               }
             )
@@ -139,7 +143,7 @@ module DfE
             'correlation_id' => '84f1c2d2-5288-4879-a038-429c31193c9c'
           }.to_json
 
-          stub_request(:get, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
+          stub_request(:post, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
              .to_return(
                status: 400,
                body: error_response_body,
@@ -179,6 +183,7 @@ module DfE
               headers: {
                'Accept' => '*/*',
                'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+               'Content-Type' => 'application/json',
                'User-Agent' => 'Ruby'
               }
             )
@@ -243,6 +248,7 @@ module DfE
             headers: {
              'Accept' => '*/*',
              'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+             'Content-Type' => 'application/json',
              'User-Agent' => 'Ruby'
             }
           ).to_return(
