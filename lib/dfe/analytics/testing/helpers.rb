@@ -87,10 +87,13 @@ module DfE
             }
           end
 
-          request_body =
-            'grant_type=client_credentials&client_id=fake_az_client_id_1234&scope=fake_az_scope&' \
-            'client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&' \
-            'client_assertion=fake_az_token'
+          request_body = {
+            'grant_type' => 'client_credentials',
+            'client_id' => 'fake_az_client_id_1234',
+            'scope' => 'fake_az_scope',
+            'client_assertion_type' => 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+            'client_assertion' => 'fake_az_token'
+          }
 
           response_body = {
             'token_type' => 'Bearer',
@@ -99,12 +102,13 @@ module DfE
             'access_token' => 'fake_az_response_token'
           }.to_json
 
-          stub_request(:get, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
+          stub_request(:post, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
             .with(
               body: request_body,
               headers: {
                'Accept' => '*/*',
                'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+               'Content-Type' => 'application/x-www-form-urlencoded',
                'User-Agent' => 'Ruby'
               }
             )
@@ -139,7 +143,7 @@ module DfE
             'correlation_id' => '84f1c2d2-5288-4879-a038-429c31193c9c'
           }.to_json
 
-          stub_request(:get, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
+          stub_request(:post, 'https://login.microsoftonline.com/fake-az-token-id/oauth2/v2.0/token')
              .to_return(
                status: 400,
                body: error_response_body,
@@ -161,10 +165,10 @@ module DfE
             }
           end
 
-          request_body = 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Atoken-exchange' \
-                         '&audience=fake_gcp_aud&scope=fake_gcp_scope&requested_token_type=urn%3' \
-                         'Aietf%3Aparams%3Aoauth%3Atoken-type%3Aaccess_token&subject_token=' \
-                         'fake_az_response_token&subject_token_type=fake_sub_token_type'
+          request_body = '{"grant_type":"urn:ietf:params:oauth:grant-type:token-exchange",' \
+                         '"audience":"fake_gcp_aud","scope":"fake_gcp_scope",' \
+                         '"requested_token_type":"urn:ietf:params:oauth:token-type:access_token",' \
+                         '"subject_token":"fake_az_response_token","subject_token_type":"fake_sub_token_type"}'
 
           response_body = {
             token_type: 'Bearer',
@@ -179,6 +183,7 @@ module DfE
               headers: {
                'Accept' => '*/*',
                'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+               'Content-Type' => 'application/json',
                'User-Agent' => 'Ruby'
               }
             )
@@ -228,7 +233,7 @@ module DfE
             }
           end
 
-          request_body = 'scope=fake_gcp_scope'
+          request_body = '{"scope":"fake_gcp_scope"}'
 
           response_body = {
             expireTime: '2024-03-09T14:38:02Z',
@@ -243,6 +248,8 @@ module DfE
             headers: {
              'Accept' => '*/*',
              'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+             'Authorization' => 'Bearer fake_az_gcp_exchange_token_response',
+             'Content-Type' => 'application/json',
              'User-Agent' => 'Ruby'
             }
           ).to_return(

@@ -36,7 +36,11 @@ module DfE
         }
 
         azure_token_response =
-          HTTParty.get(DfE::Analytics.config.google_cloud_credentials[:credential_source][:url], body: aad_token_request_body)
+          HTTParty.post(
+            DfE::Analytics.config.google_cloud_credentials[:credential_source][:url],
+            headers: { 'Content-Type' => 'application/x-www-form-urlencoded' },
+            body: URI.encode_www_form(aad_token_request_body)
+          )
 
         unless azure_token_response.success?
           error_message = "Error calling azure token API: status: #{azure_token_response.code} body: #{azure_token_response.body}"
@@ -59,7 +63,12 @@ module DfE
           subject_token_type: DfE::Analytics.config.google_cloud_credentials[:subject_token_type]
         }
 
-        exchange_token_response = HTTParty.post(DfE::Analytics.config.google_cloud_credentials[:token_url], body: request_body)
+        exchange_token_response =
+          HTTParty.post(
+            DfE::Analytics.config.google_cloud_credentials[:token_url],
+            headers: { 'Content-Type' => 'application/json' },
+            body: request_body.to_json
+          )
 
         unless exchange_token_response.success?
           error_message = "Error calling google exchange token API: status: #{exchange_token_response.code} body: #{exchange_token_response.body}"
@@ -73,11 +82,15 @@ module DfE
       end
 
       def self.google_access_token(azure_google_exchange_token)
-        google_token_response = HTTParty.post(
-          DfE::Analytics.config.google_cloud_credentials[:service_account_impersonation_url],
-          headers: { 'Authorization' => "Bearer #{azure_google_exchange_token}" },
-          body: { scope:  DfE::Analytics.config.gcp_scope }
-        )
+        google_token_response =
+          HTTParty.post(
+            DfE::Analytics.config.google_cloud_credentials[:service_account_impersonation_url],
+            headers: {
+              'Authorization' => "Bearer #{azure_google_exchange_token}",
+              'Content-Type' => 'application/json'
+            },
+            body: { scope: DfE::Analytics.config.gcp_scope }.to_json
+          )
 
         unless google_token_response.success?
           error_message = "Error calling google token API: status: #{google_token_response.code} body: #{google_token_response.body}"
