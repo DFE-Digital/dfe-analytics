@@ -248,6 +248,7 @@ module DfE
             headers: {
              'Accept' => '*/*',
              'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
+             'Authorization' => 'Bearer fake_az_gcp_exchange_token_response',
              'Content-Type' => 'application/json',
              'User-Agent' => 'Ruby'
             }
