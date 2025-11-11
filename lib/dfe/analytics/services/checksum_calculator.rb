@@ -31,7 +31,7 @@ module DfE
         end
 
         def postgres?
-          adapter_name == 'postgresql' || adapter_name == 'postgis'
+          %w[postgresql postgis].include?(adapter_name)
         end
       end
     end
