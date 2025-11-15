@@ -21,7 +21,7 @@ module DfE
 
       initializer 'dfe.analytics.logger' do
         ActiveSupport.on_load(:active_job) do
-          analytics_job = DfE::Analytics::AnalyticsJob
+          analytics_job = DfE::Analytics::Jobs::AnalyticsJob
           # Rails < 6.1 doesn't support log_arguments = false so we only log warn
           # to prevent wild log inflation
           if analytics_job.respond_to?(:log_arguments=)

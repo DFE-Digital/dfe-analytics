@@ -1,0 +1,13 @@
+module DfE
+  module Analytics
+    module Jobs
+      # Base class for all DfE::Analytics jobs
+      class AnalyticsJob < ActiveJob::Base
+        queue_as { DfE::Analytics.config.queue }
+
+        wait_option = Rails::VERSION::STRING >= '7.1' ? :polynomially_longer : :exponentially_longer
+        retry_on StandardError, wait: wait_option, attempts: 5
+      end
+    end
+  end
+end

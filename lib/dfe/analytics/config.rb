@@ -34,6 +34,7 @@ module DfE
         excluded_models_proc
         database_events_enabled
         airbyte_enabled
+        airbyte_internal_dataset
         airbyte_stream_config_path
         airbyte_client_id
         airbyte_client_secret
@@ -69,6 +70,7 @@ module DfE
         config.excluded_models_proc             ||= proc { |_model| false }
         config.database_events_enabled          ||= true
         config.airbyte_enabled                  ||= false
+        config.airbyte_internal_dataset         ||= ENV.fetch('AIRBYTE_INTERNAL_DATASET', 'airbyte_internal')
         config.airbyte_client_id                ||= ENV.fetch('AIRBYTE_CLIENT_ID', nil)
         config.airbyte_client_secret            ||= ENV.fetch('AIRBYTE_CLIENT_SECRET', nil)
         config.airbyte_server_url               ||= ENV.fetch('AIRBYTE_SERVER_URL', nil)

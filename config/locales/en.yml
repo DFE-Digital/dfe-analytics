@@ -119,7 +119,11 @@ en:
         airbyte_stream_config_path:
           description: |
             Path of airbyte stream config file relative to the App root (Rails.root)
-          default: /terraform/aks/workspace-variables/airbyte_streams.json
+          default: /terraform/aks/workspace-variables/airbyte_stream_config.json
+        airbyte_internal_dataset:
+          description: |
+            Airbyte internal dataset for service
+          default: ENV['AIRBYTE_INTERNAL_DATASET']
         airbyte_client_id:
           description: |
             Airbyte Client Id for retrieving access token

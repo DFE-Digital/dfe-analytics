@@ -15,40 +15,93 @@ RSpec.describe Services::Airbyte::ConnectionRefresh do
 
   before do
     allow(DfE::Analytics).to receive(:allowlist).and_return(allowed_list)
-
-    allow(Services::Airbyte::AccessToken).to receive(:call).and_return(access_token)
-    allow(Services::Airbyte::ConnectionList).to receive(:call)
-      .with(access_token: access_token)
-      .and_return([connection_id, source_id])
-    allow(Services::Airbyte::DiscoverSchema).to receive(:call)
-      .with(access_token: access_token, source_id: source_id)
-      .and_return(discovered_schema)
+    allow(Services::Airbyte::DiscoverSchema).to receive(:call).and_return(discovered_schema)
     allow(Services::Airbyte::ConnectionUpdate).to receive(:call)
   end
 
-  it 'refreshes the connection by calling required services' do
-    expect(Services::Airbyte::AccessToken).to receive(:call)
-    expect(Services::Airbyte::ConnectionList).to receive(:call).with(access_token: access_token)
-    expect(Services::Airbyte::DiscoverSchema).to receive(:call).with(access_token: access_token, source_id: source_id)
-    expect(Services::Airbyte::ConnectionUpdate).to receive(:call).with(
-      access_token: access_token,
-      connection_id: connection_id,
-      allowed_list: allowed_list,
-      discovered_schema: discovered_schema
-    )
-
-    described_class.call
+  describe '.call' do
+    it 'calls the instance method' do
+      instance = instance_double(described_class)
+      expect(described_class).to receive(:new).and_return(instance)
+      expect(instance).to receive(:call)
+      described_class.call
+    end
   end
 
-  context 'when an error occurs during processing' do
-    before do
-      allow(Services::Airbyte::AccessToken).to receive(:call).and_raise(StandardError, 'something went wrong')
-      allow(Rails.logger).to receive(:error)
+  describe '#call' do
+    subject(:service) { described_class.new }
+
+    context 'when all arguments are provided' do
+      it 'skips fetching access_token and connection_id/source_id' do
+        expect(Services::Airbyte::AccessToken).not_to receive(:call)
+        expect(Services::Airbyte::ConnectionList).not_to receive(:call)
+        expect(Services::Airbyte::DiscoverSchema).to receive(:call).with(access_token:, source_id:)
+        expect(Services::Airbyte::ConnectionUpdate).to receive(:call).with(
+          access_token: access_token,
+          connection_id: connection_id,
+          allowed_list: allowed_list,
+          discovered_schema: discovered_schema
+        )
+
+        service.call(access_token:, connection_id:, source_id:)
+      end
     end
 
-    it 'logs and raises a ConnectionRefresh error' do
-      expect(Rails.logger).to receive(:error).with(/Airbyte connection refresh failed: something went wrong/)
-      expect { described_class.call }.to raise_error(Services::Airbyte::ConnectionRefresh::Error, /Connection refresh failed/)
+    context 'when only access_token is provided' do
+      before do
+        allow(Services::Airbyte::ConnectionList).to receive(:call)
+          .with(access_token:).and_return([connection_id, source_id])
+      end
+
+      it 'fetches connection_id and source_id' do
+        expect(Services::Airbyte::ConnectionList).to receive(:call).with(access_token:)
+        expect(Services::Airbyte::DiscoverSchema).to receive(:call).with(access_token:, source_id:)
+        expect(Services::Airbyte::ConnectionUpdate).to receive(:call).with(
+          access_token: access_token,
+          connection_id: connection_id,
+          allowed_list: allowed_list,
+          discovered_schema: discovered_schema
+        )
+
+        service.call(access_token:)
+      end
+    end
+
+    context 'when no arguments are provided' do
+      before do
+        allow(Services::Airbyte::AccessToken).to receive(:call).and_return(access_token)
+        allow(Services::Airbyte::ConnectionList).to receive(:call)
+          .with(access_token:).and_return([connection_id, source_id])
+      end
+
+      it 'calls all dependency services' do
+        expect(Services::Airbyte::AccessToken).to receive(:call)
+        expect(Services::Airbyte::ConnectionList).to receive(:call).with(access_token:)
+        expect(Services::Airbyte::DiscoverSchema).to receive(:call).with(access_token:, source_id:)
+        expect(Services::Airbyte::ConnectionUpdate).to receive(:call).with(
+          access_token: access_token,
+          connection_id: connection_id,
+          allowed_list: allowed_list,
+          discovered_schema: discovered_schema
+        )
+
+        service.call
+      end
+    end
+
+    context 'when an error occurs in any step' do
+      before do
+        allow(Services::Airbyte::AccessToken).to receive(:call).and_raise(StandardError, 'boom')
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs the error and raises wrapped error' do
+        expect(Rails.logger).to receive(:error).with(/Airbyte connection refresh failed: boom/)
+
+        expect do
+          service.call
+        end.to raise_error(Services::Airbyte::ConnectionRefresh::Error, /Connection refresh failed: boom/)
+      end
     end
   end
 end
