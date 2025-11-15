@@ -1,5 +1,4 @@
-require_relative '../shared/service_pattern'
-require_relative '../big_query_apply_policy_tags_job'
+# frozen_string_literal: true
 
 module DfE
   module Analytics

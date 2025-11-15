@@ -30,6 +30,8 @@ require 'dfe/analytics/azure_federated_auth'
 require 'dfe/analytics/api_requests'
 require 'dfe/analytics/airbyte_stream_config'
 require 'dfe/analytics/big_query_apply_policy_tags_job'
+require 'dfe/analytics/airbyte_deploy_job'
+require 'dfe/analytics/services'
 require 'services/airbyte'
 
 module DfE

@@ -1,5 +1,4 @@
-require_relative '../shared/service_pattern'
-require_relative '../big_query_apply_policy_tags_job'
+# frozen_string_literal: true
 
 module DfE
   module Analytics
@@ -8,7 +7,7 @@ module DfE
       class ApplyAirbyteInternalTablesPolicyTags
         include ServicePattern
 
-        AIRBYTE_INTERNAL_TABLE_DATA_COLUMN = '_airbyte_data'.freeze
+        AIRBYTE_INTERNAL_TABLE_DATA_COLUMN = '_airbyte_data'
 
         def initialize(delay_in_minutes: 0)
           @delay_in_minutes = delay_in_minutes

@@ -1,5 +1,4 @@
-require_relative '../shared/service_pattern'
-require_relative '../services/checksum_calculator'
+# frozen_string_literal: true
 
 module DfE
   module Analytics
@@ -8,7 +7,7 @@ module DfE
       class EntityTableChecks
         include ServicePattern
 
-        TIME_ZONE = 'London'.freeze
+        TIME_ZONE = 'London'
 
         def initialize(entity_name:, entity_type:, entity_tag: nil)
           @entity_name = entity_name

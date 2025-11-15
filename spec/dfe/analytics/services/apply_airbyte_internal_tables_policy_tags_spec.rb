@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../../lib/dfe/analytics/services/apply_airbyte_internal_tables_policy_tags'
-
 RSpec.describe DfE::Analytics::Services::ApplyAirbyteInternalTablesPolicyTags do
   let(:delay_in_minutes) { 5 }
 

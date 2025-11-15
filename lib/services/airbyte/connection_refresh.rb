@@ -10,9 +10,9 @@ module Services
         new.call
       end
 
-      def call
-        access_token = AccessToken.call
-        connection_id, source_id = ConnectionList.call(access_token:)
+      def call(access_token: nil, connection_id: nil, source_id: nil)
+        access_token ||= AccessToken.call
+        connection_id, source_id = ConnectionList.call(access_token:) if connection_id.blank? || source_id.blank?
         discovered_schema = DiscoverSchema.call(access_token:, source_id:)
         allowed_list = DfE::Analytics.allowlist
 
