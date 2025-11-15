@@ -28,14 +28,14 @@ RSpec.describe DfE::Analytics::Services::ApplyAirbyteInternalTablesPolicyTags do
   before do
     allow(DfE::Analytics).to receive(:config).and_return(config_double)
     allow(DfE::Analytics).to receive(:allowlist).and_return(allowlist)
-    allow(DfE::Analytics::BigQueryApplyPolicyTagsJob).to receive(:do)
+    allow(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to receive(:do)
   end
 
   describe '.call' do
     it 'calls BigQueryApplyPolicyTagsJob.do with internal dataset and correct table structure' do
       described_class.call(delay_in_minutes: delay_in_minutes)
 
-      expect(DfE::Analytics::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
+      expect(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
         delay_in_minutes: delay_in_minutes,
         dataset: 'internal_dataset',
         tables: expected_internal_tables,
@@ -49,7 +49,7 @@ RSpec.describe DfE::Analytics::Services::ApplyAirbyteInternalTablesPolicyTags do
       it 'calls the job with delay 0' do
         described_class.call(delay_in_minutes: delay_in_minutes)
 
-        expect(DfE::Analytics::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
+        expect(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
           delay_in_minutes: 0,
           dataset: 'internal_dataset',
           tables: expected_internal_tables,

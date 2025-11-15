@@ -12,7 +12,7 @@ module DfE
         end
 
         def call
-          DfE::Analytics::BigQueryApplyPolicyTagsJob.do(
+          DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob.do(
             delay_in_minutes: delay_in_minutes,
             dataset: DfE::Analytics.config.bigquery_airbyte_dataset,
             tables: DfE::Analytics.hidden_pii,

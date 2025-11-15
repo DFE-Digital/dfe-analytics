@@ -16,7 +16,7 @@ RSpec.describe 'dfe:analytics:airbyte_deploy_tasks' do
   let(:task) { Rake::Task[task_name] }
 
   before do
-    allow(DfE::Analytics::AirbyteDeployJob).to receive(:perform_later)
+    allow(DfE::Analytics::Jobs::AirbyteDeployJob).to receive(:perform_later)
     task.reenable # so we can invoke multiple times
   end
 
@@ -25,6 +25,6 @@ RSpec.describe 'dfe:analytics:airbyte_deploy_tasks' do
       task.invoke
     end.to output(/Starting Airbyte deployment tasks.../).to_stdout
 
-    expect(DfE::Analytics::AirbyteDeployJob).to have_received(:perform_later)
+    expect(DfE::Analytics::Jobs::AirbyteDeployJob).to have_received(:perform_later)
   end
 end

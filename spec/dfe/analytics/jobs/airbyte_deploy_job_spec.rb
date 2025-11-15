@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DfE::Analytics::AirbyteDeployJob do
+RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
   let(:access_token) { 'fake-token' }
   let(:connection_id) { 'conn-123' }
   let(:source_id) { 'source-abc' }
@@ -16,7 +16,7 @@ RSpec.describe DfE::Analytics::AirbyteDeployJob do
     allow(Services::Airbyte::JobLast).to receive(:call).and_return(nil)
     allow(Services::Airbyte::StartSync).to receive(:call).and_return(job_id)
     allow(Services::Airbyte::WaitForSync).to receive(:call).and_return('succeeded')
-    allow(DfE::Analytics::BigQueryApplyPolicyTagsJob).to receive(:perform_later)
+    allow(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to receive(:perform_later)
   end
 
   it 'calls all Airbyte orchestration steps in order' do
@@ -39,7 +39,7 @@ RSpec.describe DfE::Analytics::AirbyteDeployJob do
       connection_id: connection_id,
       job_id: job_id
     )
-    expect(DfE::Analytics::BigQueryApplyPolicyTagsJob).to have_received(:perform_later)
+    expect(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to have_received(:perform_later)
   end
 
   context 'when last job is running' do

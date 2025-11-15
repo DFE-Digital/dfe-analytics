@@ -18,14 +18,14 @@ RSpec.describe DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags do
   before do
     allow(DfE::Analytics).to receive(:config).and_return(config_double)
     allow(DfE::Analytics).to receive(:hidden_pii).and_return(hidden_pii)
-    allow(DfE::Analytics::BigQueryApplyPolicyTagsJob).to receive(:do)
+    allow(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to receive(:do)
   end
 
   describe '.call' do
     it 'calls BigQueryApplyPolicyTagsJob.do with correct arguments' do
       described_class.call(delay_in_minutes:)
 
-      expect(DfE::Analytics::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
+      expect(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
         delay_in_minutes: delay_in_minutes,
         dataset: 'airbyte_dataset',
         tables: hidden_pii,
@@ -39,7 +39,7 @@ RSpec.describe DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags do
       it 'passes delay_in_minutes: 0 to the job' do
         described_class.call(delay_in_minutes:)
 
-        expect(DfE::Analytics::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
+        expect(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to have_received(:do).with(
           delay_in_minutes: 0,
           dataset: 'airbyte_dataset',
           tables: hidden_pii,

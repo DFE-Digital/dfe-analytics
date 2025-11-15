@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DfE::Analytics::BigQueryApplyPolicyTagsJob, type: :job do
+RSpec.describe DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob, type: :job do
   describe '.do' do
     let(:dataset) { 'airbyte_dataset' }
     let(:tables) { { users: %w[email name] } }

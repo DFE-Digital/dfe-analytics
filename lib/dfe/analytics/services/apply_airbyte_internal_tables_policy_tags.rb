@@ -14,7 +14,7 @@ module DfE
         end
 
         def call
-          DfE::Analytics::BigQueryApplyPolicyTagsJob.do(
+          DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob.do(
             delay_in_minutes: delay_in_minutes,
             dataset: DfE::Analytics.config.airbyte_internal_dataset,
             tables: internal_airbyte_tables,
