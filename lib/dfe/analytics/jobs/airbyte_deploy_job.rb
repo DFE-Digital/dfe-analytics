@@ -13,24 +13,34 @@ module DfE
           # Wait for any pending migrationsto finish
           DfE::Analytics::Services::WaitForMigrations.call
 
+          Rails.logger.info('Finished WaitForMigrations')
+
           access_token = ::Services::Airbyte::AccessToken.call
           connection_id, source_id = ::Services::Airbyte::ConnectionList.call(access_token:)
 
           # Refresh schema
           ::Services::Airbyte::ConnectionRefresh.call(access_token:, connection_id:, source_id:)
 
+          Rails.logger.info('Finished ConnectionRefresh')
+
           # Check if a sync job is already running
           last_job = ::Services::Airbyte::JobLast.call(access_token:, connection_id:)
           status = last_job&.dig('status')
           job_id = last_job&.dig('id')
+
+          Rails.logger.info("JobLast status: #{status}")
 
           job_id = ::Services::Airbyte::StartSync.call(access_token:, connection_id:) if status != 'running'
 
           # Wait for the job (existing or new) to finish
           ::Services::Airbyte::WaitForSync.call(access_token:, connection_id:, job_id:)
 
+          Rails.logger.info('Finished WaitForSync')
+
           # Trigger policy tagging
           BigQueryApplyPolicyTagsJob.perform_later
+
+          Rails.logger.info('Finished BigQueryApplyPolicyTagsJob')
         rescue StandardError => e
           Rails.logger.error(e.message)
           raise "AirbyteDeployJob failed: #{e.message}"
