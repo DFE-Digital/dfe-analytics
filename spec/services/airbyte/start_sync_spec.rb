@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/services/airbyte/start_sync'
-require_relative '../../../lib/services/airbyte/api_server'
-
 RSpec.describe Services::Airbyte::StartSync do
   let(:access_token) { 'access-token-123' }
   let(:connection_id) { 'conn-abc-456' }

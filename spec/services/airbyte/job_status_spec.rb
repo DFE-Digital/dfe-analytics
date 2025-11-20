@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/services/airbyte/job_status'
-require_relative '../../../lib/services/airbyte/api_server'
-
 RSpec.describe Services::Airbyte::JobStatus do
   let(:access_token) { 'token-123' }
   let(:connection_id) { 'conn-abc' }

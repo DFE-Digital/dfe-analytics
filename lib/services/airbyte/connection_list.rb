@@ -7,32 +7,25 @@ module Services
       class Error < StandardError; end
 
       def self.call(access_token:)
-        new(access_token).call
+        new(access_token:).call
       end
 
-      def initialize(access_token)
+      def initialize(access_token:)
         @access_token = access_token
       end
 
       def call
-        response = HTTParty.post(
-          "#{config.airbyte_server_url}/api/v1/connections/list",
-          headers: {
-            'Authorization' => "Bearer #{@access_token}",
-            'Content-Type' => 'application/json'
-          },
-          body: {
-            workspaceId: config.airbyte_workspace_id
-          }.to_json
+        payload = {
+          workspaceId: config.airbyte_workspace_id
+        }
+
+        response = Services::Airbyte::ApiServer.post(
+          path: '/api/v1/connections/list',
+          access_token: @access_token,
+          payload:
         )
 
-        unless response.success?
-          error_message = "Error calling Airbyte connections/list API: status: #{response.code} body: #{response.body}"
-          Rails.logger.error(error_message)
-          raise Error, error_message
-        end
-
-        connection = response.parsed_response.dig('connections', 0)
+        connection = response.dig('connections', 0)
 
         raise Error, 'No connections returned in response.' unless connection
 

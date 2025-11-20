@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/services/airbyte/api_server'
-
 RSpec.describe Services::Airbyte::ApiServer do
-  let(:access_token) { 'mock-access-token' }
-  let(:path) { '/api/v1/connections/sync' }
-  let(:payload) { { connectionId: 'abc-123' } }
-  let(:airbyte_url) { 'https://mock.airbyte.internal' }
+  let(:access_token) { 'mock-token' }
+  let(:path)         { '/api/v1/jobs/list' }
+  let(:payload)      { { connectionId: 'xyz' } }
+  let(:server_url)   { 'https://fake.airbyte.internal' }
+  let(:full_url)     { "#{server_url}#{path}" }
 
+  # Fake DfE::Analytics.config
   let(:config_double) do
-    instance_double('DfE::Analytics.config', airbyte_server_url: airbyte_url)
+    instance_double('DfE::Analytics.config', airbyte_server_url: server_url)
   end
 
   before do
@@ -17,10 +17,8 @@ RSpec.describe Services::Airbyte::ApiServer do
   end
 
   describe '.post' do
-    let(:url) { "#{airbyte_url}#{path}" }
-
-    context 'when the request succeeds' do
-      let(:response_body) { { 'status' => 'started' } }
+    context 'when the request is successful' do
+      let(:response_body) { { 'status' => 'success' } }
       let(:http_response) do
         instance_double(
           HTTParty::Response,
@@ -33,13 +31,12 @@ RSpec.describe Services::Airbyte::ApiServer do
         allow(HTTParty).to receive(:post).and_return(http_response)
       end
 
-      it 'calls the Airbyte API and returns parsed response' do
+      it 'returns parsed response' do
         result = described_class.post(path:, access_token:, payload:)
 
         expect(result).to eq(response_body)
-
         expect(HTTParty).to have_received(:post).with(
-          url,
+          full_url,
           headers: {
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
@@ -50,13 +47,13 @@ RSpec.describe Services::Airbyte::ApiServer do
       end
     end
 
-    context 'when the request fails' do
+    context 'when the request returns a non-success HTTP response' do
       let(:http_response) do
         instance_double(
           HTTParty::Response,
           success?: false,
-          code: 403,
-          body: 'Forbidden'
+          code: 500,
+          body: 'Internal Server Error'
         )
       end
 
@@ -65,12 +62,31 @@ RSpec.describe Services::Airbyte::ApiServer do
         allow(Rails.logger).to receive(:error)
       end
 
-      it 'logs the error and raises ApiServer::Error' do
-        expect(Rails.logger).to receive(:error).with(/Error calling Airbyte API \(#{Regexp.escape(path)}\): status: 403 body: Forbidden/)
+      it 'logs and raises ApiServer::Error' do
+        expect(Rails.logger).to receive(:error).with(
+          /Error calling Airbyte API \(#{Regexp.escape(path)}\): status: 500 body: Internal Server Error/
+        )
 
         expect do
           described_class.post(path:, access_token:, payload:)
-        end.to raise_error(described_class::Error, /status: 403/)
+        end.to raise_error(described_class::Error, /status: 500/)
+      end
+    end
+
+    context 'when HTTParty.post raises a network error' do
+      before do
+        allow(HTTParty).to receive(:post).and_raise(SocketError.new('network down'))
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs and wraps the error' do
+        expect(Rails.logger).to receive(:error).with(
+          /HTTP post failed to url: #{Regexp.escape(full_url)}, failed with error: network down/
+        )
+
+        expect do
+          described_class.post(path:, access_token:, payload:)
+        end.to raise_error(described_class::Error, /network down/)
       end
     end
   end

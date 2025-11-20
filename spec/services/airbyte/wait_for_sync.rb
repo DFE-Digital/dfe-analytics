@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/services/airbyte/wait_for_sync'
-require_relative '../../../lib/services/airbyte/job_status'
-
 RSpec.describe Services::Airbyte::WaitForSync do
   let(:access_token) { 'mock-token' }
   let(:connection_id) { 'conn-123' }

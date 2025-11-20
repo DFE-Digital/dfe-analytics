@@ -11,8 +11,25 @@ module Services
       end
 
       def call
-        response = HTTParty.post(
-          "#{config.airbyte_server_url}/api/v1/applications/token",
+        url = "#{config.airbyte_server_url}/api/v1/applications/token"
+
+        response = http_post(url)
+
+        # Handle HTTP non-success without rescue catching it
+        return parse_token(response) if response.success?
+
+        handle_http_error(response, url)
+      rescue StandardError => e
+        # Only network/transport failures should end up here
+        Rails.logger.error("HTTP post failed to url: #{url}, failed with error: #{e.message}")
+        raise Error, e.message
+      end
+
+      private
+
+      def http_post(url)
+        HTTParty.post(
+          url,
           headers: {
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
@@ -23,17 +40,17 @@ module Services
             'grant-type': 'client_credentials'
           }.to_json
         )
+      end
 
-        unless response.success?
-          error_message = "Error calling Airbyte token API: status: #{response.code} body: #{response.body}"
-          Rails.logger.error(error_message)
-          raise Error, error_message
-        end
-
+      def parse_token(response)
         response.parsed_response['access_token']
       end
 
-      private
+      def handle_http_error(response, _url)
+        message = "Error calling Airbyte token API: status: #{response.code} body: #{response.body}"
+        Rails.logger.error(message)
+        raise Error, message
+      end
 
       def config
         DfE::Analytics.config

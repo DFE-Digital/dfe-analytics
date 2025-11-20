@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/services/airbyte/access_token'
-
 RSpec.describe Services::Airbyte::AccessToken do
   let(:client_id) { 'test-client-id' }
   let(:client_secret) { 'test-client-secret' }
@@ -19,6 +17,7 @@ RSpec.describe Services::Airbyte::AccessToken do
 
   before do
     allow(DfE::Analytics).to receive(:config).and_return(config_double)
+    allow(Rails.logger).to receive(:error)
   end
 
   describe '.call' do
@@ -45,12 +44,11 @@ RSpec.describe Services::Airbyte::AccessToken do
           }.to_json
         ).and_return(token_response)
 
-        token = described_class.call
-        expect(token).to eq('abc123')
+        expect(described_class.call).to eq('abc123')
       end
     end
 
-    context 'when the token API call fails' do
+    context 'when the token API call returns an HTTP error' do
       let(:error_response) do
         instance_double(
           HTTParty::Response,
@@ -60,15 +58,34 @@ RSpec.describe Services::Airbyte::AccessToken do
         )
       end
 
-      it 'logs an error and raises an exception' do
-        expect(HTTParty).to receive(:post).and_return(error_response)
+      before do
+        allow(HTTParty).to receive(:post).and_return(error_response)
+      end
+
+      it 'logs an error and raises a wrapped exception' do
         expect(Rails.logger).to receive(:error).with(
           'Error calling Airbyte token API: status: 401 body: unauthorized'
         )
 
         expect do
           described_class.call
-        end.to raise_error(Services::Airbyte::AccessToken::Error, /status: 401/)
+        end.to raise_error(described_class::Error, /status: 401/)
+      end
+    end
+
+    context 'when HTTParty.post raises a transport error' do
+      before do
+        allow(HTTParty).to receive(:post).and_raise(SocketError, 'Failed to open TCP connection')
+      end
+
+      it 'logs the transport failure and raises a wrapped exception' do
+        expect(Rails.logger).to receive(:error).with(
+          a_string_matching(/HTTP post failed to url: #{Regexp.escape(token_url)}, failed with error: Failed to open TCP connection/)
+        )
+
+        expect do
+          described_class.call
+        end.to raise_error(described_class::Error, /Failed to open TCP connection/)
       end
     end
   end

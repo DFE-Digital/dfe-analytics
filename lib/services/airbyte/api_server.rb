@@ -29,19 +29,26 @@ module Services
           body: @payload.to_json
         )
 
-        unless response.success?
-          error_message = "Error calling Airbyte API (#{@path}): status: #{response.code} body: #{response.body}"
-          Rails.logger.error(error_message)
-          raise Error, error_message
-        end
+        handle_http_error(response)
 
         response.parsed_response
+      rescue StandardError => e
+        Rails.logger.error("HTTP post failed to url: #{url}, failed with error: #{e.message}")
+        raise Error, e.message
       end
 
       private
 
       def config
         DfE::Analytics.config
+      end
+
+      def handle_http_error(response)
+        return if response.success?
+
+        error_message = "Error calling Airbyte API (#{@path}): status: #{response.code} body: #{response.body}"
+        Rails.logger.error(error_message)
+        raise Error, error_message
       end
     end
   end
