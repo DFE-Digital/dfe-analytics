@@ -21,9 +21,9 @@ RSpec.describe Services::Airbyte::JobStatus do
       let(:response_body) do
         {
           'jobs' => [
-            { 'id' => 'job-40', 'status' => 'running' },
-            { 'id' => 'job-42', 'status' => 'succeeded' },
-            { 'id' => 'job-39', 'status' => 'cancelled' }
+            { 'job' => { 'id' => 'job-40', 'status' => 'running' } },
+            { 'job' => { 'id' => 'job-42', 'status' => 'succeeded' } },
+            { 'job' => { 'id' => 'job-39', 'status' => 'cancelled' } }
           ]
         }
       end
@@ -48,8 +48,8 @@ RSpec.describe Services::Airbyte::JobStatus do
       let(:response_body) do
         {
           'jobs' => [
-            { 'id' => 'job-40', 'status' => 'running' },
-            { 'id' => 'job-41', 'status' => 'failed' }
+            { 'job' => { 'id' => 'job-40', 'status' => 'running' } },
+            { 'job' => { 'id' => 'job-41', 'status' => 'failed' } }
           ]
         }
       end

@@ -54,7 +54,7 @@ RSpec.describe Services::Airbyte::StartSync do
         allow(Services::Airbyte::JobLast)
           .to receive(:call)
           .with(access_token:, connection_id:)
-          .and_return({ 'id' => job_id })
+          .and_return({ 'job' => { 'id' => job_id } })
       end
 
       it 'logs an info message and returns the last job id' do

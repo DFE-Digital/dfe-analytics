@@ -25,10 +25,10 @@ module DfE
 
           # Check if a sync job is already running
           last_job = ::Services::Airbyte::JobLast.call(access_token:, connection_id:)
-          status = last_job&.dig('status')
-          job_id = last_job&.dig('id')
+          status = last_job&.dig('job', 'status')
+          job_id = last_job&.dig('job', 'id')
 
-          Rails.logger.info("JobLast status: #{status}")
+          Rails.logger.info("JobLast status: #{status} id: #{job_id}")
 
           job_id = ::Services::Airbyte::StartSync.call(access_token:, connection_id:) if status != 'running'
 

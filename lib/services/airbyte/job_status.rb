@@ -37,11 +37,11 @@ module Services
         )
 
         jobs = response['jobs'] || []
-        job = jobs.find { |j| j['id'] == @job_id }
+        job = jobs.find { |j| j.dig('job', 'id') == @job_id }
 
         raise Error, "Job #{@job_id} not found in the last #{PAGE_SIZE} jobs" unless job
 
-        job['status']
+        job.dig('job', 'status')
       rescue StandardError => e
         Rails.logger.error(e.message)
         raise Error, e.message

@@ -5,8 +5,23 @@ RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
   let(:connection_id) { 'conn-123' }
   let(:source_id) { 'source-abc' }
   let(:job_id) { 456 }
-  let(:running_job) { { 'status' => 'running', 'id' => job_id } }
-  let(:finished_job) { { 'status' => 'succeeded', 'id' => job_id } }
+  let(:running_job) do
+    {
+      'job' => {
+        'status' => 'running',
+        'id' => job_id
+      }
+    }
+  end
+
+  let(:finished_job) do
+    {
+      'job' => {
+        'status' => 'succeeded',
+        'id' => job_id
+      }
+    }
+  end
 
   before do
     allow(DfE::Analytics::Services::WaitForMigrations).to receive(:call)

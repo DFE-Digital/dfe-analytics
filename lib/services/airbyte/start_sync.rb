@@ -20,11 +20,11 @@ module Services
 
         response = Services::Airbyte::ApiServer.post(
           path: '/api/v1/connections/sync',
-          access_token: @access_token,
+          access_token:,
           payload:
         )
 
-        job_id_for!(response&.dig('job'))
+        job_id_for!(response)
       rescue Services::Airbyte::ApiServer::HttpError => e
         raise unless e.code == 409
 
@@ -42,7 +42,7 @@ module Services
       private
 
       def job_id_for!(job)
-        job_id = job&.dig('id')
+        job_id = job&.dig('job', 'id')
 
         raise Error, 'No job ID returned' unless job_id
 
