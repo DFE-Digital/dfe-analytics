@@ -6,6 +6,16 @@ module Services
     class ApiServer
       class Error < StandardError; end
 
+      # Custom HTTP Error class if clients require this
+      class HttpError < Error
+        attr_reader :code
+
+        def initialize(code, message)
+          @code = code
+          super(message)
+        end
+      end
+
       def self.post(path:, access_token:, payload:)
         new(path:, access_token:, payload:).post
       end
@@ -32,6 +42,8 @@ module Services
         handle_http_error(response)
 
         response.parsed_response
+      rescue HttpError
+        raise
       rescue StandardError => e
         Rails.logger.error("HTTP post failed to url: #{url}, failed with error: #{e.message}")
         raise Error, e.message
@@ -47,8 +59,8 @@ module Services
         return if response.success?
 
         error_message = "Error calling Airbyte API (#{@path}): status: #{response.code} body: #{response.body}"
-        Rails.logger.error(error_message)
-        raise Error, error_message
+        Rails.logger.info(error_message)
+        raise HttpError.new(response.code, response.body)
       end
     end
   end

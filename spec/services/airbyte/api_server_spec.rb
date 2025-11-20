@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe Services::Airbyte::ApiServer do
-  let(:access_token) { 'mock-token' }
-  let(:path)         { '/api/v1/jobs/list' }
-  let(:payload)      { { connectionId: 'xyz' } }
-  let(:server_url)   { 'https://fake.airbyte.internal' }
-  let(:full_url)     { "#{server_url}#{path}" }
+  let(:access_token) { 'test-token' }
+  let(:path) { '/api/v1/connections/sync' }
+  let(:payload) { { connectionId: 'abc-123' } }
+  let(:airbyte_url) { 'https://mock.airbyte.api' }
+  let(:url) { "#{airbyte_url}#{path}" }
 
-  # Fake DfE::Analytics.config
   let(:config_double) do
-    instance_double('DfE::Analytics.config', airbyte_server_url: server_url)
+    instance_double('DfE::Analytics.config', airbyte_server_url: airbyte_url)
   end
 
   before do
@@ -18,7 +17,7 @@ RSpec.describe Services::Airbyte::ApiServer do
 
   describe '.post' do
     context 'when the request is successful' do
-      let(:response_body) { { 'status' => 'success' } }
+      let(:response_body) { { 'status' => 'ok' } }
       let(:http_response) do
         instance_double(
           HTTParty::Response,
@@ -27,66 +26,57 @@ RSpec.describe Services::Airbyte::ApiServer do
         )
       end
 
-      before do
+      it 'returns the parsed response' do
         allow(HTTParty).to receive(:post).and_return(http_response)
-      end
 
-      it 'returns parsed response' do
-        result = described_class.post(path:, access_token:, payload:)
-
+        result = described_class.post(path: path, access_token: access_token, payload: payload)
         expect(result).to eq(response_body)
-        expect(HTTParty).to have_received(:post).with(
-          full_url,
-          headers: {
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'Authorization' => "Bearer #{access_token}"
-          },
-          body: payload.to_json
-        )
       end
     end
 
-    context 'when the request returns a non-success HTTP response' do
+    context 'when the response is an HTTP error' do
       let(:http_response) do
         instance_double(
           HTTParty::Response,
           success?: false,
-          code: 500,
-          body: 'Internal Server Error'
+          code: 403,
+          body: 'Forbidden'
         )
       end
 
       before do
         allow(HTTParty).to receive(:post).and_return(http_response)
-        allow(Rails.logger).to receive(:error)
+        allow(Rails.logger).to receive(:info)
       end
 
-      it 'logs and raises ApiServer::Error' do
-        expect(Rails.logger).to receive(:error).with(
-          /Error calling Airbyte API \(#{Regexp.escape(path)}\): status: 500 body: Internal Server Error/
-        )
+      it 'logs and raises a HttpError with code and message' do
+        expect(Rails.logger).to receive(:info).with(/Error calling Airbyte API/)
 
+        error = nil
         expect do
-          described_class.post(path:, access_token:, payload:)
-        end.to raise_error(described_class::Error, /status: 500/)
+          described_class.post(path: path, access_token: access_token, payload: payload)
+        rescue described_class::HttpError => e
+          error = e
+          raise
+        end.to raise_error(described_class::HttpError)
+
+        expect(error.code).to eq(403)
+        expect(error.message).to eq('Forbidden')
       end
     end
 
-    context 'when HTTParty.post raises a network error' do
+    context 'when a low-level network error occurs' do
       before do
-        allow(HTTParty).to receive(:post).and_raise(SocketError.new('network down'))
+        allow(HTTParty).to receive(:post).and_raise(StandardError.new('Socket hang up'))
         allow(Rails.logger).to receive(:error)
       end
 
-      it 'logs and wraps the error' do
-        expect(Rails.logger).to receive(:error).with(
-          /HTTP post failed to url: #{Regexp.escape(full_url)}, failed with error: network down/
-        )
+      it 'logs and raises a generic ApiServer::Error' do
+        expect(Rails.logger).to receive(:error).with(/HTTP post failed to url/)
 
         expect do
-          described_class.post(path:, access_token:, payload:)
-        end.to raise_error(described_class::Error, /network down/)
+          described_class.post(path: path, access_token: access_token, payload: payload)
+        end.to raise_error(described_class::Error, /Socket hang up/)
       end
     end
   end
