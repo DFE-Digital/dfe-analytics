@@ -15,7 +15,7 @@ module DfE
 
         def call
           DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob.do(
-            delay_in_minutes: delay_in_minutes,
+            delay_in_minutes: @delay_in_minutes,
             dataset: DfE::Analytics.config.airbyte_internal_dataset,
             tables: internal_airbyte_tables,
             policy_tag: DfE::Analytics.config.bigquery_hidden_policy_tag
@@ -31,8 +31,6 @@ module DfE
             mem[airbyte_internal_table_name] = AIRBYTE_INTERNAL_TABLE_DATA_COLUMN
           end
         end
-
-        attr_reader :delay_in_minutes
       end
     end
   end

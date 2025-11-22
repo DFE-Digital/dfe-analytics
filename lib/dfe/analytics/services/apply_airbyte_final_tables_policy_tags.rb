@@ -13,16 +13,12 @@ module DfE
 
         def call
           DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob.do(
-            delay_in_minutes: delay_in_minutes,
+            delay_in_minutes: @delay_in_minutes,
             dataset: DfE::Analytics.config.bigquery_airbyte_dataset,
             tables: DfE::Analytics.hidden_pii,
             policy_tag: DfE::Analytics.config.bigquery_hidden_policy_tag
           )
         end
-
-        private
-
-        attr_reader :delay_in_minutes
       end
     end
   end
