@@ -7,8 +7,9 @@ namespace :dfe do
       puts "Calling DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags.call(delay_in_minutes: #{delay})"
       DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags.call(delay_in_minutes: delay)
 
-      puts "Calling DfE::Analytics::Services::ApplyAirbyteInternalTablesPolicyTags.call(delay_in_minutes: #{delay})"
-      DfE::Analytics::Services::ApplyAirbyteInternalTablesPolicyTags.call(delay_in_minutes: delay)
+      # Internal tables no longer created by airbyte - remove following code following testing
+      # puts "Calling DfE::Analytics::Services::ApplyAirbyteInternalTablesPolicyTags.call(delay_in_minutes: #{delay})"
+      # DfE::Analytics::Services::ApplyAirbyteInternalTablesPolicyTags.call(delay_in_minutes: delay)
     end
   end
 end

@@ -31,7 +31,7 @@ RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
     allow(Services::Airbyte::JobLast).to receive(:call).and_return(nil)
     allow(Services::Airbyte::StartSync).to receive(:call).and_return(job_id)
     allow(Services::Airbyte::WaitForSync).to receive(:call).and_return('succeeded')
-    allow(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to receive(:perform_later)
+    allow(DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags).to receive(:call)
   end
 
   it 'calls all Airbyte orchestration steps in order' do
@@ -54,7 +54,7 @@ RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
       connection_id: connection_id,
       job_id: job_id
     )
-    expect(DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob).to have_received(:perform_later)
+    expect(DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags).to have_received(:call)
   end
 
   context 'when last job is running' do

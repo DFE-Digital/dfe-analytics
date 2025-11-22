@@ -37,10 +37,10 @@ module DfE
 
           Rails.logger.info('Finished WaitForSync')
 
-          # Trigger policy tagging
-          BigQueryApplyPolicyTagsJob.perform_later
+          # Trigger policy tagging for final tables
+          DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags.call
 
-          Rails.logger.info('Finished BigQueryApplyPolicyTagsJob')
+          Rails.logger.info('Finished AirbyteDeployJob')
         rescue StandardError => e
           Rails.logger.error(e.message)
           raise "AirbyteDeployJob failed: #{e.message}"
