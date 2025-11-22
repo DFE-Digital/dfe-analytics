@@ -16,30 +16,15 @@ module Services
       end
 
       def call
-        response = HTTParty.post(
-          "#{config.airbyte_server_url}/api/v1/sources/discover_schema",
-          headers: {
-            'Authorization' => "Bearer #{@access_token}",
-            'Content-Type' => 'application/json'
-          },
-          body: {
-            sourceId: @source_id
-          }.to_json
+        payload = {
+          sourceId: @source_id
+        }
+
+        Services::Airbyte::ApiServer.post(
+          path: '/api/v1/sources/discover_schema',
+          access_token: @access_token,
+          payload:
         )
-
-        unless response.success?
-          error_message = "Error calling Airbyte discover_schema API: status: #{response.code} body: #{response.body}"
-          Rails.logger.error(error_message)
-          raise Error, error_message
-        end
-
-        response.parsed_response
-      end
-
-      private
-
-      def config
-        DfE::Analytics.config
       end
     end
   end

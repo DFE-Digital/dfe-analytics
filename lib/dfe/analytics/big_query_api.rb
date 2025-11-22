@@ -81,12 +81,12 @@ module DfE
         "DfE::Analytics BigQuery API insert error for #{response.insert_errors.length} event(s):\n#{message}"
       end
 
-      def self.apply_policy_tags(tables, policy_tag)
+      def self.apply_policy_tags(dataset, tables, policy_tag)
         tables.each do |table_name, column_names|
           begin
             table = client.get_table(
               DfE::Analytics.config.bigquery_project_id,
-              DfE::Analytics.config.bigquery_airbyte_dataset,
+              dataset,
               table_name.to_s
             )
           rescue Google::Apis::ClientError => e
@@ -106,7 +106,7 @@ module DfE
           begin
             client.patch_table(
               DfE::Analytics.config.bigquery_project_id,
-              DfE::Analytics.config.bigquery_airbyte_dataset,
+              dataset,
               table_name.to_s,
               updated_table,
               fields: 'schema'

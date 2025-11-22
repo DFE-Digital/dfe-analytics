@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/services/airbyte/connection_update'
-
 RSpec.describe Services::Airbyte::ConnectionUpdate do
   let(:access_token) { 'fake-access-token' }
   let(:connection_id) { 'abc-123' }
+
   let(:allowed_list) do
     {
       academic_cycles: %w[created_at end_date id start_date updated_at]
@@ -34,103 +33,106 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     }
   end
 
-  let(:config_double) do
-    instance_double(
-      'DfE::Analytics.config',
-      airbyte_server_url: 'https://fake.airbyte.api'
-    )
-  end
-
-  before do
-    allow(DfE::Analytics).to receive(:config).and_return(config_double)
-  end
-
   describe '.call' do
-    let(:http_response) do
-      instance_double(
-        HTTParty::Response,
-        success?: true,
-        parsed_response: { 'status' => 'ok' }
-      )
-    end
+    let(:api_result) { { 'status' => 'ok' } }
 
     before do
-      allow(HTTParty).to receive(:post).and_return(http_response)
+      allow(Services::Airbyte::ApiServer).to receive(:post).and_return(api_result)
     end
 
-    it 'calls the Airbyte API and returns parsed response' do
-      result = described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
+    it 'delegates to ApiServer and returns parsed response' do
+      result = described_class.call(
+        access_token:,
+        connection_id:,
+        allowed_list:,
+        discovered_schema:
+      )
 
-      expect(result).to eq({ 'status' => 'ok' })
+      expect(result).to eq(api_result)
 
-      expect(HTTParty).to have_received(:post).with(
-        'https://fake.airbyte.api/api/v1/connections/update',
-        headers: {
-          'Authorization' => "Bearer #{access_token}",
-          'Content-Type' => 'application/json'
-        },
-        body: kind_of(String)
+      expect(Services::Airbyte::ApiServer).to have_received(:post).with(
+        path: '/api/v1/connections/update',
+        access_token: access_token,
+        payload: kind_of(Hash)
       )
     end
 
     context 'when stream is missing from discovered schema' do
       let(:discovered_schema) { { 'catalog' => { 'streams' => [] } } }
 
-      it 'raises a ConnectionUpdate::Error' do
+      before { allow(Rails.logger).to receive(:error) }
+
+      it 'logs and raises ConnectionUpdate::Error' do
         expect(Rails.logger).to receive(:error).with(/Stream definition not found/)
 
         expect do
-          described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
-        end.to raise_error(Services::Airbyte::ConnectionUpdate::Error)
+          described_class.call(
+            access_token:,
+            connection_id:,
+            allowed_list:,
+            discovered_schema:
+          )
+        end.to raise_error(described_class::Error)
       end
     end
 
-    context 'when Airbyte API call fails' do
-      let(:http_response) do
-        instance_double(
-          HTTParty::Response,
-          success?: false,
-          code: 500,
-          body: 'Internal Server Error'
-        )
+    context 'when ApiServer.post raises an error' do
+      before do
+        allow(Services::Airbyte::ApiServer).to receive(:post)
+          .and_raise(Services::Airbyte::ApiServer::Error.new('Boom'))
       end
 
-      it 'raises a ConnectionUpdate::Error with status and body' do
-        expect(Rails.logger).to receive(:error).with(/Error calling Airbyte discover_schema API/)
-
+      it 'does not wrap or swallow ApiServer errors' do
         expect do
-          described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
-        end.to raise_error(Services::Airbyte::ConnectionUpdate::Error)
+          described_class.call(
+            access_token:,
+            connection_id:,
+            allowed_list:,
+            discovered_schema:
+          )
+        end.to raise_error(Services::Airbyte::ApiServer::Error, /Boom/)
       end
     end
 
-    it 'sends the correct connection update payload structure' do
-      described_class.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
+    it 'builds and sends the correct connection update payload' do
+      described_class.call(
+        access_token:,
+        connection_id:,
+        allowed_list:,
+        discovered_schema:
+      )
 
-      expect(HTTParty).to have_received(:post) do |url, options|
-        expect(url).to eq('https://fake.airbyte.api/api/v1/connections/update')
+      expect(Services::Airbyte::ApiServer).to have_received(:post) do |args|
+        payload = args[:payload]
 
-        payload = JSON.parse(options[:body])
+        expect(payload[:connectionId]).to eq(connection_id)
+        expect(payload[:syncCatalog]).to be_a(Hash)
+        expect(payload[:syncCatalog][:streams].size).to eq(1)
 
-        expect(payload['connectionId']).to eq(connection_id)
-        expect(payload['syncCatalog']).to be_a(Hash)
-        expect(payload['syncCatalog']['streams'].size).to eq(1)
+        stream_payload = payload[:syncCatalog][:streams].first
 
-        stream = payload['syncCatalog']['streams'].first
+        expect(stream_payload[:stream][:name]).to eq('academic_cycles')
+        expect(stream_payload[:stream][:namespace]).to eq('public')
 
-        expect(stream['stream']['name']).to eq('academic_cycles')
-        expect(stream['stream']['namespace']).to eq('public')
-        expect(stream['config']['syncMode']).to eq('incremental')
-        expect(stream['config']['destinationSyncMode']).to eq('append')
-        expect(stream['config']['cursorField']).to eq(['_ab_cdc_lsn'])
-        expect(stream['config']['primaryKey']).to eq([['id']])
+        config = stream_payload[:config]
+        expect(config[:syncMode]).to eq('incremental')
+        expect(config[:destinationSyncMode]).to eq('append')
+        expect(config[:cursorField]).to eq(['_ab_cdc_lsn'])
+        expect(config[:primaryKey]).to eq([['id']])
 
-        expected_selected_fields = %w[
-          _ab_cdc_lsn _ab_cdc_deleted_at _ab_cdc_updated_at
-          created_at end_date id start_date updated_at
-        ].map { |f| { 'fieldPath' => [f] } }
+        # Selected fields include standard ones + allowed list
+        expected_fields = %w[
+          _ab_cdc_lsn
+          _ab_cdc_deleted_at
+          _ab_cdc_updated_at
+          created_at
+          end_date
+          id
+          start_date
+          updated_at
+        ].map { |f| { fieldPath: [f] } }
 
-        expect(stream['config']['selectedFields']).to match_array(expected_selected_fields)
+        expect(config[:selectedFields]).to match_array(expected_fields)
       end
     end
   end

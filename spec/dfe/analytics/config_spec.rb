@@ -43,6 +43,7 @@ RSpec.describe DfE::Analytics::Config do
         allow(ENV).to receive(:fetch).with('BIGQUERY_HIDDEN_POLICY_TAG', nil).and_return('my_policy_tag')
         allow(ENV).to receive(:fetch).with('BIGQUERY_MAINTENANCE_WINDOW', nil).and_return(nil)
         allow(ENV).to receive(:fetch).with('RAILS_ENV', 'development').and_return('test')
+        allow(ENV).to receive(:fetch).with('AIRBYTE_INTERNAL_DATASET', 'airbyte_internal').and_return('my_airbyte_internal_dataset')
         allow(ENV).to receive(:fetch).with('AIRBYTE_CLIENT_ID', nil).and_return('my_client_id')
         allow(ENV).to receive(:fetch).with('AIRBYTE_CLIENT_SECRET', nil).and_return('my_client_secret')
         allow(ENV).to receive(:fetch).with('AIRBYTE_SERVER_URL', nil).and_return('my_server_url')

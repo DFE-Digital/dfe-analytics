@@ -1,6 +1,6 @@
 module DfE
   module Analytics
-    class LoadEntityBatch < AnalyticsJob
+    class LoadEntityBatch < DfE::Analytics::Jobs::AnalyticsJob
       # https://cloud.google.com/bigquery/quotas#streaming_inserts
       # at a batch size of 500, this allows 20kb per record
       BQ_BATCH_MAX_BYTES = 10_000_000

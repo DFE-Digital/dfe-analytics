@@ -1,4 +1,4 @@
-require_relative '../shared/service_pattern'
+# frozen_string_literal: true
 
 module DfE
   module Analytics
