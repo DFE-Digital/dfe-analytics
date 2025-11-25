@@ -11,7 +11,7 @@ RSpec.describe Services::Airbyte::WaitForSync do
     end
 
     before do
-      allow(Kernel).to receive(:sleep) # avoid actual sleeping
+      allow_any_instance_of(described_class).to receive(:sleep) # disable real sleep
     end
 
     context 'when the job eventually succeeds' do
@@ -29,6 +29,7 @@ RSpec.describe Services::Airbyte::WaitForSync do
     context 'when the job fails' do
       before do
         allow(Services::Airbyte::JobStatus).to receive(:call)
+          .with(access_token:, connection_id:, job_id:)
           .and_return('failed')
       end
 
@@ -41,8 +42,14 @@ RSpec.describe Services::Airbyte::WaitForSync do
 
     context 'when the job times out' do
       before do
-        allow(Services::Airbyte::JobStatus).to receive(:call).and_return('running')
-        allow(Time).to receive(:now).and_return(*Array.new(100) { |i| Time.at(i * 40) }) # simulates time increasing
+        allow(Services::Airbyte::JobStatus).to receive(:call)
+          .with(access_token:, connection_id:, job_id:)
+          .and_return('running')
+
+        # Simulate increasing time to trigger timeout
+        fake_time = Time.now
+        timestamps = Array.new(100) { |i| fake_time + (i * 40) } # +40s each iteration
+        allow(Time).to receive(:now).and_return(*timestamps)
       end
 
       it 'raises a WaitForSync::Error due to timeout' do
@@ -54,7 +61,8 @@ RSpec.describe Services::Airbyte::WaitForSync do
 
     context 'when JobStatus raises an unexpected error' do
       before do
-        allow(Services::Airbyte::JobStatus).to receive(:call).and_raise(StandardError.new('network error'))
+        allow(Services::Airbyte::JobStatus).to receive(:call)
+          .and_raise(StandardError.new('network error'))
       end
 
       it 'raises a WaitForSync::Error wrapping the original error' do
