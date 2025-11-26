@@ -1,23 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../../../lib/services/airbyte/connection_list'
-
 RSpec.describe Services::Airbyte::ConnectionList do
-  let(:access_token) { 'valid-token' }
-  let(:client_id) { 'dummy-id' }
-  let(:client_secret) { 'dummy-secret' }
-  let(:server_url) { 'https://airbyte.example.com' }
+  let(:access_token) { 'mock-access-token' }
   let(:workspace_id) { 'workspace-123' }
-  let(:url) { "#{server_url}/api/v1/connections/list" }
-
   let(:config_double) do
-    instance_double(
-      'DfE::Analytics,config',
-      airbyte_client_id: client_id,
-      airbyte_client_secret: client_secret,
-      airbyte_server_url: server_url,
-      airbyte_workspace_id: workspace_id
-    )
+    instance_double('DfE::Analytics.config', airbyte_workspace_id: workspace_id)
   end
 
   before do
@@ -25,69 +12,59 @@ RSpec.describe Services::Airbyte::ConnectionList do
   end
 
   describe '.call' do
-    context 'when API returns a connection successfully' do
+    subject(:call_result) { described_class.call(access_token:) }
+
+    context 'when the API returns a connection' do
       let(:mock_response) do
-        instance_double(
-          HTTParty::Response,
-          success?: true,
-          parsed_response: {
-            'connections' => [
-              { 'connectionId' => 'conn-abc', 'sourceId' => 'src-xyz' }
-            ]
-          }
-        )
+        {
+          'connections' => [
+            {
+              'connectionId' => 'conn-1',
+              'sourceId' => 'src-1'
+            }
+          ]
+        }
       end
 
-      it 'returns connection_id and source_id as an array' do
-        expect(HTTParty).to receive(:post).with(
-          url,
-          headers: {
-            'Authorization' => "Bearer #{access_token}",
-            'Content-Type' => 'application/json'
-          },
-          body: { workspaceId: workspace_id }.to_json
-        ).and_return(mock_response)
+      before do
+        allow(Services::Airbyte::ApiServer).to receive(:post).and_return(mock_response)
+      end
 
-        result = described_class.call(access_token:)
-        expect(result).to eq(%w[conn-abc src-xyz])
+      it 'returns connectionId and sourceId as an array' do
+        expect(call_result).to eq(%w[conn-1 src-1])
+
+        expect(Services::Airbyte::ApiServer).to have_received(:post).with(
+          path: '/api/v1/connections/list',
+          access_token:,
+          payload: { workspaceId: workspace_id }
+        )
       end
     end
 
-    context 'when API returns no connections' do
-      let(:mock_response) do
-        instance_double(
-          HTTParty::Response,
-          success?: true,
-          parsed_response: { 'connections' => [] }
-        )
+    context 'when the API returns no connections' do
+      let(:mock_response) { { 'connections' => [] } }
+
+      before do
+        allow(Services::Airbyte::ApiServer).to receive(:post).and_return(mock_response)
       end
 
-      it 'raises an error' do
-        allow(HTTParty).to receive(:post).and_return(mock_response)
-
+      it 'raises a ConnectionList::Error' do
         expect do
-          described_class.call(access_token:)
-        end.to raise_error(Services::Airbyte::ConnectionList::Error, /No connections returned/)
+          call_result
+        end.to raise_error(described_class::Error, /No connections returned/)
       end
     end
 
-    context 'when API call fails' do
-      let(:mock_response) do
-        instance_double(
-          HTTParty::Response,
-          success?: false,
-          code: 500,
-          body: 'Internal Server Error'
-        )
+    context 'when the API call raises an ApiServer::Error' do
+      before do
+        allow(Services::Airbyte::ApiServer).to receive(:post)
+          .and_raise(Services::Airbyte::ApiServer::Error.new('something exploded'))
       end
 
-      it 'logs and raises an error' do
-        allow(HTTParty).to receive(:post).and_return(mock_response)
-        expect(Rails.logger).to receive(:error).with(/status: 500/)
-
+      it 'raises the same ApiServer::Error (not caught here)' do
         expect do
-          described_class.call(access_token:)
-        end.to raise_error(Services::Airbyte::ConnectionList::Error, /status: 500/)
+          call_result
+        end.to raise_error(Services::Airbyte::ApiServer::Error, /something exploded/)
       end
     end
   end

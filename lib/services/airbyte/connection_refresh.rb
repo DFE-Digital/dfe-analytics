@@ -6,13 +6,19 @@ module Services
     class ConnectionRefresh
       class Error < StandardError; end
 
-      def self.call
-        new.call
+      def self.call(access_token: nil, connection_id: nil, source_id: nil)
+        new(access_token:, connection_id:, source_id:).call
+      end
+
+      def initialize(access_token:, connection_id:, source_id:)
+        @access_token = access_token
+        @connection_id = connection_id
+        @source_id = source_id
       end
 
       def call
-        access_token = AccessToken.call
-        connection_id, source_id = ConnectionList.call(access_token:)
+        @access_token ||= AccessToken.call
+        @connection_id, @source_id = ConnectionList.call(access_token:) if connection_id.blank? || source_id.blank?
         discovered_schema = DiscoverSchema.call(access_token:, source_id:)
         allowed_list = DfE::Analytics.allowlist
 
@@ -22,9 +28,9 @@ module Services
         raise Error, "Connection refresh failed: #{e.message}"
       end
 
-      def config
-        DfE::Analytics.config
-      end
+      private
+
+      attr_reader :access_token, :connection_id, :source_id
     end
   end
 end

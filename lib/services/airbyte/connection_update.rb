@@ -24,29 +24,14 @@ module Services
       end
 
       def call
-        response = HTTParty.post(
-          "#{config.airbyte_server_url}/api/v1/connections/update",
-          headers: {
-            'Authorization' => "Bearer #{@access_token}",
-            'Content-Type' => 'application/json'
-          },
-          body: connection_update_payload.to_json
+        Services::Airbyte::ApiServer.post(
+          path: '/api/v1/connections/update',
+          access_token: @access_token,
+          payload: connection_update_payload
         )
-
-        unless response.success?
-          error_message = "Error calling Airbyte discover_schema API: status: #{response.code} body: #{response.body}"
-          Rails.logger.error(error_message)
-          raise Error, error_message
-        end
-
-        response.parsed_response
       end
 
       private
-
-      def config
-        DfE::Analytics.config
-      end
 
       def discovered_stream_for(stream_name)
         discovered_stream = @discovered_streams.find { |s| s.dig('stream', 'name') == stream_name.to_s } if @discovered_streams.present?

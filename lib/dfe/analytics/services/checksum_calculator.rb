@@ -1,4 +1,4 @@
-require_relative '../shared/service_pattern'
+# frozen_string_literal: true
 
 module DfE
   module Analytics
@@ -31,7 +31,7 @@ module DfE
         end
 
         def postgres?
-          adapter_name == 'postgresql' || adapter_name == 'postgis'
+          %w[postgresql postgis].include?(adapter_name)
         end
       end
     end

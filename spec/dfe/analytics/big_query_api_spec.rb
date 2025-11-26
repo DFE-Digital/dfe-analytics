@@ -86,6 +86,7 @@ RSpec.describe DfE::Analytics::BigQueryApi do
   end
 
   describe '.apply_policy_tags' do
+    let(:dataset) { 'airbyte_dataset' }
     let(:tables) { { users: %w[email name] } }
     let(:policy_tag) { 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc' }
     let(:fields) do
@@ -108,8 +109,8 @@ RSpec.describe DfE::Analytics::BigQueryApi do
     end
 
     it 'sets policy tags on specified columns only' do
-      with_analytics_config(test_dummy_config.merge(bigquery_airbyte_dataset: 'airbyte_dataset')) do
-        described_class.apply_policy_tags(tables, policy_tag)
+      with_analytics_config(test_dummy_config) do
+        described_class.apply_policy_tags(dataset, tables, policy_tag)
 
         expect(fields[0]).to have_received(:policy_tags=)
         expect(fields[1]).to have_received(:policy_tags=)
@@ -118,23 +119,23 @@ RSpec.describe DfE::Analytics::BigQueryApi do
     end
 
     it 'raises and logs error if get_table fails' do
-      with_analytics_config(test_dummy_config.merge(bigquery_airbyte_dataset: 'airbyte_dataset')) do
+      with_analytics_config(test_dummy_config) do
         allow(client).to receive(:get_table).and_raise(Google::Apis::ClientError.new('not found'))
 
         expect(Rails.logger).to receive(:error).with(/Failed to retrieve table/)
         expect do
-          described_class.apply_policy_tags(tables, policy_tag)
+          described_class.apply_policy_tags(dataset, tables, policy_tag)
         end.to raise_error(DfE::Analytics::BigQueryApi::PolicyTagError)
       end
     end
 
     it 'raises and logs error if patch_table fails' do
-      with_analytics_config(test_dummy_config.merge(bigquery_airbyte_dataset: 'airbyte_dataset')) do
+      with_analytics_config(test_dummy_config) do
         allow(client).to receive(:patch_table).and_raise(Google::Apis::ClientError.new('invalid'))
 
         expect(Rails.logger).to receive(:error).with(/Failed to update table/)
         expect do
-          described_class.apply_policy_tags(tables, policy_tag)
+          described_class.apply_policy_tags(dataset, tables, policy_tag)
         end.to raise_error(DfE::Analytics::BigQueryApi::PolicyTagError)
       end
     end
