@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.15.11](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.11) (2025-11-26)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.10...v1.15.11)
+
+**Merged pull requests:**
+
+- Add airbyte deployment tasks [\#216](https://github.com/DFE-Digital/dfe-analytics/pull/216) ([asatwal](https://github.com/asatwal))
+
 ## [v1.15.10](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.10) (2025-11-07)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.9...v1.15.10)
@@ -60,7 +68,7 @@
 
 ## [v1.15.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.5) (2025-04-07)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v.1.15.4...v1.15.5)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.4...v1.15.5)
 
 **Implemented enhancements:**
 
@@ -70,13 +78,13 @@
 
 - Add link to DfE Analytics terraform docs from setup readme. [\#190](https://github.com/DFE-Digital/dfe-analytics/pull/190) ([asatwal](https://github.com/asatwal))
 
-## [v.1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v.1.15.4) (2025-01-22)
-
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.4...v.1.15.4)
-
 ## [v1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.4) (2025-01-22)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.3...v1.15.4)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v.1.15.4...v1.15.4)
+
+## [v.1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v.1.15.4) (2025-01-22)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.3...v.1.15.4)
 
 **Fixed bugs:**
 
