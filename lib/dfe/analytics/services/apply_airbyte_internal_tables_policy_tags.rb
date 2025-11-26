@@ -3,7 +3,7 @@
 module DfE
   module Analytics
     module Services
-      # Apply hidden policy tags to the internal airbyte table columns contains any data
+      # Apply hidden policy tags to the internal airbyte table columns containing any data
       class ApplyAirbyteInternalTablesPolicyTags
         include ServicePattern
 

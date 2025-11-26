@@ -23,8 +23,6 @@ module DfE
             sleep WAIT_INTERVAL
             break unless pending_migrations?
           end
-        rescue StandardError => e
-          raise Error, e.message
         end
 
         private

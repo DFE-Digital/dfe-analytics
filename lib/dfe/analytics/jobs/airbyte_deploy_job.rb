@@ -10,7 +10,7 @@ module DfE
         discard_on StandardError
 
         def perform
-          # Wait for any pending migrationsto finish
+          # Wait for any pending migrations to finish
           DfE::Analytics::Services::WaitForMigrations.call
 
           Rails.logger.info('Finished WaitForMigrations')

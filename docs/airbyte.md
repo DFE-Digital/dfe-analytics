@@ -47,17 +47,17 @@ Main configuration options for Airbyte:
   `rake dfe:analytics:airbyte_deploy_tasks`
 
 - The tasks required following a DevOps deployment are summarised below:
-	- Wait for any rails database migrations
-	- Refresh the airbyte connection to update airbyte with any schema changes
-	- Retrieve status of the last airbyte sync job
-	- If the status of the last airbyte sync job is not 'running' then start a new sync
-	- Wait for the sync job to finish - note that the wait time is currently up to 1 hour to cater for large databases
-	- Apply hidden policy tags to all PII fields in the final airbyte tables
+    - Wait for any rails database migrations
+    - Refresh the airbyte connection to update airbyte with any schema changes
+    - Retrieve status of the last airbyte sync job
+    - If the status of the last airbyte sync job is not 'running' then start a new sync
+    - Wait for the sync job to finish - note that the wait time is currently up to 1 hour to cater for large databases
+    - Apply hidden policy tags to all PII fields in the final airbyte tables
 
 - DfE Analytics will still be used to stream the following event types to BigQuery:
-	- Web request events
-	- API request events
-	- Custom events
+    - Web request events
+    - API request events
+    - Custom events
 
 ## Airbyte Configuration
 

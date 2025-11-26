@@ -40,8 +40,6 @@ module Services
 
           sleep WAIT_INTERVAL
         end
-      rescue StandardError => e
-        raise Error, e.message
       end
     end
   end

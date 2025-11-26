@@ -3,7 +3,7 @@
 module DfE
   module Analytics
     module Services
-      # Apply hidden policy tags to the final airblye table columns in the hidden pii config
+      # Apply hidden policy tags to the final airbyte table columns in the hidden pii config
       class ApplyAirbyteFinalTablesPolicyTags
         include ServicePattern
 

@@ -68,7 +68,7 @@ RSpec.describe Services::Airbyte::WaitForSync do
       it 'raises a WaitForSync::Error wrapping the original error' do
         expect do
           call
-        end.to raise_error(described_class::Error, /network error/)
+        end.to raise_error(StandardError, /network error/)
       end
     end
   end
