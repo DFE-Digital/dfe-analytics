@@ -6,6 +6,8 @@ require 'httparty'
 require 'google/cloud/bigquery'
 require 'dfe/analytics/activerecord' if defined?(ActiveRecord)
 require 'dfe/analytics/jobs'
+require 'dfe/analytics/analytics_job'
+require 'dfe/analytics/entity_table_check_job'
 require 'dfe/analytics/config'
 require 'dfe/analytics/event_schema'
 require 'dfe/analytics/fields'

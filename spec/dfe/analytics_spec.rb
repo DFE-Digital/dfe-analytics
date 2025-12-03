@@ -385,4 +385,14 @@ RSpec.describe DfE::Analytics do
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
+
+  describe 'Backward compatibility constants for DfE::Analytics' do
+    it 'aliases DfE::Analytics::AnalyticsJob to DfE::Analytics::Jobs::AnalyticsJob' do
+      expect(DfE::Analytics::AnalyticsJob).to eq(DfE::Analytics::Jobs::AnalyticsJob)
+    end
+
+    it 'aliases DfE::Analytics::EntityTableCheckJob to DfE::Analytics::Jobs::EntityTableCheckJob' do
+      expect(DfE::Analytics::EntityTableCheckJob).to eq(DfE::Analytics::Jobs::EntityTableCheckJob)
+    end
+  end
 end
