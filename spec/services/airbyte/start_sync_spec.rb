@@ -2,12 +2,20 @@
 
 RSpec.describe Services::Airbyte::StartSync do
   let(:access_token)   { 'fake-token' }
-  let(:connection_id)  { 'conn-123' }
   let(:job_id)         { 999 }
   let(:payload)        { { connectionId: connection_id } }
+  let(:connection_id)  { 'conn-123' }
+
+  let(:config_double) do
+    instance_double('DfE::Analytics.config', airbyte_configuration: { connection_id: connection_id })
+  end
+
+  before do
+    allow(DfE::Analytics).to receive(:config).and_return(config_double)
+  end
 
   describe '.call' do
-    subject(:call_service) { described_class.call(access_token:, connection_id:) }
+    subject(:call_service) { described_class.call(access_token:) }
 
     before do
       allow(Services::Airbyte::ApiServer).to receive(:post)
@@ -53,7 +61,7 @@ RSpec.describe Services::Airbyte::StartSync do
 
         allow(Services::Airbyte::JobLast)
           .to receive(:call)
-          .with(access_token:, connection_id:)
+          .with(access_token:)
           .and_return({ 'job' => { 'id' => job_id } })
       end
 

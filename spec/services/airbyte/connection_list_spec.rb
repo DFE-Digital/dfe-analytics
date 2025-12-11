@@ -4,7 +4,7 @@ RSpec.describe Services::Airbyte::ConnectionList do
   let(:access_token) { 'mock-access-token' }
   let(:workspace_id) { 'workspace-123' }
   let(:config_double) do
-    instance_double('DfE::Analytics.config', airbyte_workspace_id: workspace_id)
+    instance_double('DfE::Analytics.config', airbyte_configuration: { workspace_id: workspace_id })
   end
 
   before do

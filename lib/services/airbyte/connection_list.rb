@@ -16,7 +16,7 @@ module Services
 
       def call
         payload = {
-          workspaceId: config.airbyte_workspace_id
+          workspaceId: config.airbyte_configuration[:workspace_id]
         }
 
         response = Services::Airbyte::ApiServer.post(
