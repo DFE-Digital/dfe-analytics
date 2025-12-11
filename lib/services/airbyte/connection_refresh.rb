@@ -6,23 +6,20 @@ module Services
     class ConnectionRefresh
       class Error < StandardError; end
 
-      def self.call(access_token: nil, connection_id: nil, source_id: nil)
-        new(access_token:, connection_id:, source_id:).call
+      def self.call(access_token: nil)
+        new(access_token:).call
       end
 
-      def initialize(access_token:, connection_id:, source_id:)
+      def initialize(access_token:)
         @access_token = access_token
-        @connection_id = connection_id
-        @source_id = source_id
       end
 
       def call
         @access_token ||= AccessToken.call
-        @connection_id, @source_id = ConnectionList.call(access_token:) if connection_id.blank? || source_id.blank?
-        discovered_schema = DiscoverSchema.call(access_token:, source_id:)
+        discovered_schema = DiscoverSchema.call(access_token:)
         allowed_list = DfE::Analytics.allowlist
 
-        ConnectionUpdate.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
+        ConnectionUpdate.call(access_token:, allowed_list:, discovered_schema:)
       rescue StandardError => e
         Rails.logger.error("Airbyte connection refresh failed: #{e.message}")
         raise Error, "Connection refresh failed: #{e.message}"
@@ -30,7 +27,7 @@ module Services
 
       private
 
-      attr_reader :access_token, :connection_id, :source_id
+      attr_reader :access_token
     end
   end
 end

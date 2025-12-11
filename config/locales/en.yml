@@ -136,7 +136,7 @@ en:
           description: |
             Airbyte server base URL
           default: ENV['AIRBYTE_SERVER_URL']
-        airbyte_workspace_id:
+        airbyte_configuration:
           description: |
-            Airbyte Workspace Id for this App contains source, destination and connection
-          default: ENV['AIRBYTE_WORKSPACE_ID']
+            Airbyte configuration in JSON containing workspace, source, destination and connection identifiers
+          default: ENV['AIRBYTE_CONFIGURATION']

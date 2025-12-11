@@ -2,7 +2,6 @@
 
 RSpec.describe Services::Airbyte::ConnectionUpdate do
   let(:access_token) { 'fake-access-token' }
-  let(:connection_id) { 'abc-123' }
 
   let(:allowed_list) do
     {
@@ -33,6 +32,15 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     }
   end
 
+  let(:connection_id) { 'abc-123' }
+  let(:config_double) do
+    instance_double('DfE::Analytics.config', airbyte_configuration: { connection_id: connection_id })
+  end
+
+  before do
+    allow(DfE::Analytics).to receive(:config).and_return(config_double)
+  end
+
   describe '.call' do
     let(:api_result) { { 'status' => 'ok' } }
 
@@ -43,7 +51,6 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     it 'delegates to ApiServer and returns parsed response' do
       result = described_class.call(
         access_token:,
-        connection_id:,
         allowed_list:,
         discovered_schema:
       )
@@ -68,7 +75,6 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
         expect do
           described_class.call(
             access_token:,
-            connection_id:,
             allowed_list:,
             discovered_schema:
           )
@@ -86,7 +92,6 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
         expect do
           described_class.call(
             access_token:,
-            connection_id:,
             allowed_list:,
             discovered_schema:
           )
@@ -97,7 +102,6 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     it 'builds and sends the correct connection update payload' do
       described_class.call(
         access_token:,
-        connection_id:,
         allowed_list:,
         discovered_schema:
       )

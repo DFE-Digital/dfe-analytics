@@ -13,20 +13,19 @@ module Services
 
       PAGE_SIZE = 10 # Number of recent jobs to fetch when searching for a job_id
 
-      def self.call(access_token:, connection_id:, job_id:)
-        new(access_token:, connection_id:, job_id:).call
+      def self.call(access_token:, job_id:)
+        new(access_token:, job_id:).call
       end
 
-      def initialize(access_token:, connection_id:, job_id:)
+      def initialize(access_token:, job_id:)
         @access_token = access_token
-        @connection_id = connection_id
         @job_id = job_id
       end
 
       def call
         payload = {
           configTypes: ['sync'],
-          configId: @connection_id,
+          configId: DfE::Analytics.config.airbyte_configuration[:connection_id],
           pagination: { pageSize: PAGE_SIZE, rowOffset: 0 }
         }
 

@@ -2,7 +2,6 @@
 
 RSpec.describe Services::Airbyte::JobStatus do
   let(:access_token) { 'token-123' }
-  let(:connection_id) { 'conn-abc' }
   let(:job_id) { 'job-42' }
 
   let(:expected_payload) do
@@ -14,6 +13,15 @@ RSpec.describe Services::Airbyte::JobStatus do
         rowOffset: 0
       }
     }
+  end
+
+  let(:connection_id) { 'conn-abc' }
+  let(:config_double) do
+    instance_double('DfE::Analytics.config', airbyte_configuration: { connection_id: connection_id })
+  end
+
+  before do
+    allow(DfE::Analytics).to receive(:config).and_return(config_double)
   end
 
   describe '.call' do
@@ -39,7 +47,7 @@ RSpec.describe Services::Airbyte::JobStatus do
       end
 
       it 'returns the status of the matching job' do
-        result = described_class.call(access_token:, connection_id:, job_id:)
+        result = described_class.call(access_token:, job_id:)
         expect(result).to eq('succeeded')
       end
     end
@@ -63,7 +71,7 @@ RSpec.describe Services::Airbyte::JobStatus do
         expect(Rails.logger).to receive(:error).with("Job #{job_id} not found in the last 10 jobs")
 
         expect do
-          described_class.call(access_token:, connection_id:, job_id:)
+          described_class.call(access_token:, job_id:)
         end.to raise_error(Services::Airbyte::JobStatus::Error, "Job #{job_id} not found in the last 10 jobs")
       end
     end
@@ -80,7 +88,7 @@ RSpec.describe Services::Airbyte::JobStatus do
         expect(Rails.logger).to receive(:error).with('network error')
 
         expect do
-          described_class.call(access_token:, connection_id:, job_id:)
+          described_class.call(access_token:, job_id:)
         end.to raise_error(Services::Airbyte::JobStatus::Error, 'network error')
       end
     end

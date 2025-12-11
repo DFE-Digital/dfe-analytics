@@ -2,7 +2,6 @@
 
 RSpec.describe Services::Airbyte::JobLast do
   let(:access_token) { 'test-token' }
-  let(:connection_id) { 'conn-123' }
   let(:job_data) { { 'id' => 'job-1', 'status' => 'succeeded' } }
 
   let(:expected_payload) do
@@ -14,6 +13,15 @@ RSpec.describe Services::Airbyte::JobLast do
         rowOffset: 0
       }
     }
+  end
+
+  let(:connection_id) { 'conn-123' }
+  let(:config_double) do
+    instance_double('DfE::Analytics.config', airbyte_configuration: { connection_id: connection_id })
+  end
+
+  before do
+    allow(DfE::Analytics).to receive(:config).and_return(config_double)
   end
 
   describe '.call' do
@@ -30,7 +38,7 @@ RSpec.describe Services::Airbyte::JobLast do
       end
 
       it 'returns the first job' do
-        result = described_class.call(access_token:, connection_id:)
+        result = described_class.call(access_token:)
 
         expect(result).to eq(job_data)
         expect(Services::Airbyte::ApiServer).to have_received(:post)
@@ -44,7 +52,7 @@ RSpec.describe Services::Airbyte::JobLast do
       end
 
       it 'returns nil' do
-        result = described_class.call(access_token:, connection_id:)
+        result = described_class.call(access_token:)
         expect(result).to be_nil
       end
     end
@@ -61,7 +69,7 @@ RSpec.describe Services::Airbyte::JobLast do
         expect(Rails.logger).to receive(:error).with('some API error')
 
         expect do
-          described_class.call(access_token:, connection_id:)
+          described_class.call(access_token:)
         end.to raise_error(Services::Airbyte::JobLast::Error, 'some API error')
       end
     end

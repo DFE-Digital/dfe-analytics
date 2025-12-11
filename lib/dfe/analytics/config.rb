@@ -39,7 +39,7 @@ module DfE
         airbyte_client_id
         airbyte_client_secret
         airbyte_server_url
-        airbyte_workspace_id
+        airbyte_configuration
       ].freeze
 
       def self.params
@@ -74,7 +74,8 @@ module DfE
         config.airbyte_client_id                ||= ENV.fetch('AIRBYTE_CLIENT_ID', nil)
         config.airbyte_client_secret            ||= ENV.fetch('AIRBYTE_CLIENT_SECRET', nil)
         config.airbyte_server_url               ||= ENV.fetch('AIRBYTE_SERVER_URL', nil)
-        config.airbyte_workspace_id             ||= ENV.fetch('AIRBYTE_WORKSPACE_ID', nil)
+        config.airbyte_configuration            ||=
+          JSON.parse(ENV.fetch('AIRBYTE_CONFIGURATION', '{}')).transform_keys(&:underscore).symbolize_keys
 
         config.async = true if config.async.nil?
 
