@@ -2,8 +2,6 @@
 
 RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
   let(:access_token) { 'fake-token' }
-  let(:connection_id) { 'conn-123' }
-  let(:source_id) { 'source-abc' }
   let(:job_id) { 456 }
   let(:running_job) do
     {
@@ -26,7 +24,6 @@ RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
   before do
     allow(DfE::Analytics::Services::WaitForMigrations).to receive(:call)
     allow(Services::Airbyte::AccessToken).to receive(:call).and_return(access_token)
-    allow(Services::Airbyte::ConnectionList).to receive(:call).and_return([connection_id, source_id])
     allow(Services::Airbyte::ConnectionRefresh).to receive(:call)
     allow(Services::Airbyte::JobLast).to receive(:call).and_return(nil)
     allow(Services::Airbyte::StartSync).to receive(:call).and_return(job_id)
@@ -39,19 +36,10 @@ RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
 
     expect(DfE::Analytics::Services::WaitForMigrations).to have_received(:call)
     expect(Services::Airbyte::AccessToken).to have_received(:call)
-    expect(Services::Airbyte::ConnectionList).to have_received(:call).with(access_token: access_token)
-    expect(Services::Airbyte::ConnectionRefresh).to have_received(:call).with(
-      access_token: access_token,
-      connection_id: connection_id,
-      source_id: source_id
-    )
-    expect(Services::Airbyte::StartSync).to have_received(:call).with(
-      access_token: access_token,
-      connection_id: connection_id
-    )
+    expect(Services::Airbyte::ConnectionRefresh).to have_received(:call).with(access_token: access_token)
+    expect(Services::Airbyte::StartSync).to have_received(:call).with(access_token: access_token)
     expect(Services::Airbyte::WaitForSync).to have_received(:call).with(
       access_token: access_token,
-      connection_id: connection_id,
       job_id: job_id
     )
     expect(DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags).to have_received(:call)
@@ -69,7 +57,6 @@ RSpec.describe DfE::Analytics::Jobs::AirbyteDeployJob do
       expect(Services::Airbyte::StartSync).not_to have_received(:call)
       expect(Services::Airbyte::WaitForSync).to have_received(:call).with(
         access_token: access_token,
-        connection_id: connection_id,
         job_id: job_id
       )
     end

@@ -6,18 +6,17 @@ module Services
     class DiscoverSchema
       class Error < StandardError; end
 
-      def self.call(access_token:, source_id:)
-        new(access_token, source_id).call
+      def self.call(access_token:)
+        new(access_token).call
       end
 
-      def initialize(access_token, source_id)
+      def initialize(access_token)
         @access_token = access_token
-        @source_id = source_id
       end
 
       def call
         payload = {
-          sourceId: @source_id
+          sourceId: DfE::Analytics.config.airbyte_configuration[:source_id]
         }
 
         Services::Airbyte::ApiServer.post(
