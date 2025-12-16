@@ -8,19 +8,18 @@ module Services
 
       PAGE_SIZE = 5
 
-      def self.call(access_token:, connection_id:)
-        new(access_token:, connection_id:).call
+      def self.call(access_token:)
+        new(access_token:).call
       end
 
-      def initialize(access_token:, connection_id:)
+      def initialize(access_token:)
         @access_token = access_token
-        @connection_id = connection_id
       end
 
       def call
         payload = {
           configTypes: ['sync'],
-          configId: @connection_id,
+          configId: DfE::Analytics.config.airbyte_configuration[:connection_id],
           pagination: { pageSize: PAGE_SIZE, rowOffset: 0 }
         }
 

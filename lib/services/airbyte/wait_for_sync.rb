@@ -9,13 +9,12 @@ module Services
       WAIT_INTERVAL = 30        # seconds
       TIMEOUT_SECONDS = 3600    # 1 hour
 
-      def self.call(access_token:, connection_id:, job_id:)
-        new(access_token:, connection_id:, job_id:).call
+      def self.call(access_token:, job_id:)
+        new(access_token:, job_id:).call
       end
 
-      def initialize(access_token:, connection_id:, job_id:)
+      def initialize(access_token:, job_id:)
         @access_token = access_token
-        @connection_id = connection_id
         @job_id = job_id
       end
 
@@ -25,7 +24,6 @@ module Services
         loop do
           status = Services::Airbyte::JobStatus.call(
             access_token: @access_token,
-            connection_id: @connection_id,
             job_id: @job_id
           )
 
