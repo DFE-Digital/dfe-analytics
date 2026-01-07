@@ -12,13 +12,12 @@ module Services
 
       class Error < StandardError; end
 
-      def self.call(access_token:, connection_id:, allowed_list:, discovered_schema:)
-        new(access_token, connection_id, allowed_list, discovered_schema).call
+      def self.call(access_token:, allowed_list:, discovered_schema:)
+        new(access_token, allowed_list, discovered_schema).call
       end
 
-      def initialize(access_token, connection_id, allowed_list, discovered_schema)
+      def initialize(access_token, allowed_list, discovered_schema)
         @access_token = access_token
-        @connection_id = connection_id
         @allowed_list = allowed_list
         @discovered_streams = discovered_schema&.dig('catalog', 'streams')
       end
@@ -45,7 +44,7 @@ module Services
 
       def connection_update_payload
         {
-          connectionId: @connection_id,
+          connectionId: DfE::Analytics.config.airbyte_configuration[:connection_id],
           syncCatalog: {
             streams: @allowed_list.map do |stream_name, fields|
               discovered_stream = discovered_stream_for(stream_name)

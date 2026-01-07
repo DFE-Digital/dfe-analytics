@@ -6,17 +6,16 @@ module Services
     class StartSync
       class Error < StandardError; end
 
-      def self.call(access_token:, connection_id:)
-        new(access_token:, connection_id:).call
+      def self.call(access_token:)
+        new(access_token:).call
       end
 
-      def initialize(access_token:, connection_id:)
+      def initialize(access_token:)
         @access_token = access_token
-        @connection_id = connection_id
       end
 
       def call
-        payload = { connectionId: connection_id }
+        payload = { connectionId: DfE::Analytics.config.airbyte_configuration[:connection_id] }
 
         response = Services::Airbyte::ApiServer.post(
           path: '/api/v1/connections/sync',
@@ -31,7 +30,7 @@ module Services
         # HTTP Status code: 409 indicates a job is already running - Get last job id
         Rails.logger.info('Sync already in progress, retrieving last job instead.')
 
-        last_job = JobLast.call(access_token:, connection_id:)
+        last_job = JobLast.call(access_token:)
 
         job_id_for!(last_job)
       rescue StandardError => e
@@ -49,7 +48,7 @@ module Services
         job_id
       end
 
-      attr_reader :access_token, :connection_id
+      attr_reader :access_token
     end
   end
 end
