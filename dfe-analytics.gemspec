@@ -5,8 +5,8 @@ require_relative 'lib/dfe/analytics/version'
 Gem::Specification.new do |spec|
   spec.name          = 'dfe-analytics'
   spec.version       = DfE::Analytics::VERSION
-  spec.authors       = ['Duncan Brown']
-  spec.email         = ['duncan.brown@digital.education.gov.uk']
+  spec.authors       = ['Robert Rees']
+  spec.email         = ['robert.rees@education.gov.uk']
 
   spec.summary       = 'Event pump for DfE Rails applications'
   spec.homepage      = 'https://teacher-services-tech-docs.london.cloudapps.digital/#teacher-services-technical-documentation'
@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency 'google-cloud-bigquery', '~> 1.38'
-  spec.add_dependency 'httparty', '~> 0.21'
+  spec.add_dependency 'httparty', '~> 0.24'
   spec.add_dependency 'multi_xml', '~> 0.6.0'
   spec.add_dependency 'request_store_rails', '~> 2'
 
