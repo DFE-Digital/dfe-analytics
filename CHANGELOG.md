@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.15.13](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.13) (2026-01-08)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.12...v1.15.13)
+
+**Merged pull requests:**
+
+- Bump httparty version and update author [\#222](https://github.com/DFE-Digital/dfe-analytics/pull/222) ([asatwal](https://github.com/asatwal))
+- Get Airbyte source id and connection id from config rather then APIs [\#221](https://github.com/DFE-Digital/dfe-analytics/pull/221) ([asatwal](https://github.com/asatwal))
+
 ## [v1.15.12](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.12) (2025-12-03)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.11...v1.15.12)
