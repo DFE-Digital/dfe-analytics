@@ -16,7 +16,6 @@ RSpec.describe Services::Airbyte::ConnectionRefresh do
 
   before do
     allow(Services::Airbyte::AccessToken).to receive(:call).and_return(token)
-    allow(Services::Airbyte::DiscoverSchema).to receive(:call).and_return(schema)
     allow(Services::Airbyte::ConnectionUpdate).to receive(:call)
     allow(DfE::Analytics).to receive(:allowlist).and_return(allowlist)
   end
@@ -25,21 +24,16 @@ RSpec.describe Services::Airbyte::ConnectionRefresh do
     it 'uses the given values and refreshes the connection' do
       described_class.call(access_token: token)
 
-      expect(Services::Airbyte::DiscoverSchema).to have_received(:call).with(
-        access_token: token
-      )
-
       expect(Services::Airbyte::ConnectionUpdate).to have_received(:call).with(
         access_token: token,
-        allowed_list: allowlist,
-        discovered_schema: schema
+        allowed_list: allowlist
       )
     end
   end
 
   context 'when an error occurs' do
     before do
-      allow(Services::Airbyte::DiscoverSchema).to receive(:call)
+      allow(Services::Airbyte::ConnectionUpdate).to receive(:call)
         .and_raise(StandardError.new('boom'))
       allow(Rails.logger).to receive(:error)
     end
