@@ -63,8 +63,7 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
 
         expect(stream[:name]).to eq('academic_cycles')
         expect(stream[:selected]).to eq(true)
-        expect(stream[:syncMode]).to eq('incremental')
-        expect(stream[:destinationSyncMode]).to eq('append')
+        expect(stream[:syncMode]).to eq('incremental_append')
         expect(stream[:cursorField]).to eq(['_ab_cdc_lsn'])
         expect(stream[:primaryKey]).to eq([['id']])
 
