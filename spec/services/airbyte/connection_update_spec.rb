@@ -9,32 +9,13 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     }
   end
 
-  let(:discovered_schema) do
-    {
-      'catalog' => {
-        'streams' => [
-          {
-            'stream' => {
-              'name' => 'academic_cycles',
-              'jsonSchema' => { 'type' => 'object', 'properties' => {} },
-              'namespace' => 'public',
-              'supportedSyncModes' => %w[full_refresh incremental]
-            },
-            'config' => {
-              'syncMode' => 'incremental',
-              'destinationSyncMode' => 'append',
-              'cursorField' => ['_ab_cdc_lsn'],
-              'primaryKey' => [['id']]
-            }
-          }
-        ]
-      }
-    }
-  end
-
   let(:connection_id) { 'abc-123' }
+
   let(:config_double) do
-    instance_double('DfE::Analytics.config', airbyte_configuration: { connection_id: connection_id })
+    instance_double(
+      'DfE::Analytics.config',
+      airbyte_configuration: { connection_id: connection_id }
+    )
   end
 
   before do
@@ -45,86 +26,47 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     let(:api_result) { { 'status' => 'ok' } }
 
     before do
-      allow(Services::Airbyte::ApiServer).to receive(:post).and_return(api_result)
+      allow(Services::Airbyte::ApiServer).to receive(:patch).and_return(api_result)
     end
 
-    it 'delegates to ApiServer and returns parsed response' do
+    it 'delegates to ApiServer.patch and returns the response' do
       result = described_class.call(
-        access_token:,
-        allowed_list:,
-        discovered_schema:
+        access_token: access_token,
+        allowed_list: allowed_list
       )
 
       expect(result).to eq(api_result)
 
-      expect(Services::Airbyte::ApiServer).to have_received(:post).with(
-        path: '/api/v1/connections/update',
+      expect(Services::Airbyte::ApiServer).to have_received(:patch).with(
+        path: "/api/public/v1/connections/#{connection_id}",
         access_token: access_token,
         payload: kind_of(Hash)
       )
     end
 
-    context 'when stream is missing from discovered schema' do
-      let(:discovered_schema) { { 'catalog' => { 'streams' => [] } } }
-
-      before { allow(Rails.logger).to receive(:error) }
-
-      it 'logs and raises ConnectionUpdate::Error' do
-        expect(Rails.logger).to receive(:error).with(/Stream definition not found/)
-
-        expect do
-          described_class.call(
-            access_token:,
-            allowed_list:,
-            discovered_schema:
-          )
-        end.to raise_error(described_class::Error)
-      end
-    end
-
-    context 'when ApiServer.post raises an error' do
-      before do
-        allow(Services::Airbyte::ApiServer).to receive(:post)
-          .and_raise(Services::Airbyte::ApiServer::Error.new('Boom'))
-      end
-
-      it 'does not wrap or swallow ApiServer errors' do
-        expect do
-          described_class.call(
-            access_token:,
-            allowed_list:,
-            discovered_schema:
-          )
-        end.to raise_error(Services::Airbyte::ApiServer::Error, /Boom/)
-      end
-    end
-
-    it 'builds and sends the correct connection update payload' do
+    it 'builds the correct connection patch payload' do
       described_class.call(
-        access_token:,
-        allowed_list:,
-        discovered_schema:
+        access_token: access_token,
+        allowed_list: allowed_list
       )
 
-      expect(Services::Airbyte::ApiServer).to have_received(:post) do |args|
+      expect(Services::Airbyte::ApiServer).to have_received(:patch) do |args|
         payload = args[:payload]
 
-        expect(payload[:connectionId]).to eq(connection_id)
-        expect(payload[:syncCatalog]).to be_a(Hash)
-        expect(payload[:syncCatalog][:streams].size).to eq(1)
+        expect(payload).to have_key(:configurations)
+        expect(payload[:configurations]).to have_key(:streams)
 
-        stream_payload = payload[:syncCatalog][:streams].first
+        streams = payload[:configurations][:streams]
+        expect(streams.size).to eq(1)
 
-        expect(stream_payload[:stream][:name]).to eq('academic_cycles')
-        expect(stream_payload[:stream][:namespace]).to eq('public')
+        stream = streams.first
 
-        config = stream_payload[:config]
-        expect(config[:syncMode]).to eq('incremental')
-        expect(config[:destinationSyncMode]).to eq('append')
-        expect(config[:cursorField]).to eq(['_ab_cdc_lsn'])
-        expect(config[:primaryKey]).to eq([['id']])
+        expect(stream[:name]).to eq('academic_cycles')
+        expect(stream[:selected]).to eq(true)
+        expect(stream[:syncMode]).to eq('incremental_append')
+        expect(stream[:cursorField]).to eq(['_ab_cdc_lsn'])
+        expect(stream[:primaryKey]).to eq([['id']])
 
-        # Selected fields include standard ones + allowed list
         expected_fields = %w[
           _ab_cdc_lsn
           _ab_cdc_deleted_at
@@ -136,7 +78,34 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
           updated_at
         ].map { |f| { fieldPath: [f] } }
 
-        expect(config[:selectedFields]).to match_array(expected_fields)
+        expect(stream[:selectedFields]).to match_array(expected_fields)
+      end
+    end
+
+    context 'when ApiServer.patch raises an error' do
+      before do
+        allow(Services::Airbyte::ApiServer).to receive(:patch)
+          .and_raise(Services::Airbyte::ApiServer::Error, 'Boom')
+      end
+
+      it 'propagates the error' do
+        expect do
+          described_class.call(
+            access_token: access_token,
+            allowed_list: allowed_list
+          )
+        end.to raise_error(Services::Airbyte::ApiServer::Error, /Boom/)
+      end
+    end
+
+    context 'when allowed_list is not a hash' do
+      it 'raises ConnectionUpdate::Error' do
+        expect do
+          described_class.call(
+            access_token: access_token,
+            allowed_list: 'invalid'
+          )
+        end.to raise_error(Services::Airbyte::ConnectionUpdate::Error)
       end
     end
   end
