@@ -67,20 +67,43 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
       let(:entity_attributes) { { 'users' => %w[id name email] } }
 
       it 'uses "id" as the primary key and includes all fields' do
-        stream = parsed_config['configurations']['streams'].first
+        streams = parsed_config['configurations']['streams']
+        users_stream = streams.find { |stream| stream['name'] == 'users' }
 
-        expect(stream['name']).to eq('users')
-        expect(stream['syncMode']).to eq('incremental_append')
-        expect(stream['cursorField']).to eq(['_ab_cdc_lsn'])
-        expect(stream['primaryKey']).to eq([['id']])
-        expect(stream['selectedFields']).to match_array([
-                                                          { 'fieldPath' => ['_ab_cdc_lsn'] },
-                                                          { 'fieldPath' => ['_ab_cdc_updated_at'] },
-                                                          { 'fieldPath' => ['_ab_cdc_deleted_at'] },
-                                                          { 'fieldPath' => ['id'] },
-                                                          { 'fieldPath' => ['name'] },
-                                                          { 'fieldPath' => ['email'] }
-                                                        ])
+        expect(users_stream['name']).to eq('users')
+        expect(users_stream['syncMode']).to eq('incremental_append')
+        expect(users_stream['cursorField']).to eq(['_ab_cdc_lsn'])
+        expect(users_stream['primaryKey']).to eq([['id']])
+        expect(users_stream['selectedFields'])
+          .to match_array([
+                            { 'fieldPath' => ['_ab_cdc_lsn'] },
+                            { 'fieldPath' => ['_ab_cdc_updated_at'] },
+                            { 'fieldPath' => ['_ab_cdc_deleted_at'] },
+                            { 'fieldPath' => ['id'] },
+                            { 'fieldPath' => ['name'] },
+                            { 'fieldPath' => ['email'] }
+                          ])
+      end
+
+      it 'adds the airbyte heartbeat stream' do
+        streams = parsed_config['configurations']['streams']
+        heartbeat_stream = streams.find { |stream| stream['name'] == 'airbyte_heartbeat' }
+
+        expect(heartbeat_stream).to include(
+          'name' => 'airbyte_heartbeat',
+          'syncMode' => 'full_refresh_overwrite',
+          'cursorField' => ['_ab_cdc_lsn'],
+          'primaryKey' => [['id']]
+        )
+
+        expect(heartbeat_stream['selectedFields'])
+          .to match_array([
+                            { 'fieldPath' => ['_ab_cdc_lsn'] },
+                            { 'fieldPath' => ['_ab_cdc_updated_at'] },
+                            { 'fieldPath' => ['_ab_cdc_deleted_at'] },
+                            { 'fieldPath' => ['id'] },
+                            { 'fieldPath' => ['last_heartbeat'] }
+                          ])
       end
     end
 
@@ -88,8 +111,10 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
       let(:entity_attributes) { { 'users' => %w[email name] } }
 
       it 'uses the first attribute as the primary key' do
-        stream = parsed_config['configurations']['streams'].first
-        expect(stream['primaryKey']).to eq([['email']])
+        streams = parsed_config['configurations']['streams']
+        users_stream = streams.find { |stream| stream['name'] == 'users' }
+
+        expect(users_stream['primaryKey']).to eq([['email']])
       end
     end
   end
@@ -103,7 +128,7 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
       end
     end
 
-    context 'when config contains streams' do
+    context 'when config contains streams including the heartbeat stream' do
       let(:config_hash) do
         {
           configurations: {
@@ -135,18 +160,34 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
                   { fieldPath: ['trn'] },
                   { fieldPath: ['dob'] }
                 ]
+              },
+              {
+                name: 'airbyte_heartbeat',
+                syncMode: 'full_refresh_overwrite',
+                cursorField: ['_ab_cdc_lsn'],
+                primaryKey: [['id']],
+                selectedFields: [
+                  { fieldPath: ['_ab_cdc_lsn'] },
+                  { fieldPath: ['_ab_cdc_updated_at'] },
+                  { fieldPath: ['_ab_cdc_deleted_at'] },
+                  { fieldPath: ['id'] },
+                  { fieldPath: ['last_heartbeat'] }
+                ]
               }
             ]
           }
         }
       end
 
-      before { allow(described_class).to receive(:config).and_return(config_hash.deep_symbolize_keys) }
+      before do
+        allow(described_class).to receive(:config).and_return(config_hash.deep_symbolize_keys)
+      end
 
-      it 'removes the cursor field and returns attributes' do
+      it 'removes the cursor and airbyte fields and returns attributes for all streams' do
         expect(described_class.entity_attributes).to eq(
           schools: %w[id urn name],
-          teachers: %w[id trn dob]
+          teachers: %w[id trn dob],
+          airbyte_heartbeat: %w[id last_heartbeat]
         )
       end
     end

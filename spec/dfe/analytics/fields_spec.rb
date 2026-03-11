@@ -12,11 +12,13 @@ RSpec.describe DfE::Analytics::Fields do
     let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address] } }
     let(:existing_blocklist) { { Candidate.table_name.to_sym => %w[id] } }
     let(:existing_airbytelist) { { Candidate.table_name.to_sym => %w[email_address] } }
+    let(:airbyte_heartbeat_list) { { airbyte_heartbeat: %w[id last_heartbeat] } }
 
     before do
       allow(DfE::Analytics).to receive(:allowlist).and_return(existing_allowlist)
       allow(DfE::Analytics).to receive(:blocklist).and_return(existing_blocklist)
-      allow(DfE::Analytics::AirbyteStreamConfig).to receive(:entity_attributes).and_return(existing_airbytelist)
+      allow(DfE::Analytics::AirbyteStreamConfig)
+        .to receive(:entity_attributes).and_return(existing_airbytelist.merge(airbyte_heartbeat_list))
     end
 
     describe '.allowlist' do

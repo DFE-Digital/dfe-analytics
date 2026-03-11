@@ -7,7 +7,11 @@ module DfE
       CURSOR_FIELD = %w[_ab_cdc_lsn].freeze
       AIRBYTE_FIELDS = %w[_ab_cdc_deleted_at _ab_cdc_updated_at].freeze
       DEFAULT_PRIMARY_KEY = 'id'
-      SYNC_MODE = 'incremental_append'
+      INCREMENTAL_APPEND_SYNC_MODE = 'incremental_append'
+      FULL_REFRESH_OVERWRITE_SYNC_MODE = 'full_refresh_overwrite'
+      AIRBYTE_HEARTBEAT_ENTITY = 'airbyte_heartbeat'
+      AIRBYTE_HEARTBEAT_ATTRIBUTES = %w[id last_heartbeat].freeze
+      AIRBYTE_HEARTBEAT_ENTITY_ATTRIBUTES = { AIRBYTE_HEARTBEAT_ENTITY.to_sym => AIRBYTE_HEARTBEAT_ATTRIBUTES }.freeze
 
       def self.config
         JSON.parse(File.read(DfE::Analytics.config.airbyte_stream_config_path)).deep_symbolize_keys
@@ -34,14 +38,14 @@ module DfE
 
       private_class_method def self.streams_for(entity_attributes)
         entity_attributes.each_with_object([]) do |(entity, attributes), streams|
-          streams << table_for(entity, attributes)
-        end
+          streams << table_for(entity, attributes, INCREMENTAL_APPEND_SYNC_MODE)
+        end << table_for(AIRBYTE_HEARTBEAT_ENTITY, AIRBYTE_HEARTBEAT_ATTRIBUTES, FULL_REFRESH_OVERWRITE_SYNC_MODE)
       end
 
-      private_class_method def self.table_for(entity, attributes)
+      private_class_method def self.table_for(entity, attributes, sync_mode)
         {
           name: entity,
-          syncMode: SYNC_MODE,
+          syncMode: sync_mode,
           cursorField: CURSOR_FIELD,
           primaryKey: [[primary_key_for(attributes)]],
           selectedFields: (CURSOR_FIELD + AIRBYTE_FIELDS + attributes).uniq.map { |attribute| { fieldPath: [attribute] } }
