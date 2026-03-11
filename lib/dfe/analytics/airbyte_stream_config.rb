@@ -38,14 +38,14 @@ module DfE
 
       private_class_method def self.streams_for(entity_attributes)
         entity_attributes.each_with_object([]) do |(entity, attributes), streams|
-          streams << table_for(entity, attributes, INCREMENTAL_APPEND_SYNC_MODE)
-        end << table_for(AIRBYTE_HEARTBEAT_ENTITY, AIRBYTE_HEARTBEAT_ATTRIBUTES, FULL_REFRESH_OVERWRITE_SYNC_MODE)
+          streams << table_for(entity, attributes)
+        end << heartbeat_table
       end
 
-      private_class_method def self.table_for(entity, attributes, sync_mode)
+      private_class_method def self.table_for(entity, attributes)
         {
           name: entity,
-          syncMode: sync_mode,
+          syncMode: INCREMENTAL_APPEND_SYNC_MODE,
           cursorField: CURSOR_FIELD,
           primaryKey: [[primary_key_for(attributes)]],
           selectedFields: (CURSOR_FIELD + AIRBYTE_FIELDS + attributes).uniq.map { |attribute| { fieldPath: [attribute] } }
@@ -56,6 +56,15 @@ module DfE
         return DEFAULT_PRIMARY_KEY if attributes.include?(DEFAULT_PRIMARY_KEY)
 
         attributes.first
+      end
+
+      private_class_method def self.heartbeat_table
+        {
+          name: AIRBYTE_HEARTBEAT_ENTITY,
+          syncMode: FULL_REFRESH_OVERWRITE_SYNC_MODE,
+          primaryKey: [[primary_key_for(AIRBYTE_HEARTBEAT_ATTRIBUTES)]],
+          selectedFields: AIRBYTE_HEARTBEAT_ATTRIBUTES.map { |attribute| { fieldPath: [attribute] } }
+        }
       end
     end
   end

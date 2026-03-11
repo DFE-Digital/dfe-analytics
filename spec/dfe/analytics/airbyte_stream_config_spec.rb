@@ -92,15 +92,11 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
         expect(heartbeat_stream).to include(
           'name' => 'airbyte_heartbeat',
           'syncMode' => 'full_refresh_overwrite',
-          'cursorField' => ['_ab_cdc_lsn'],
           'primaryKey' => [['id']]
         )
 
         expect(heartbeat_stream['selectedFields'])
           .to match_array([
-                            { 'fieldPath' => ['_ab_cdc_lsn'] },
-                            { 'fieldPath' => ['_ab_cdc_updated_at'] },
-                            { 'fieldPath' => ['_ab_cdc_deleted_at'] },
                             { 'fieldPath' => ['id'] },
                             { 'fieldPath' => ['last_heartbeat'] }
                           ])
