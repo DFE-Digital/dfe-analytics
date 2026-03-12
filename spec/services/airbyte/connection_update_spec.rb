@@ -2,13 +2,6 @@
 
 RSpec.describe Services::Airbyte::ConnectionUpdate do
   let(:access_token) { 'fake-access-token' }
-
-  let(:allowed_list) do
-    {
-      academic_cycles: %w[created_at end_date id start_date updated_at]
-    }
-  end
-
   let(:connection_id) { 'abc-123' }
 
   let(:config_double) do
@@ -18,8 +11,43 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     )
   end
 
+  let(:airbyte_stream_config) do
+    {
+      configurations: {
+        streams: [
+          {
+            name: 'academic_cycles',
+            syncMode: 'incremental_append',
+            cursorField: ['_ab_cdc_lsn'],
+            primaryKey: [['id']],
+            selectedFields: [
+              { fieldPath: ['_ab_cdc_lsn'] },
+              { fieldPath: ['_ab_cdc_deleted_at'] },
+              { fieldPath: ['_ab_cdc_updated_at'] },
+              { fieldPath: ['created_at'] },
+              { fieldPath: ['end_date'] },
+              { fieldPath: ['id'] },
+              { fieldPath: ['start_date'] },
+              { fieldPath: ['updated_at'] }
+            ]
+          },
+          {
+            name: 'airbyte_heartbeat',
+            syncMode: 'full_refresh_overwrite',
+            primaryKey: [['id']],
+            selectedFields: [
+              { fieldPath: ['id'] },
+              { fieldPath: ['last_heartbeat'] }
+            ]
+          }
+        ]
+      }
+    }
+  end
+
   before do
     allow(DfE::Analytics).to receive(:config).and_return(config_double)
+    allow(DfE::Analytics).to receive(:airbyte_stream_config).and_return(airbyte_stream_config)
   end
 
   describe '.call' do
@@ -30,55 +58,23 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     end
 
     it 'delegates to ApiServer.patch and returns the response' do
-      result = described_class.call(
-        access_token: access_token,
-        allowed_list: allowed_list
-      )
+      result = described_class.call(access_token: access_token)
 
       expect(result).to eq(api_result)
 
       expect(Services::Airbyte::ApiServer).to have_received(:patch).with(
         path: "/api/public/v1/connections/#{connection_id}",
         access_token: access_token,
-        payload: kind_of(Hash)
+        payload: airbyte_stream_config
       )
     end
 
-    it 'builds the correct connection patch payload' do
-      described_class.call(
-        access_token: access_token,
-        allowed_list: allowed_list
-      )
+    it 'uses DfE::Analytics.airbyte_stream_config as the payload' do
+      described_class.call(access_token: access_token)
 
+      expect(DfE::Analytics).to have_received(:airbyte_stream_config)
       expect(Services::Airbyte::ApiServer).to have_received(:patch) do |args|
-        payload = args[:payload]
-
-        expect(payload).to have_key(:configurations)
-        expect(payload[:configurations]).to have_key(:streams)
-
-        streams = payload[:configurations][:streams]
-        expect(streams.size).to eq(1)
-
-        stream = streams.first
-
-        expect(stream[:name]).to eq('academic_cycles')
-        expect(stream[:selected]).to eq(true)
-        expect(stream[:syncMode]).to eq('incremental_append')
-        expect(stream[:cursorField]).to eq(['_ab_cdc_lsn'])
-        expect(stream[:primaryKey]).to eq([['id']])
-
-        expected_fields = %w[
-          _ab_cdc_lsn
-          _ab_cdc_deleted_at
-          _ab_cdc_updated_at
-          created_at
-          end_date
-          id
-          start_date
-          updated_at
-        ].map { |f| { fieldPath: [f] } }
-
-        expect(stream[:selectedFields]).to match_array(expected_fields)
+        expect(args[:payload]).to eq(airbyte_stream_config)
       end
     end
 
@@ -90,22 +86,8 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
 
       it 'propagates the error' do
         expect do
-          described_class.call(
-            access_token: access_token,
-            allowed_list: allowed_list
-          )
+          described_class.call(access_token: access_token)
         end.to raise_error(Services::Airbyte::ApiServer::Error, /Boom/)
-      end
-    end
-
-    context 'when allowed_list is not a hash' do
-      it 'raises ConnectionUpdate::Error' do
-        expect do
-          described_class.call(
-            access_token: access_token,
-            allowed_list: 'invalid'
-          )
-        end.to raise_error(Services::Airbyte::ConnectionUpdate::Error)
       end
     end
   end

@@ -3,7 +3,6 @@
 RSpec.describe Services::Airbyte::ConnectionRefresh do
   let(:token) { 'fake-token' }
   let(:schema) { { streams: [] } }
-  let(:allowlist) { %w[users events] }
   let(:connection_id) { 'connection-123' }
 
   let(:config_double) do
@@ -17,7 +16,6 @@ RSpec.describe Services::Airbyte::ConnectionRefresh do
   before do
     allow(Services::Airbyte::AccessToken).to receive(:call).and_return(token)
     allow(Services::Airbyte::ConnectionUpdate).to receive(:call)
-    allow(DfE::Analytics).to receive(:allowlist).and_return(allowlist)
   end
 
   context 'when all parameters are provided' do
@@ -25,8 +23,7 @@ RSpec.describe Services::Airbyte::ConnectionRefresh do
       described_class.call(access_token: token)
 
       expect(Services::Airbyte::ConnectionUpdate).to have_received(:call).with(
-        access_token: token,
-        allowed_list: allowlist
+        access_token: token
       )
     end
   end
