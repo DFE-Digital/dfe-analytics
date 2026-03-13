@@ -13,38 +13,34 @@ module DfE
       AIRBYTE_HEARTBEAT_ATTRIBUTES = %w[id last_heartbeat].freeze
       AIRBYTE_HEARTBEAT_ENTITY_ATTRIBUTES = { AIRBYTE_HEARTBEAT_ENTITY.to_sym => AIRBYTE_HEARTBEAT_ATTRIBUTES }.freeze
 
-      def self.config
-        JSON.parse(File.read(DfE::Analytics.config.airbyte_stream_config_path)).deep_symbolize_keys
-      rescue RuntimeError
-        {}
+      def self.generate_pretty_json_for(table_attributes)
+        JSON.pretty_generate(generate_for(table_attributes))
       end
 
-      def self.generate_for(entity_attributes)
-        JSON.pretty_generate(
-          { configurations: { streams: streams_for(entity_attributes) } }
-        )
+      def self.generate_for(table_attributes)
+        { configurations: { streams: streams_for(table_attributes) } }
       end
 
       def self.entity_attributes
-        return {} if config.empty?
+        return {} if DfE::Analytics.airbyte_stream_config.empty?
 
         # Transform the data
-        config[:configurations][:streams].each_with_object({}) do |stream, memo|
+        DfE::Analytics.airbyte_stream_config[:configurations][:streams].each_with_object({}) do |stream, memo|
           stream_name = stream[:name]
           fields = stream[:selectedFields].map { |field| field[:fieldPath].first }
           memo[stream_name] = fields - CURSOR_FIELD - AIRBYTE_FIELDS
         end.deep_symbolize_keys
       end
 
-      private_class_method def self.streams_for(entity_attributes)
-        entity_attributes.each_with_object([]) do |(entity, attributes), streams|
+      private_class_method def self.streams_for(table_attributes)
+        table_attributes.each_with_object([]) do |(entity, attributes), streams|
           streams << table_for(entity, attributes)
         end << heartbeat_table
       end
 
       private_class_method def self.table_for(entity, attributes)
         {
-          name: entity,
+          name: entity.to_s,
           syncMode: INCREMENTAL_APPEND_SYNC_MODE,
           cursorField: CURSOR_FIELD,
           primaryKey: [[primary_key_for(attributes)]],

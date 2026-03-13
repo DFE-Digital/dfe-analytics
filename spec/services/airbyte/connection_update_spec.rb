@@ -11,7 +11,13 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
     )
   end
 
-  let(:airbyte_stream_config) do
+  let(:allowlist) do
+    {
+      academic_cycles: %w[created_at end_date id start_date updated_at]
+    }
+  end
+
+  let(:generated_airbyte_stream_config) do
     {
       configurations: {
         streams: [
@@ -47,7 +53,7 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
 
   before do
     allow(DfE::Analytics).to receive(:config).and_return(config_double)
-    allow(DfE::Analytics).to receive(:airbyte_stream_config).and_return(airbyte_stream_config)
+    allow(DfE::Analytics).to receive(:allowlist).and_return(allowlist)
   end
 
   describe '.call' do
@@ -65,16 +71,19 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
       expect(Services::Airbyte::ApiServer).to have_received(:patch).with(
         path: "/api/public/v1/connections/#{connection_id}",
         access_token: access_token,
-        payload: airbyte_stream_config
+        payload: generated_airbyte_stream_config
       )
     end
 
-    it 'uses DfE::Analytics.airbyte_stream_config as the payload' do
+    it 'uses DfE::Analytics::AirbyteStreamConfig.generate_for as the payload' do
+      allow(DfE::Analytics::AirbyteStreamConfig)
+        .to receive(:generate_for).with(allowlist).and_return(generated_airbyte_stream_config)
+
       described_class.call(access_token: access_token)
 
-      expect(DfE::Analytics).to have_received(:airbyte_stream_config)
+      expect(DfE::Analytics::AirbyteStreamConfig).to have_received(:generate_for).with(allowlist)
       expect(Services::Airbyte::ApiServer).to have_received(:patch) do |args|
-        expect(args[:payload]).to eq(airbyte_stream_config)
+        expect(args[:payload]).to eq(generated_airbyte_stream_config)
       end
     end
 

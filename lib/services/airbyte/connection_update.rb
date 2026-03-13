@@ -4,8 +4,6 @@ module Services
   module Airbyte
     # Fetches the the current schema for given source - Also reloads cache
     class ConnectionUpdate
-      class Error < StandardError; end
-
       def self.call(access_token:)
         new(access_token).call
       end
@@ -19,8 +17,14 @@ module Services
         Services::Airbyte::ApiServer.patch(
           path: "/api/public/v1/connections/#{@connection_id}",
           access_token: @access_token,
-          payload: DfE::Analytics.airbyte_stream_config
+          payload: airbyte_stream_config
         )
+      end
+
+      private
+
+      def airbyte_stream_config
+        DfE::Analytics::AirbyteStreamConfig.generate_for(DfE::Analytics.allowlist)
       end
     end
   end

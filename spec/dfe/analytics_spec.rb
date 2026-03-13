@@ -395,4 +395,102 @@ RSpec.describe DfE::Analytics do
       expect(DfE::Analytics::EntityTableCheckJob).to eq(DfE::Analytics::Jobs::EntityTableCheckJob)
     end
   end
+
+  describe '.airbyte_enabled?' do
+    context 'when the airbyte enabled config has been set to true' do
+      before do
+        described_class.configure { |config| config.airbyte_enabled = true }
+      end
+
+      it 'returns true' do
+        expect(described_class.airbyte_enabled?).to be true
+      end
+    end
+
+    context 'when the airbyte enabled config has been set to false' do
+      before do
+        described_class.configure { |config| config.airbyte_enabled = false }
+      end
+
+      it 'returns false' do
+        expect(described_class.airbyte_enabled?).to be false
+      end
+    end
+
+    context 'when the airbyte_enabled config has not been set' do
+      before do
+        described_class.configure { |config| config.airbyte_enabled = nil }
+      end
+
+      it 'defaults to false' do
+        expect(described_class.airbyte_enabled?).to be false
+      end
+    end
+  end
+
+  describe '.airbyte_stream_config' do
+    let(:mock_path) { '/fake/path/airbyte_stream_config.json' }
+
+    let(:config_double) do
+      instance_double(
+        'DfE::Analytics.config',
+        airbyte_stream_config_path: mock_path
+      )
+    end
+
+    before do
+      allow(DfE::Analytics).to receive(:config).and_return(config_double)
+    end
+
+    context 'when the JSON file is valid' do
+      let(:json_data) do
+        {
+          configurations: {
+            streams: [
+              {
+                name: 'teachers',
+                syncMode: 'incremental_append',
+                selectedFields: [{ fieldPath: ['id'] }]
+              }
+            ]
+          }
+        }.to_json
+      end
+
+      before do
+        allow(File).to receive(:read).with(mock_path).and_return(json_data)
+      end
+
+      it 'returns the parsed JSON with symbolized keys' do
+        result = described_class.airbyte_stream_config
+
+        expect(result).to eq(
+          configurations: {
+            streams: [
+              {
+                name: 'teachers',
+                syncMode: 'incremental_append',
+                selectedFields: [{ fieldPath: ['id'] }]
+              }
+            ]
+          }
+        )
+
+        # verify keys are deep symbolized
+        expect(result.keys).to all(be_a(Symbol))
+        expect(result[:configurations][:streams].first[:name]).to eq('teachers')
+        expect(result[:configurations][:streams].first[:selectedFields].first[:fieldPath]).to eq(['id'])
+      end
+    end
+
+    context 'when File.read raises a RuntimeError' do
+      before do
+        allow(File).to receive(:read).with(mock_path).and_raise(RuntimeError)
+      end
+
+      it 'returns an empty hash' do
+        expect(described_class.airbyte_stream_config).to eq({})
+      end
+    end
+  end
 end
