@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.15.15](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.15) (2026-03-16)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.14...v1.15.15)
+
+**Merged pull requests:**
+
+- Add support for airbyte heartbeat [\#226](https://github.com/DFE-Digital/dfe-analytics/pull/226) ([asatwal](https://github.com/asatwal))
+
 ## [v1.15.14](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.14) (2026-01-21)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.13...v1.15.14)
