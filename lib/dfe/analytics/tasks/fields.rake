@@ -17,7 +17,7 @@ namespace :dfe do
     task regenerate_airbyte_stream_config: :environment do
       File.write(
         DfE::Analytics.config.airbyte_stream_config_path,
-        DfE::Analytics::AirbyteStreamConfig.generate_for(DfE::Analytics.allowlist)
+        DfE::Analytics::AirbyteStreamConfig.generate_pretty_json_for(DfE::Analytics.allowlist)
       )
     end
   end

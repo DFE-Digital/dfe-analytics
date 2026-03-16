@@ -16,9 +16,8 @@ module Services
 
       def call
         @access_token ||= AccessToken.call
-        allowed_list = DfE::Analytics.allowlist
 
-        ConnectionUpdate.call(access_token:, allowed_list:)
+        ConnectionUpdate.call(access_token:)
       rescue StandardError => e
         Rails.logger.error("Airbyte connection refresh failed: #{e.message}")
         raise Error, "Connection refresh failed: #{e.message}"

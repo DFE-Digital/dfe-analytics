@@ -104,7 +104,7 @@ module DfE
 
       def self.airbyte_conflicting_fields
         diff_between(
-          allowlist.transform_values(&:uniq),
+          allowlist.merge(DfE::Analytics::AirbyteStreamConfig::AIRBYTE_HEARTBEAT_ENTITY_ATTRIBUTES).transform_values(&:uniq),
           DfE::Analytics::AirbyteStreamConfig.entity_attributes
         )
       end
