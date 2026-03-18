@@ -6,6 +6,7 @@ module DfE
       # Delegates the checksum calculation to either a postgres or a generic checksum calculator
       class ChecksumCalculator
         include ServicePattern
+        VALID_ADAPTERS = %w[postgresql postgis]
 
         def initialize(entity, order_column, checksum_calculated_at)
           @entity = entity
@@ -31,7 +32,7 @@ module DfE
         end
 
         def postgres?
-          %w[postgresql postgis].include?(adapter_name)
+          VALID_ADAPTERS.include?(adapter_name)
         end
       end
     end
