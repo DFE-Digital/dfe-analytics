@@ -47,7 +47,9 @@ RSpec.configure do |config|
     end
 
     DfE::Analytics::InitialisationEvents.initialisation_events_sent = true
+    old_config = DfE::Analytics.config.dup
     example.run
+    DfE::Analytics.instance_variable_set(:@config, old_config)
   end
 
   config.define_derived_metadata do |metadata|
