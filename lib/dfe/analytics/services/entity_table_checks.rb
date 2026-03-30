@@ -44,22 +44,10 @@ module DfE
         end
 
         def fetch_current_timestamp_in_time_zone
-          utc_timestamp = case connection.adapter_name.downcase
-                          when 'postgresql', 'postgis'
-                            connection.select_value("SELECT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::text AS current_timestamp_utc")
-                          when 'sqlite3', 'sqlite'
-                            connection.select_value('SELECT CURRENT_TIMESTAMP AS current_timestamp_utc')
-                          end
+          timestamp = connection.select_value('SELECT CURRENT_TIMESTAMP')
 
-          if utc_timestamp.present?
-            Time.use_zone(TIME_ZONE) do
-              utc_time = Time.find_zone('UTC').parse(utc_timestamp)
-              utc_time.in_time_zone(Time.zone).iso8601(6)
-            end
-          else
-            # Fallback: use application clock but make the choice explicit
-            Rails.logger.warn("fetch_current_timestamp_in_time_zone: unknown DB adapter '#{connection.adapter_name}', falling back to app clock")
-            Time.use_zone(TIME_ZONE) { Time.zone.now.iso8601(6) }
+          Time.use_zone(TIME_ZONE) do
+            Time.zone.parse(timestamp.to_s).iso8601(6)
           end
         end
 

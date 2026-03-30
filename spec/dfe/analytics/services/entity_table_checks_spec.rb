@@ -59,7 +59,6 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
   end
 
   describe '#call' do
-    let(:time_zone) { 'London' }
     let(:order_column) { 'CREATED_AT' }
     let(:course_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('course') } }
     let(:institution_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('institution') } }
@@ -67,16 +66,13 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     let(:candidate_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('candidate') } }
     let(:department_entity) { DfE::Analytics.entities_for_analytics.find { |entity| entity.to_s.include?('department') } }
     let(:entity_type) { 'entity_table_check' }
-    let(:checksum_calculated_at) { @checksum_calculated_at }
-    let(:current_timestamp) do
-      ActiveRecord::Base.connection.select_all('SELECT CURRENT_TIMESTAMP AS current_timestamp').first['current_timestamp'].in_time_zone(time_zone)
-    end
-    let(:checksum_calculated_at) { current_timestamp.iso8601(6) }
+    let(:checksum_calculated_at) { '2026-03-30T14:37:34.000000+01:00' }
 
     before do
-      Timecop.freeze(current_timestamp)
+      allow_any_instance_of(described_class)
+        .to receive(:fetch_current_timestamp_in_time_zone)
+        .and_return(checksum_calculated_at)
     end
-    after { Timecop.return }
 
     it 'returns if the adapter or environment is unsupported' do
       allow(Rails.env).to receive(:production?).and_return(true)
@@ -118,9 +114,6 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
 
     it 'falls back to id when created_at is null' do
-      frozen_time = Time.zone.now.in_time_zone('London')
-      Timecop.freeze(frozen_time)
-
       candidate1 = Candidate.create!(id: 1, email_address: 'first@example.com')
       candidate2 = Candidate.create!(id: 2, email_address: 'second@example.com')
       candidate3 = Candidate.create!(id: 3, email_address: 'third@example.com')
@@ -139,12 +132,10 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
           'data' => [
             { 'key' => 'row_count', 'value' => [table_ids.size] },
             { 'key' => 'checksum', 'value' => [checksum] },
-            { 'key' => 'checksum_calculated_at', 'value' => a_string_including(frozen_time.iso8601(6)) },
+            { 'key' => 'checksum_calculated_at', 'value' => [checksum_calculated_at] },
             { 'key' => 'order_column', 'value' => ['ID'] }
           ]
       })])
-
-      Timecop.return
     end
 
     it 'defaults to created_at when updated_at is null but created_at exists' do
