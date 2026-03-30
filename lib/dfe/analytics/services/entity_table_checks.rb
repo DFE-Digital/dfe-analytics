@@ -44,11 +44,9 @@ module DfE
         end
 
         def fetch_current_timestamp_in_time_zone
-          timestamp = connection.select_value('SELECT CURRENT_TIMESTAMP')
-
-          Time.use_zone(TIME_ZONE) do
-            Time.zone.parse(timestamp.to_s).iso8601(6)
-          end
+          raw = connection.select_value('SELECT CURRENT_TIMESTAMP')
+          time = raw.is_a?(String) ? Time.parse(raw) : raw
+          time.in_time_zone(TIME_ZONE).iso8601(6)
         end
 
         def id_column_exists_for_entity?(entity_name)
