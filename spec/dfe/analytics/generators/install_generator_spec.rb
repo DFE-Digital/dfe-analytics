@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-#
-require "rails/generators"
+
+require 'rails/generators'
 require_relative '../../../../lib/generators/dfe/analytics/install_generator'
 
 RSpec.describe DfE::Analytics::InstallGenerator do
