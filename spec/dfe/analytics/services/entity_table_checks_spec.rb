@@ -94,10 +94,10 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
 
     it 'uses created_at if it exists and has no null values' do
-      Candidate.create!(id: 1, email_address: 'first@example.com')
-      Candidate.create!(id: 2, email_address: 'second@example.com')
+      Candidate.create!(id: 1, email_address: 'first@example.com', created_at: 2.days.ago, updated_at: 2.days.ago)
+      Candidate.create!(id: 2, email_address: 'second@example.com', created_at: 1.day.ago, updated_at: 1.day.ago)
 
-      table_ids = Candidate.order(:created_at).pluck(:id)
+      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(:created_at).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
@@ -139,14 +139,16 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
 
     it 'defaults to created_at when updated_at is null but created_at exists' do
-      Candidate.create!(id: 1, email_address: 'first@example.com', updated_at: nil, created_at: 2.hours.ago)
-      Candidate.create!(id: 2, email_address: 'second@example.com', updated_at: nil, created_at: 1.hour.ago)
-      Candidate.create!(id: 3, email_address: 'third@example.com', updated_at: nil, created_at: 3.hours.ago)
+      cutoff = Time.zone.parse(checksum_calculated_at)
+
+      Candidate.create!(id: 1, email_address: 'first@example.com', updated_at: nil, created_at: cutoff - 3.hours)
+      Candidate.create!(id: 2, email_address: 'second@example.com', updated_at: nil, created_at: cutoff - 2.hours)
+      Candidate.create!(id: 3, email_address: 'third@example.com', updated_at: nil, created_at: cutoff - 1.hour)
 
       # Ensure updated_at is not nil
-      Candidate.update_all(updated_at: Time.now)
+      Candidate.update_all(updated_at: cutoff - 30.minutes)
 
-      table_ids = Candidate.order(:created_at).pluck(:id)
+      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(:created_at).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
@@ -166,7 +168,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
       order_column = 'CREATED_AT'
       [123, 124, 125].map { |id| Application.create(id: id) }
       application_entities = DfE::Analytics.entities_for_analytics.select { |entity| entity.to_s.include?('application') }
-      table_ids = Application.where('created_at < ?', checksum_calculated_at).order(created_at: :asc).pluck(:id)
+      table_ids = Application.where('created_at < ?', checksum_calculated_at).order(:created_at).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       application_entities.each do |application|
@@ -186,7 +188,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     it 'sends an entity table check event' do
       [130, 131, 132].map { |id| Candidate.create(id: id) }
       candidate_entities = DfE::Analytics.entities_for_analytics.select { |entity| entity.to_s.include?('candidate') }
-      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(created_at: :asc).pluck(:id)
+      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(:created_at).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       candidate_entities.each do |candidate|
@@ -211,7 +213,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
 
       Candidate.update_all(created_at: DateTime.parse(checksum_calculated_at) - 1.hour)
 
-      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(:updated_at).pluck(:id)
+      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(:created_at).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
 
       described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
@@ -228,7 +230,7 @@ RSpec.describe DfE::Analytics::Services::EntityTableChecks do
     end
 
     it 'returns zero rows and checksum if table is empty' do
-      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(created_at: :asc).pluck(:id)
+      table_ids = Candidate.where('created_at < ?', checksum_calculated_at).order(:created_at).pluck(:id)
       checksum = Digest::MD5.hexdigest(table_ids.join)
       described_class.call(entity_name: candidate_entity, entity_type: entity_type, entity_tag: nil)
 
