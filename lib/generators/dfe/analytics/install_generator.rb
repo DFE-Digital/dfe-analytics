@@ -15,7 +15,7 @@ module DfE
         create_file 'config/analytics_blocklist.yml', { 'shared' => {} }.to_yaml
         create_file(
           DfE::Analytics.config.airbyte_stream_config_path,
-          DfE::Analytics::AirbyteStreamConfig.generate_ptreey_json_for(table1: %w[id field1 field2])
+          DfE::Analytics::AirbyteStreamConfig.generate_pretty_json_for(table1: %w[id field1 field2])
         )
       end
 
