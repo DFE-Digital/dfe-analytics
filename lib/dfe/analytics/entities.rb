@@ -11,11 +11,13 @@ module DfE
         after_create_commit do
           extracted_attributes = DfE::Analytics.extract_model_attributes(self)
           send_event('create_entity', extracted_attributes) if extracted_attributes.any?
+          Rails.logger.info("DfE::Analytics: Created entity #{self.class.name} with id #{id} and attributes #{extracted_attributes}")
         end
 
         after_destroy_commit do
           extracted_attributes = DfE::Analytics.extract_model_attributes(self)
           send_event('delete_entity', extracted_attributes) if extracted_attributes.any?
+          Rails.logger.info("DfE::Analytics: Deleted entity #{self.class.name} with id #{id} and attributes #{extracted_attributes}")
         end
 
         after_update_commit do
@@ -28,6 +30,7 @@ module DfE
           allowed_attributes = DfE::Analytics.extract_model_attributes(self).deep_merge(updated_attributes)
 
           send_event('update_entity', allowed_attributes) if updated_attributes.any?
+          Rails.logger.info("DfE::Analytics: Updated entity #{self.class.name} with id #{id} and attributes #{updated_attributes}")
         end
       end
 
