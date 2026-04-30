@@ -22,7 +22,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
 
   with_model :ModelWithCustomPrimaryKey do
     table id: false do |t|
-      t.string :custom_key
+      t.integer :custom_key
     end
 
     model do |m|
@@ -96,7 +96,7 @@ RSpec.describe DfE::Analytics::LoadEntities do
     expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(2).times
   end
 
-  it 'does not fail with models whose primary key is not :id' do
+  it 'does not fail with models whose primary key is not in the default primary keys list' do
     ModelWithCustomPrimaryKey.create
 
     expect { described_class.new(entity_name: ModelWithCustomPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
@@ -107,7 +107,22 @@ RSpec.describe DfE::Analytics::LoadEntities do
     ModelWithoutPrimaryKey.create
 
     expect { described_class.new(entity_name: ModelWithoutPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
+
     expect(Rails.logger).to have_received(:info).with(/Not processing #{ModelWithoutPrimaryKey.table_name} as it does not have a primary key/)
+  end
+
+  context 'when the library is configured so it supports primary keys with other names' do
+    before do
+      allow(DfE::Analytics.config).to receive(:primary_keys).and_return(%i[id custom_key])
+    end
+
+    it 'works with the custom key' do
+      [1, 2].each { |i| ModelWithCustomPrimaryKey.create(custom_key: i) }
+
+      expect { described_class.new(entity_name: ModelWithCustomPrimaryKey.table_name).run(entity_tag: entity_tag) }.not_to raise_error
+
+      expect(DfE::Analytics::SendEvents).to have_received(:perform_now).exactly(1).times
+    end
   end
 
   describe 'default scope handling' do

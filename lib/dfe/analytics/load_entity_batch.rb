@@ -31,7 +31,9 @@ module DfE
       end
 
       def create_events(model_class, ids, entity_tag)
-        model_class.where(id: ids).map do |record|
+        return unless model_class.primary_key.present?
+
+        model_class.where(model_class.primary_key => ids).map do |record|
           build_event(record, model_class.table_name, entity_tag)
         end
       end

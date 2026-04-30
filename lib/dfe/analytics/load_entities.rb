@@ -41,19 +41,21 @@ module DfE
       end
 
       def process_model(model, entity_tag)
+        cfg = DfE::Analytics.config
+
         unless model.any?
           Rails.logger.info("No entities to process for #{entity_name}")
           return
         end
 
-        primary_key = model.primary_key
+        primary_key = model.primary_key&.to_sym
 
         if primary_key.nil?
           Rails.logger.info("Not processing #{entity_name} as it does not have a primary key")
           return
         end
 
-        unless primary_key.to_sym == :id
+        unless primary_key.in?(cfg.primary_keys)
           Rails.logger.info("Not processing #{entity_name} as we do not support non-id primary keys")
           return
         end
@@ -61,9 +63,9 @@ module DfE
         Rails.logger.info("Processing data for #{entity_name} with row count #{model.count}")
 
         batch_count = 0
-        model.in_batches(of: BQ_BATCH_ROWS) do |relation|
+        model.select(primary_key).in_batches(of: BQ_BATCH_ROWS) do |relation|
           batch_count += 1
-          ids = relation.pluck(:id)
+          ids = relation.pluck(primary_key)
           DfE::Analytics::LoadEntityBatch.perform_later(model.to_s, ids, entity_tag)
         end
 

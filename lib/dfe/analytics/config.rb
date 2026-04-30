@@ -21,6 +21,7 @@ module DfE
         enable_analytics
         environment
         user_identifier
+        primary_keys
         entity_table_checks_enabled
         rack_page_cached
         bigquery_maintenance_window
@@ -62,6 +63,7 @@ module DfE
         config.log_only                         ||= false
         config.queue                            ||= :default
         config.user_identifier                  ||= proc { |user| user&.id }
+        config.primary_keys                     ||= %i[id]
         config.entity_table_checks_enabled      ||= false
         config.rack_page_cached                 ||= proc { |_rack_env| false }
         config.bigquery_maintenance_window      ||= ENV.fetch('BIGQUERY_MAINTENANCE_WINDOW', nil)
