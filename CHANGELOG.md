@@ -1,6 +1,17 @@
 # Changelog
 
-## [v1.15.15](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.15) (2026-03-16)
+## [v1.16.16](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.16) (2026-05-06)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.15...v1.16.16)
+
+**Merged pull requests:**
+
+- Bump actions/checkout from 2 to 6 [\#232](https://github.com/DFE-Digital/dfe-analytics/pull/232) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Add dependabot yml [\#231](https://github.com/DFE-Digital/dfe-analytics/pull/231) ([asatwal](https://github.com/asatwal))
+- Restore config between runs [\#230](https://github.com/DFE-Digital/dfe-analytics/pull/230) ([mysteryGarlicPress](https://github.com/mysteryGarlicPress))
+- Fixed spelling mistake in method call [\#229](https://github.com/DFE-Digital/dfe-analytics/pull/229) ([dcyoung-dev](https://github.com/dcyoung-dev))
+
+## [v1.15.15](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.15) (2026-03-18)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.14...v1.15.15)
 
