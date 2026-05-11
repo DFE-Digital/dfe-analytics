@@ -1,8 +1,16 @@
 # Changelog
 
-## [v1.16.16](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.16) (2026-05-06)
+## [v1.15.17](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.17) (2026-05-11)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.15...v1.16.16)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.16...v1.15.17)
+
+**Merged pull requests:**
+
+- Correct the version number in the version file [\#234](https://github.com/DFE-Digital/dfe-analytics/pull/234) ([asatwal](https://github.com/asatwal))
+
+## [v1.15.16](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.16) (2026-05-06)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.15...v1.15.16)
 
 **Merged pull requests:**
 
