@@ -23,7 +23,7 @@ RSpec.describe Services::Airbyte::ConnectionUpdate do
         streams: [
           {
             name: 'academic_cycles',
-            syncMode: 'incremental_append',
+            syncMode: 'incremental_deduped_history',
             cursorField: ['_ab_cdc_lsn'],
             primaryKey: [['id']],
             selectedFields: [

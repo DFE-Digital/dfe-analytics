@@ -449,7 +449,7 @@ RSpec.describe DfE::Analytics do
             streams: [
               {
                 name: 'teachers',
-                syncMode: 'incremental_append',
+                syncMode: 'incremental_deduped_history',
                 selectedFields: [{ fieldPath: ['id'] }]
               }
             ]
@@ -469,7 +469,7 @@ RSpec.describe DfE::Analytics do
             streams: [
               {
                 name: 'teachers',
-                syncMode: 'incremental_append',
+                syncMode: 'incremental_deduped_history',
                 selectedFields: [{ fieldPath: ['id'] }]
               }
             ]

@@ -7,7 +7,7 @@ module DfE
       CURSOR_FIELD = %w[_ab_cdc_lsn].freeze
       AIRBYTE_FIELDS = %w[_ab_cdc_deleted_at _ab_cdc_updated_at].freeze
       DEFAULT_PRIMARY_KEY = 'id'
-      INCREMENTAL_APPEND_SYNC_MODE = 'incremental_append'
+      INCREMENTAL_DEDUPED_HISTORY_SYNC_MODE = 'incremental_deduped_history'
       FULL_REFRESH_OVERWRITE_SYNC_MODE = 'full_refresh_overwrite'
       AIRBYTE_HEARTBEAT_ENTITY = 'airbyte_heartbeat'
       AIRBYTE_HEARTBEAT_ATTRIBUTES = %w[id last_heartbeat].freeze
@@ -41,7 +41,7 @@ module DfE
       private_class_method def self.table_for(entity, attributes)
         {
           name: entity.to_s,
-          syncMode: INCREMENTAL_APPEND_SYNC_MODE,
+          syncMode: INCREMENTAL_DEDUPED_HISTORY_SYNC_MODE,
           cursorField: CURSOR_FIELD,
           primaryKey: [[primary_key_for(attributes)]],
           selectedFields: (CURSOR_FIELD + AIRBYTE_FIELDS + attributes).uniq.map { |attribute| { fieldPath: [attribute] } }

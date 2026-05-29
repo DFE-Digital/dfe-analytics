@@ -12,7 +12,7 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
         users_stream = streams.find { |stream| stream[:name] == 'users' }
 
         expect(users_stream[:name]).to eq('users')
-        expect(users_stream[:syncMode]).to eq('incremental_append')
+        expect(users_stream[:syncMode]).to eq('incremental_deduped_history')
         expect(users_stream[:cursorField]).to eq(['_ab_cdc_lsn'])
         expect(users_stream[:primaryKey]).to eq([['id']])
         expect(users_stream[:selectedFields])
@@ -81,7 +81,7 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
             streams: [
               {
                 name: 'schools',
-                syncMode: 'incremental_append',
+                syncMode: 'incremental_deduped_history',
                 cursorField: ['_ab_cdc_lsn'],
                 primaryKey: [['id']],
                 selectedFields: [
@@ -95,7 +95,7 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
               },
               {
                 name: 'teachers',
-                syncMode: 'incremental_append',
+                syncMode: 'incremental_deduped_history',
                 cursorField: ['_ab_cdc_lsn'],
                 primaryKey: [['id']],
                 selectedFields: [
