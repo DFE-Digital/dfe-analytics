@@ -64,14 +64,6 @@ RSpec.describe DfE::Analytics::InstallGenerator do
         { 'shared' => {} }.to_yaml
       )
     end
-    it 'creates the airbyte stream config file' do
-      generator.install
-
-      expect(generator).to have_received(:create_file).with(
-        airbyte_stream_config_path,
-        generated_stream_config
-      )
-    end
 
     it 'uses the generated config options in the initializer' do
       generator.install

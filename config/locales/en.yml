@@ -116,10 +116,6 @@ en:
           description: |
             Perform airbyte checks on startup and allow airbyte config generation
           default: false
-        airbyte_stream_config_path:
-          description: |
-            Path of airbyte stream config file relative to the App root (Rails.root)
-          default: /terraform/aks/workspace-variables/airbyte_stream_config.json
         airbyte_internal_dataset:
           description: |
             Airbyte internal dataset for service

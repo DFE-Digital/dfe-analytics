@@ -56,15 +56,6 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
     end
   end
 
-  describe '.generate_pretty_json_for' do
-    let(:entity_attributes) { { users: %w[id name] } }
-
-    it 'returns a pretty JSON version of generate_for' do
-      expect(described_class.generate_pretty_json_for(entity_attributes))
-        .to eq(JSON.pretty_generate(described_class.generate_for(entity_attributes)))
-    end
-  end
-
   describe '.entity_attributes' do
     context 'when config is empty' do
       before { allow(DfE::Analytics).to receive(:airbyte_stream_config).and_return({}) }

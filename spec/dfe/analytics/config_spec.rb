@@ -73,8 +73,8 @@ RSpec.describe DfE::Analytics::Config do
         described_class.configure(config)
       end
 
-      it 'resolves the full path from Rails.root' do
-        expect(config.airbyte_stream_config_path).to eq(Rails.root.join('config/airbyte.json').to_s)
+      it 'still stores the value' do
+        expect(config.airbyte_stream_config_path).to eq('config/airbyte.json')
       end
     end
   end

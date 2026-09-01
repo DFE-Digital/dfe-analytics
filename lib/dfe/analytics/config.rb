@@ -76,10 +76,9 @@ module DfE
         config.airbyte_server_url               ||= ENV.fetch('AIRBYTE_SERVER_URL', nil)
         config.airbyte_configuration            ||=
           JSON.parse(ENV.fetch('AIRBYTE_CONFIGURATION', '{}')).transform_keys(&:underscore).symbolize_keys
+        config.airbyte_stream_config_path       ||= nil
 
         config.async = true if config.async.nil?
-
-        config.airbyte_stream_config_path = File.join(Rails.root, config.airbyte_stream_config_path) if config.airbyte_stream_config_path.present?
 
         return unless config.azure_federated_auth
 
