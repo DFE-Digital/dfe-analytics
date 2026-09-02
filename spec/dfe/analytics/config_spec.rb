@@ -69,12 +69,28 @@ RSpec.describe DfE::Analytics::Config do
 
     context 'when airbyte_stream_config_path is set' do
       before do
+        allow(Rails.logger).to receive(:warn)
         config.airbyte_stream_config_path = 'config/airbyte.json'
         described_class.configure(config)
       end
 
       it 'still stores the value' do
         expect(config.airbyte_stream_config_path).to eq('config/airbyte.json')
+      end
+
+      it 'logs a deprecation warning' do
+        expect(Rails.logger).to have_received(:warn).with(/DEPRECATION WARNING/)
+      end
+    end
+
+    context 'when airbyte_stream_config_path is not set' do
+      before do
+        allow(Rails.logger).to receive(:warn)
+        described_class.configure(config)
+      end
+
+      it 'does not log a deprecation warning' do
+        expect(Rails.logger).not_to have_received(:warn).with(/DEPRECATION WARNING/)
       end
     end
   end

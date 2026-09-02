@@ -78,6 +78,8 @@ module DfE
           JSON.parse(ENV.fetch('AIRBYTE_CONFIGURATION', '{}')).transform_keys(&:underscore).symbolize_keys
         config.airbyte_stream_config_path       ||= nil
 
+        Rails.logger.warn("DEPRECATION WARNING: DfE::Analytics airbyte_stream_config_path config option is no longer used; the airbyte stream config is now generated dynamically. You're running v#{DfE::Analytics::VERSION}. To silence this warning, remove airbyte_stream_config_path from your DfE::Analytics initializer.") if config.airbyte_stream_config_path.present?
+
         config.async = true if config.async.nil?
 
         return unless config.azure_federated_auth
