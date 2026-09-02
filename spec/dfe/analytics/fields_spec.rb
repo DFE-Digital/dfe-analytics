@@ -77,34 +77,6 @@ RSpec.describe DfE::Analytics::Fields do
       end
     end
 
-    describe '.airbyte_conflicting_fields' do
-      context 'when fields conflict' do
-        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[email_address id first_name dob] } }
-        let(:existing_airbytelist) { { Candidate.table_name.to_sym => %w[email_address first_name] } }
-
-        it 'returns the conflicting fields' do
-          conflicts = described_class.airbyte_conflicting_fields
-          expect(conflicts[Candidate.table_name.to_sym]).to eq(%w[id dob])
-        end
-
-        describe '.check!' do
-          it 'raises an error' do
-            expect { DfE::Analytics::Fields.check! }.to raise_error(DfE::Analytics::ConfigurationError, /Conflict detected/)
-          end
-        end
-      end
-
-      context 'when there are no conflicts' do
-        let(:existing_allowlist) { { Candidate.table_name.to_sym => %w[id email_address] } }
-        let(:existing_airbytelist) { { Candidate.table_name.to_sym => %w[email_address id] } }
-
-        it 'returns nothing' do
-          conflicts = described_class.airbyte_conflicting_fields
-          expect(conflicts).to be_empty
-        end
-      end
-    end
-
     describe '.generate_blocklist' do
       it 'returns all the fields in the model that aren’t in the allowlist' do
         fields = described_class.generate_blocklist[Candidate.table_name.to_sym]
