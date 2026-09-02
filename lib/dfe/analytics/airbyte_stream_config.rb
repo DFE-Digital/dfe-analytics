@@ -13,6 +13,10 @@ module DfE
       AIRBYTE_HEARTBEAT_ATTRIBUTES = %w[id last_heartbeat].freeze
       AIRBYTE_HEARTBEAT_ENTITY_ATTRIBUTES = { AIRBYTE_HEARTBEAT_ENTITY.to_sym => AIRBYTE_HEARTBEAT_ATTRIBUTES }.freeze
 
+      def self.generate_pretty_json_for(table_attributes)
+        JSON.pretty_generate(generate_for(table_attributes))
+      end
+
       def self.generate_for(table_attributes)
         { configurations: { streams: streams_for(table_attributes) } }
       end

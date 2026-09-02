@@ -311,7 +311,7 @@ module DfE
         end
 
         def test_dummy_config
-          config = DfE::Analytics.config.members.each_with_object({}) { |key, mem| mem[key] = 'dummy_value' }
+          config = DfE::Analytics.config.members.to_h { |key| [key, 'dummy_value'] }
           config[:google_cloud_credentials] = '{ "dummy_value":  1 }'
           config[:bigquery_api_json_key] = '{ "dummy_value":  1 }'
           config

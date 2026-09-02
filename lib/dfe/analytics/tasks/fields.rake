@@ -16,7 +16,7 @@ namespace :dfe do
     desc 'Generate a debug airbyte stream config listing all fields to be send to Bigquery from analytics.yml. Generates debug_airbyte_config.json.'
     task airbyte_stream_config_for_debug: :environment do
       File.write(
-        "debug_airbyte_config.json",
+        'debug_airbyte_config.json',
         DfE::Analytics::AirbyteStreamConfig.generate_pretty_json_for(DfE::Analytics.allowlist)
       )
     end
