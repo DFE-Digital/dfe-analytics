@@ -88,13 +88,6 @@ module DfE
         diff_between(allowlist, diff_between(allowlist, blocklist))
       end
 
-      def self.airbyte_conflicting_fields
-        diff_between(
-          allowlist.merge(DfE::Analytics::AirbyteStreamConfig::AIRBYTE_HEARTBEAT_ENTITY_ATTRIBUTES).transform_values(&:uniq),
-          DfE::Analytics::AirbyteStreamConfig.entity_attributes
-        )
-      end
-
       # extract and concatenate the fields associated with an entity in 1 or
       # more entity->field lists
       def self.extract_entity_attributes_from_lists(entity, *lists)
