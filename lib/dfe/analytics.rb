@@ -120,12 +120,6 @@ module DfE
       {}
     end
 
-    def self.airbyte_stream_config
-      JSON.parse(File.read(DfE::Analytics.config.airbyte_stream_config_path)).deep_symbolize_keys
-    rescue RuntimeError
-      {}
-    end
-
     def self.environment
       config.environment
     end
