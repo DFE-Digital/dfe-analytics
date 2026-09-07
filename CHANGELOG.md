@@ -1,5 +1,13 @@
 # Changelog
 
+## [v1.16.0](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.0) (2026-09-07)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.17...v1.16.0)
+
+**Merged pull requests:**
+
+- Remove airbyte config json from gem config, it is now generated dynam… [\#237](https://github.com/DFE-Digital/dfe-analytics/pull/237) ([mysteryGarlicPress](https://github.com/mysteryGarlicPress))
+
 ## [v1.15.17](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.17) (2026-05-11)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.16...v1.15.17)
@@ -120,7 +128,7 @@
 
 ## [v1.15.5](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.5) (2025-04-07)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.4...v1.15.5)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v.1.15.4...v1.15.5)
 
 **Implemented enhancements:**
 
@@ -130,13 +138,13 @@
 
 - Add link to DfE Analytics terraform docs from setup readme. [\#190](https://github.com/DFE-Digital/dfe-analytics/pull/190) ([asatwal](https://github.com/asatwal))
 
-## [v1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.4) (2025-01-22)
-
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v.1.15.4...v1.15.4)
-
 ## [v.1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v.1.15.4) (2025-01-22)
 
-[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.3...v.1.15.4)
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.4...v.1.15.4)
+
+## [v1.15.4](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.4) (2025-01-22)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.15.3...v1.15.4)
 
 **Fixed bugs:**
 
@@ -149,7 +157,7 @@
 
 **Merged pull requests:**
 
-- Add docs/deciding\_what\_data\_to\_stream\_with\_dfe\_analytics.md [\#178](https://github.com/DFE-Digital/dfe-analytics/pull/178) ([stevenleggdfe](https://github.com/stevenleggdfe))
+- Add docs/deciding\_what\_data\_to\_stream\_with\_dfe\_analytics.md [\#178](https://github.com/DFE-Digital/dfe-analytics/pull/178) ([stevenlegg](https://github.com/stevenlegg))
 
 ## [v1.15.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.15.3) (2024-12-11)
 
@@ -402,7 +410,7 @@
 **Merged pull requests:**
 
 - Recover when the database hasn’t been set up yet [\#58](https://github.com/DFE-Digital/dfe-analytics/pull/58) ([duncanjbrown](https://github.com/duncanjbrown))
-- Remove misleading question [\#57](https://github.com/DFE-Digital/dfe-analytics/pull/57) ([stevenleggdfe](https://github.com/stevenleggdfe))
+- Remove misleading question [\#57](https://github.com/DFE-Digital/dfe-analytics/pull/57) ([stevenlegg](https://github.com/stevenlegg))
 - 🍀 Four kinds of init error [\#54](https://github.com/DFE-Digital/dfe-analytics/pull/54) ([duncanjbrown](https://github.com/duncanjbrown))
 - Ignore models with non-id primary keys [\#53](https://github.com/DFE-Digital/dfe-analytics/pull/53) ([duncanjbrown](https://github.com/duncanjbrown))
 
@@ -469,7 +477,7 @@
 - detect private current\_\* methods [\#31](https://github.com/DFE-Digital/dfe-analytics/pull/31) ([misaka](https://github.com/misaka))
 - Refactor to straighten out language and improve dfe:analytics:check [\#30](https://github.com/DFE-Digital/dfe-analytics/pull/30) ([duncanjbrown](https://github.com/duncanjbrown))
 - Raise insertion errors from BigQuery [\#29](https://github.com/DFE-Digital/dfe-analytics/pull/29) ([thomasleese](https://github.com/thomasleese))
-- Expand setup instructions [\#28](https://github.com/DFE-Digital/dfe-analytics/pull/28) ([stevenleggdfe](https://github.com/stevenleggdfe))
+- Expand setup instructions [\#28](https://github.com/DFE-Digital/dfe-analytics/pull/28) ([stevenlegg](https://github.com/stevenlegg))
 
 ## [v1.2.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.2.1) (2022-06-28)
 
