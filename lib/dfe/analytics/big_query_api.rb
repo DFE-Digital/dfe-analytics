@@ -9,20 +9,9 @@ module DfE
       RETRY_INITIAL_BASE_INTERVAL = 15
       RETRY_MAX_INTERVAL = 60
       RETRY_INTERVAL_MULTIPLIER = 2
-      BIGQUERY_MANDATORY_CONFIG = %i[
-        bigquery_project_id
-        bigquery_table_name
-        bigquery_dataset
-        azure_client_id
-        azure_token_path
-        azure_scope
-        gcp_scope
-        google_cloud_credentials
-      ].freeze
-      BIGQUERY_AIRBYTE_MANDATORY_CONFIG = %i[
-        bigquery_airbyte_dataset
-        bigquery_hidden_policy_tag
-      ].freeze
+      BIGQUERY_MANDATORY_CONFIG =
+        %i[bigquery_project_id bigquery_table_name bigquery_dataset azure_client_id azure_token_path azure_scope gcp_scope google_cloud_credentials].freeze
+      BIGQUERY_AIRBYTE_MANDATORY_CONFIG = %i[bigquery_airbyte_dataset].freeze
 
       def self.client
         @client ||= begin
@@ -81,8 +70,8 @@ module DfE
         "DfE::Analytics BigQuery API insert error for #{response.insert_errors.length} event(s):\n#{message}"
       end
 
-      def self.apply_policy_tags(dataset, tables, policy_tag)
-        tables.each do |table_name, column_names|
+      def self.apply_policy_tags(dataset, tables, policy_tags)
+        tables.each do |table_name, columns|
           begin
             table = client.get_table(
               DfE::Analytics.config.bigquery_project_id,
@@ -96,7 +85,17 @@ module DfE
           end
 
           updated_fields = table.schema.fields.map do |field|
-            field.policy_tags = Google::Apis::BigqueryV2::TableFieldSchema::PolicyTags.new(names: [policy_tag]) if column_names.include?(field.name)
+            column = columns.find do |column_config|
+              column_name = column_config.is_a?(Hash) ? column_config.keys.first : column_config
+              column_name.to_s == field.name
+            end
+
+            if column
+              policy_tag_key = column.is_a?(Hash) ? column.values.first.to_sym : :hidden
+
+              field.policy_tags = Google::Apis::BigqueryV2::TableFieldSchema::PolicyTags.new(names: [policy_tags.fetch(policy_tag_key)])
+            end
+
             field
           end
 

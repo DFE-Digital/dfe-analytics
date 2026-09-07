@@ -3,11 +3,17 @@
 RSpec.describe DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags do
   let(:delay_in_minutes) { 10 }
 
+  let(:policy_tags) do
+    {
+      hidden: 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc'
+    }
+  end
+
   let(:config_double) do
     instance_double(
       'DfE::Analytics.config',
       bigquery_airbyte_dataset: 'airbyte_dataset',
-      bigquery_hidden_policy_tag: 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc'
+      bigquery_policy_tag: policy_tags
     )
   end
 
@@ -29,7 +35,7 @@ RSpec.describe DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags do
         delay_in_minutes: delay_in_minutes,
         dataset: 'airbyte_dataset',
         tables: hidden_pii,
-        policy_tag: 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc'
+        policy_tags: policy_tags
       )
     end
 
@@ -43,7 +49,7 @@ RSpec.describe DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags do
           delay_in_minutes: 0,
           dataset: 'airbyte_dataset',
           tables: hidden_pii,
-          policy_tag: 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc'
+          policy_tags: policy_tags
         )
       end
     end

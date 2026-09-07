@@ -32,9 +32,11 @@ en:
           description: |
             The name of the BigQuery airbyte dataset we're writing to.
           default: ENV['BIGQUERY_AIRBYTE_DATASET']
-        bigquery_hidden_policy_tag:
-          description: The name of the BigQuery hidden policy tag applied to PII in raw airbyte tables.
-          default: ENV['BIGQUERY_HIDDEN_POLICY_TAG']
+        bigquery_policy_tags:
+          description: |
+            The BigQuery policy tags JSON with multiple policy tags to be
+            applied to hidden and sensitive data in raw airbyte tables.
+          default: ENV['BIGQUERY_POLICY_TAGS']
         bigquery_retries:
           description: |
             Passed directly to the retries: option on the BigQuery client
