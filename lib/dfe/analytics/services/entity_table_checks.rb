@@ -59,7 +59,7 @@ module DfE
 
         def order_column_exposed_for_entity?(entity_name, columns)
           return false if columns.nil?
-          return true if columns.any? { |column| %w[created_at id].include?(column) }
+          return true if columns.intersect?(%w[created_at id])
 
           Rails.logger.info("DfE::Analytics Processing entity: Order columns missing in analytics.yml for #{entity_name} - Skipping checks")
 
