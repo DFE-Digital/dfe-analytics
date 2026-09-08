@@ -55,10 +55,10 @@ module DfE
         return
       end
 
-      if defined?(ActiveRecord) && database_events_enabled?
+      if defined?(ActiveRecord)
         setup_entities
       else
-        Rails.logger.info('ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events.')
+        Rails.logger.info('ActiveRecord not defined; DfE Analytics will only track non-database events.')
       end
     end
 
@@ -72,6 +72,11 @@ module DfE
       end
 
       DfE::Analytics::Fields.check!
+
+      unless database_events_enabled?
+        Rails.logger.info('Database events not enabled; DfE Analytics will only track non-database events.')
+        return
+      end
 
       entities_for_analytics.each do |entity|
         models_for_entity(entity).each do |m|

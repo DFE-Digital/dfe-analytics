@@ -57,7 +57,7 @@ RSpec.describe DfE::Analytics do
 
       expect(Rails.logger)
         .to receive(:info)
-        .with(/ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events./)
+        .with(/ActiveRecord not defined; DfE Analytics will only track non-database events./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
@@ -68,7 +68,7 @@ RSpec.describe DfE::Analytics do
     it 'does not setup database entities and logs' do
       expect(Rails.logger)
         .to receive(:info)
-        .with(/ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events./)
+        .with(/Database events not enabled; DfE Analytics will only track non-database events./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
