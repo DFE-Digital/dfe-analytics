@@ -282,6 +282,20 @@ RSpec.describe DfE::Analytics do
       expect(result[:hidden_data]).to be_nil.or be_empty
       expect { DfE::Analytics.extract_model_attributes(candidate) }.not_to raise_error
     end
+
+    context 'when custom policy tags are provided' do
+      before do
+        allow(DfE::Analytics).to receive(:hidden_pii).and_return({
+          Candidate.table_name.to_sym => ['hidden_data', { 'age' => 'policy_tag'}]
+        })
+      end
+
+      it 'correctly handles field with custom policy tag' do
+        result = described_class.extract_model_attributes(candidate)
+
+        expect(result[:hidden_data]['age']).to eq(50)
+      end
+    end
   end
 
   describe '.parse_maintenance_window' do
