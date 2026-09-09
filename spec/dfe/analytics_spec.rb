@@ -286,7 +286,7 @@ RSpec.describe DfE::Analytics do
     context 'when custom policy tags are provided' do
       before do
         allow(DfE::Analytics).to receive(:hidden_pii).and_return({
-          Candidate.table_name.to_sym => ['hidden_data', { 'age' => 'policy_tag'}]
+          Candidate.table_name.to_sym => ['hidden_data', { 'age' => 'policy_tag' }]
         })
       end
 
