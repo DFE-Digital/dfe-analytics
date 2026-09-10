@@ -93,7 +93,7 @@ module DfE
             if column
               policy_tag_key = column.is_a?(Hash) ? column.values.first.to_sym : :hidden
 
-              field.policy_tags = Google::Apis::BigqueryV2::TableFieldSchema::PolicyTags.new(names: [policy_tags.fetch(policy_tag_key)])
+              field.policy_tags = Google::Apis::BigqueryV2::TableFieldSchema::PolicyTags.new(names: [policy_tags.symbolize_keys.fetch(policy_tag_key)])
             end
 
             field
