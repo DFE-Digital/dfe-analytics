@@ -71,7 +71,7 @@ RSpec.describe DfE::Analytics do
     it 'does not setup database entities and logs' do
       expect(Rails.logger)
         .to receive(:info)
-        .with(/Database events and airbyte disabled; DfE Analytics will only not setup database entities./)
+        .with(/Database events and airbyte disabled; DfE Analytics will not setup database entities./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end

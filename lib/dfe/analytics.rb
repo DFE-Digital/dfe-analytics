@@ -61,7 +61,7 @@ module DfE
       end
 
       unless database_events_enabled? || airbyte_enabled?
-        Rails.logger.info('Database events and airbyte disabled; DfE Analytics will only not setup database entities.')
+        Rails.logger.info('Database events and airbyte disabled; DfE Analytics will not setup database entities.')
         return
       end
 
