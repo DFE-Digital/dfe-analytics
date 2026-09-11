@@ -68,7 +68,7 @@ module DfE
         config.azure_federated_auth             ||= false
         config.excluded_paths                   ||= []
         config.excluded_models_proc             ||= proc { |_model| false }
-        config.database_events_enabled          ||= true
+        config.database_events_enabled            = true if config.database_events_enabled.nil?
         config.airbyte_enabled                  ||= false
         config.airbyte_internal_dataset         ||= ENV.fetch('AIRBYTE_INTERNAL_DATASET', 'airbyte_internal')
         config.airbyte_client_id                ||= ENV.fetch('AIRBYTE_CLIENT_ID', nil)
