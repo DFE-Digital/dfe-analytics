@@ -16,7 +16,7 @@ module DfE
             delay_in_minutes: @delay_in_minutes,
             dataset: DfE::Analytics.config.bigquery_airbyte_dataset,
             tables: DfE::Analytics.hidden_pii,
-            policy_tags: DfE::Analytics.config.bigquery_policy_tag
+            policy_tags: DfE::Analytics.config.bigquery_policy_tags
           )
         end
       end
