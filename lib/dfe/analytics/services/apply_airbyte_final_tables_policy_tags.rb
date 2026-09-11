@@ -3,7 +3,7 @@
 module DfE
   module Analytics
     module Services
-      # Apply hidden policy tags to the final airbyte table columns in the hidden pii config
+      # Apply policy tags to the final airbyte table columns configured as hidden or sensitive
       class ApplyAirbyteFinalTablesPolicyTags
         include ServicePattern
 
@@ -16,7 +16,7 @@ module DfE
             delay_in_minutes: @delay_in_minutes,
             dataset: DfE::Analytics.config.bigquery_airbyte_dataset,
             tables: DfE::Analytics.hidden_pii,
-            policy_tag: DfE::Analytics.config.bigquery_hidden_policy_tag
+            policy_tags: DfE::Analytics.config.bigquery_policy_tags
           )
         end
       end

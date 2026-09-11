@@ -165,7 +165,10 @@ module DfE
       table_name = model.class.table_name.to_sym
 
       exportable_attrs = (allowlist[table_name].presence || []).map(&:to_sym)
-      hidden_pii_attrs = (hidden_pii[table_name].presence || []).map(&:to_sym)
+      hidden_pii_attrs = (hidden_pii[table_name].presence || []).map do |field|
+        field = field.keys.first.to_sym if field.is_a?(Hash)
+        field.to_sym
+      end
       exportable_hidden_pii_attrs = exportable_attrs & hidden_pii_attrs
 
       # Exclude hidden pii attributes from allowed_attributes
