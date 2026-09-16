@@ -4,6 +4,7 @@ PATH
     dfe-analytics (1.15.17)
       google-cloud-bigquery (~> 1.38)
       httparty (~> 0.24)
+      json (< 3)
       multi_xml (~> 0.6.0)
       request_store_rails (~> 2)
 

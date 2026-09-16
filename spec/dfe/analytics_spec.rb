@@ -57,18 +57,35 @@ RSpec.describe DfE::Analytics do
 
       expect(Rails.logger)
         .to receive(:info)
-        .with(/ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events./)
+        .with(/ActiveRecord not defined; DfE Analytics will only send non-database events./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end
 
-  describe 'when database events are not enabled' do
-    before { allow(described_class.config).to receive(:database_events_enabled).and_return(false) }
+  describe 'when database events disabled / airbyte disabled' do
+    before do
+      allow(described_class.config).to receive(:database_events_enabled).and_return(false)
+      allow(described_class.config).to receive(:airbyte_enabled).and_return(false)
+    end
 
     it 'does not setup database entities and logs' do
       expect(Rails.logger)
         .to receive(:info)
-        .with(/ActiveRecord not defined or database events not enabled; DfE Analytics will only track non-database events./)
+        .with(/Database events and airbyte disabled; DfE Analytics will not setup database entities./)
+      expect { DfE::Analytics.initialize! }.not_to raise_error
+    end
+  end
+
+  describe 'when database events disabled / airbyte enabled' do
+    before do
+      allow(described_class.config).to receive(:database_events_enabled).and_return(false)
+      allow(described_class.config).to receive(:airbyte_enabled).and_return(true)
+    end
+
+    it 'does not setup database entities and logs' do
+      expect(Rails.logger)
+        .to receive(:info)
+        .with(/Database events disabled, airbyte enabled; DfE Analytics will only send non-database events./)
       expect { DfE::Analytics.initialize! }.not_to raise_error
     end
   end

@@ -132,11 +132,11 @@ RSpec.describe DfE::Analytics::LoadEntities do
       },
       {
         desc: 'processes unscoped records when global flag is true (overrides per-model settings)',
-        global: true,  listed: false, expected: 2
+        global: true, listed: false, expected: 2
       },
       {
         desc: 'ingests unscoped records when the model is listed and global flag is false',
-        global: false, listed: true,  expected: 2
+        global: false, listed: true, expected: 2
       },
       {
         desc: 'global flag true takes precedence even if the model is listed',
