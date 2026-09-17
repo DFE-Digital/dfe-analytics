@@ -13,7 +13,7 @@ RSpec.describe DfE::Analytics::Services::ApplyAirbyteFinalTablesPolicyTags do
     instance_double(
       'DfE::Analytics.config',
       bigquery_airbyte_dataset: 'airbyte_dataset',
-      bigquery_policy_tag: policy_tags
+      bigquery_policy_tags: policy_tags
     )
   end
 
