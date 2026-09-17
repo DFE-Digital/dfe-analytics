@@ -4,12 +4,16 @@ RSpec.describe DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob, type: :job do
   describe '.do' do
     let(:dataset) { 'airbyte_dataset' }
     let(:tables) { { users: %w[email name] } }
-    let(:policy_tag) { 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc' }
+    let(:policy_tags) do
+      {
+        hidden: 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc'
+      }
+    end
 
     context 'when delay_in_minutes is 0' do
       it 'enqueues the job immediately' do
-        expect(described_class).to receive(:perform_later).with(dataset, tables, policy_tag)
-        described_class.do(delay_in_minutes: 0, dataset: dataset, tables: tables, policy_tag: policy_tag)
+        expect(described_class).to receive(:perform_later).with(dataset, tables, policy_tags)
+        described_class.do(delay_in_minutes: 0, dataset: dataset, tables: tables, policy_tags: policy_tags)
       end
     end
 
@@ -23,9 +27,9 @@ RSpec.describe DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob, type: :job do
             .and_return(described_class)
           expect(described_class)
             .to receive(:perform_later)
-            .with(dataset, tables, policy_tag)
+            .with(dataset, tables, policy_tags)
 
-          described_class.do(delay_in_minutes: 10, dataset: dataset, tables: tables, policy_tag: policy_tag)
+          described_class.do(delay_in_minutes: 10, dataset: dataset, tables: tables, policy_tags: policy_tags)
         end
       end
     end
@@ -36,7 +40,11 @@ RSpec.describe DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob, type: :job do
 
     let(:dataset) { 'airbyte_dataset' }
     let(:tables) { { users: %w[email name] } }
-    let(:policy_tag) { 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc' }
+    let(:policy_tags) do
+      {
+        hidden: 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc'
+      }
+    end
 
     context 'when airbyte is disabled' do
       before do
@@ -47,7 +55,7 @@ RSpec.describe DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob, type: :job do
         expect(Rails.logger).to receive(:warn).with(/airbyte is disabled/)
         expect(DfE::Analytics::BigQueryApi).not_to receive(:apply_policy_tags)
 
-        job.perform(dataset, tables, policy_tag)
+        job.perform(dataset, tables, policy_tags)
       end
     end
 
@@ -56,12 +64,12 @@ RSpec.describe DfE::Analytics::Jobs::BigQueryApplyPolicyTagsJob, type: :job do
         allow(DfE::Analytics).to receive(:airbyte_enabled?).and_return(true)
       end
 
-      it 'calls apply_policy_tags with dataset, tables, and policy_tag' do
+      it 'calls apply_policy_tags with dataset, tables, and policy_tags' do
         expect(DfE::Analytics::BigQueryApi)
           .to receive(:apply_policy_tags)
-          .with(dataset, tables, policy_tag)
+          .with(dataset, tables, policy_tags)
 
-        job.perform(dataset, tables, policy_tag)
+        job.perform(dataset, tables, policy_tags)
       end
     end
   end

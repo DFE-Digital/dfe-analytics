@@ -87,8 +87,22 @@ RSpec.describe DfE::Analytics::BigQueryApi do
 
   describe '.apply_policy_tags' do
     let(:dataset) { 'airbyte_dataset' }
-    let(:tables) { { users: %w[email name] } }
-    let(:policy_tag) { 'projects/my-project/locations/eu/taxonomies/123/policyTags/abc' }
+
+    let(:hidden_policy_tag) do
+      'projects/my-project/locations/eu/taxonomies/123/policyTags/hidden'
+    end
+
+    let(:sensitive_hidden_policy_tag) do
+      'projects/my-project/locations/eu/taxonomies/123/policyTags/sensitive-hidden'
+    end
+
+    let(:policy_tags) do
+      {
+        hidden: hidden_policy_tag,
+        sensitive_hidden: sensitive_hidden_policy_tag
+      }
+    end
+
     let(:fields) do
       [
         instance_double(Google::Apis::BigqueryV2::TableFieldSchema, name: 'email'),
@@ -96,46 +110,109 @@ RSpec.describe DfE::Analytics::BigQueryApi do
         instance_double(Google::Apis::BigqueryV2::TableFieldSchema, name: 'created_at')
       ]
     end
-    let(:schema) { instance_double(Google::Apis::BigqueryV2::TableSchema, fields: fields) }
-    let(:table) { instance_double(Google::Apis::BigqueryV2::Table, schema: schema) }
+
+    let(:schema) do
+      instance_double(
+        Google::Apis::BigqueryV2::TableSchema,
+        fields: fields
+      )
+    end
+
+    let(:table) do
+      instance_double(
+        Google::Apis::BigqueryV2::Table,
+        schema: schema
+      )
+    end
 
     before do
-      allow(fields[0]).to receive(:policy_tags=)
-      allow(fields[1]).to receive(:policy_tags=)
-      allow(fields[2]).to receive(:policy_tags=)
+      fields.each do |field|
+        allow(field).to receive(:policy_tags=)
+      end
 
       allow(client).to receive(:get_table).and_return(table)
       allow(client).to receive(:patch_table)
     end
 
-    it 'sets policy tags on specified columns only' do
-      with_analytics_config(test_dummy_config) do
-        described_class.apply_policy_tags(dataset, tables, policy_tag)
+    context 'when no policy tag is specified for the column' do
+      let(:tables) do
+        {
+          users: %w[email name]
+        }
+      end
 
-        expect(fields[0]).to have_received(:policy_tags=)
-        expect(fields[1]).to have_received(:policy_tags=)
-        expect(fields[2]).not_to have_received(:policy_tags=)
+      it 'applies the hidden policy tag by default' do
+        with_analytics_config(test_dummy_config) do
+          described_class.apply_policy_tags(dataset, tables, policy_tags)
+
+          expect(fields[0]).to have_received(:policy_tags=).with(
+            an_object_having_attributes(names: [hidden_policy_tag])
+          )
+
+          expect(fields[1]).to have_received(:policy_tags=).with(
+            an_object_having_attributes(names: [hidden_policy_tag])
+          )
+
+          expect(fields[2]).not_to have_received(:policy_tags=)
+        end
+      end
+    end
+
+    context 'when a policy tag is specified for a column' do
+      let(:tables) do
+        {
+          users: [
+            { 'email' => 'sensitive_hidden' },
+            'name'
+          ]
+        }
+      end
+
+      it 'applies the specified policy tag to that column' do
+        with_analytics_config(test_dummy_config) do
+          described_class.apply_policy_tags(dataset, tables, policy_tags)
+
+          expect(fields[0]).to have_received(:policy_tags=).with(
+            an_object_having_attributes(names: [sensitive_hidden_policy_tag])
+          )
+
+          expect(fields[1]).to have_received(:policy_tags=).with(
+            an_object_having_attributes(names: [hidden_policy_tag])
+          )
+
+          expect(fields[2]).not_to have_received(:policy_tags=)
+        end
       end
     end
 
     it 'raises and logs error if get_table fails' do
+      tables = { users: %w[email name] }
+
       with_analytics_config(test_dummy_config) do
-        allow(client).to receive(:get_table).and_raise(Google::Apis::ClientError.new('not found'))
+        allow(client)
+          .to receive(:get_table)
+          .and_raise(Google::Apis::ClientError.new('not found'))
 
         expect(Rails.logger).to receive(:error).with(/Failed to retrieve table/)
+
         expect do
-          described_class.apply_policy_tags(dataset, tables, policy_tag)
+          described_class.apply_policy_tags(dataset, tables, policy_tags)
         end.to raise_error(DfE::Analytics::BigQueryApi::PolicyTagError)
       end
     end
 
     it 'raises and logs error if patch_table fails' do
+      tables = { users: %w[email name] }
+
       with_analytics_config(test_dummy_config) do
-        allow(client).to receive(:patch_table).and_raise(Google::Apis::ClientError.new('invalid'))
+        allow(client)
+          .to receive(:patch_table)
+          .and_raise(Google::Apis::ClientError.new('invalid'))
 
         expect(Rails.logger).to receive(:error).with(/Failed to update table/)
+
         expect do
-          described_class.apply_policy_tags(dataset, tables, policy_tag)
+          described_class.apply_policy_tags(dataset, tables, policy_tags)
         end.to raise_error(DfE::Analytics::BigQueryApi::PolicyTagError)
       end
     end
