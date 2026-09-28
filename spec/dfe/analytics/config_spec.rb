@@ -32,6 +32,64 @@ RSpec.describe DfE::Analytics::Config do
       end
     end
 
+    context 'when bigquery_policy_tags is configured' do
+      before do
+        config.bigquery_hidden_policy_tag = 'hidden-policy-tag'
+        config.bigquery_policy_tags = {
+          hidden: 'new-hidden-policy-tag',
+          sensitive_hidden: 'sensitive-hidden-policy-tag'
+        }
+
+        described_class.configure(config)
+      end
+
+      it 'uses the configured policy tags' do
+        expect(config.bigquery_policy_tags).to eq(
+          hidden: 'new-hidden-policy-tag',
+          sensitive_hidden: 'sensitive-hidden-policy-tag'
+        )
+      end
+    end
+
+    context 'when bigquery_policy_tags is empty and bigquery_hidden_policy_tag is configured' do
+      before do
+        config.bigquery_hidden_policy_tag = 'hidden-policy-tag'
+        config.bigquery_policy_tags = {}
+
+        described_class.configure(config)
+      end
+
+      it 'falls back to the legacy hidden policy tag' do
+        expect(config.bigquery_policy_tags).to eq(
+          hidden: 'hidden-policy-tag'
+        )
+      end
+    end
+
+    context 'when neither policy tag configuration is provided' do
+      before do
+        config.bigquery_hidden_policy_tag = nil
+        config.bigquery_policy_tags = {}
+
+        described_class.configure(config)
+      end
+
+      it 'leaves bigquery_policy_tags empty' do
+        expect(config.bigquery_policy_tags).to eq({})
+      end
+    end
+
+    context 'when database_events_enabled is false' do
+      before do
+        config.database_events_enabled = false
+        described_class.configure(config)
+      end
+
+      it 'preserves the configured value' do
+        expect(config.database_events_enabled).to eq(false)
+      end
+    end
+
     context 'when azure_federated_auth is true' do
       before do
         # Stub all expected ENV.fetch calls used by .configure

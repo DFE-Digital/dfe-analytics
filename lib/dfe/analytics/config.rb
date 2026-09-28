@@ -59,7 +59,7 @@ module DfE
         config.bigquery_hidden_policy_tag       ||= ENV.fetch('BIGQUERY_HIDDEN_POLICY_TAG', nil)
         config.bigquery_policy_tags             ||=
           JSON.parse(ENV.fetch('BIGQUERY_POLICY_TAGS', '{}')).transform_keys(&:underscore).symbolize_keys
-        config.bigquery_policy_tags             ||= { hidden: config.bigquery_hidden_policy_tag } if config.bigquery_hidden_policy_tag.present?
+        config.bigquery_policy_tags = { hidden: config.bigquery_hidden_policy_tag } if config.bigquery_hidden_policy_tag.present? && config.bigquery_policy_tags.blank?
         config.bigquery_retries                 ||= 3
         config.bigquery_timeout                 ||= 120
         config.environment                      ||= ENV.fetch('RAILS_ENV', 'development')
