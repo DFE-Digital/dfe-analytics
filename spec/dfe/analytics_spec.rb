@@ -1,6 +1,50 @@
 # frozen_string_literal: true
 
 RSpec.describe DfE::Analytics do
+  describe '.allowlist' do
+    before do
+      allow(Rails.application).to receive(:config_for).with(:analytics).and_return(
+        users: %w[id name email],
+        audits: [
+          { sync_mode: 'incremental_deduped_history' },
+          'id',
+          'auditable_type',
+          'auditable_id',
+          'action',
+          'audited_changes',
+          'created_at'
+        ]
+      )
+    end
+
+    it 'excludes Airbyte sync mode configuration from the entity attributes' do
+      expect(described_class.allowlist).to eq(
+        users: %w[id name email],
+        audits: %w[id auditable_type auditable_id action audited_changes created_at]
+      )
+    end
+  end
+
+  describe '.airbyte_sync_modes' do
+    before do
+      allow(Rails.application).to receive(:config_for).with(:analytics).and_return(
+        users: %w[id name email],
+        audits: [
+          { sync_mode: 'incremental_deduped_history' },
+          'id',
+          'auditable_type',
+          'created_at'
+        ]
+      )
+    end
+
+    it 'returns the configured Airbyte sync modes by entity' do
+      expect(described_class.airbyte_sync_modes).to eq(
+        audits: 'incremental_deduped_history'
+      )
+    end
+  end
+
   it 'has a version number' do
     expect(DfE::Analytics::VERSION).not_to be nil
   end
