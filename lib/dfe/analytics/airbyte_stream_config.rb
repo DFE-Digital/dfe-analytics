@@ -41,7 +41,7 @@ module DfE
       private_class_method def self.table_for(entity, attributes)
         {
           name: entity.to_s,
-          syncMode: INCREMENTAL_APPEND_SYNC_MODE,
+          syncMode: DfE::Analytics.airbyte_sync_modes.fetch(entity, INCREMENTAL_APPEND_SYNC_MODE),
           cursorField: CURSOR_FIELD,
           primaryKey: [[primary_key_for(attributes)]],
           selectedFields: (CURSOR_FIELD + AIRBYTE_FIELDS + attributes).uniq.map { |attribute| { fieldPath: [attribute] } }
