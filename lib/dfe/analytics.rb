@@ -106,8 +106,27 @@ module DfE
     end
 
     def self.allowlist
+      analytics_config.transform_values do |attributes|
+        attributes.reject { |attribute| airbyte_sync_mode?(attribute) }
+      end
+    end
+
+    def self.airbyte_sync_modes
+      analytics_config.each_with_object({}) do |(entity, attributes), sync_modes|
+        config = attributes.find { |attribute| airbyte_sync_mode?(attribute) }
+        sync_modes[entity] = config[:sync_mode] || config['sync_mode'] if config
+      end
+    end
+
+    def self.analytics_config
       Rails.application.config_for(:analytics)
     end
+
+    def self.airbyte_sync_mode?(attribute)
+      attribute.is_a?(Hash) && (attribute.key?(:sync_mode) || attribute.key?('sync_mode'))
+    end
+
+    private_class_method :analytics_config, :airbyte_sync_mode?
 
     def self.hidden_pii
       Rails.application.config_for(:analytics_hidden_pii)

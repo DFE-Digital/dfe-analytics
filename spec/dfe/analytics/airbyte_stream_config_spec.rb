@@ -44,6 +44,30 @@ RSpec.describe DfE::Analytics::AirbyteStreamConfig do
       end
     end
 
+    context 'when a sync mode is configured for an entity' do
+      let(:entity_attributes) do
+        {
+          users: %w[id name email],
+          audits: %w[id auditable_type action created_at]
+        }
+      end
+
+      before do
+        allow(DfE::Analytics).to receive(:airbyte_sync_modes).and_return(
+          audits: 'incremental_deduped_history'
+        )
+      end
+
+      it 'uses the configured sync mode only for that entity' do
+        streams = airbyte_stream_config[:configurations][:streams]
+        users_stream = streams.find { |stream| stream[:name] == 'users' }
+        audits_stream = streams.find { |stream| stream[:name] == 'audits' }
+
+        expect(users_stream[:syncMode]).to eq('incremental_append')
+        expect(audits_stream[:syncMode]).to eq('incremental_deduped_history')
+      end
+    end
+
     context 'when attributes do not include "id"' do
       let(:entity_attributes) { { users: %w[email name] } }
 
