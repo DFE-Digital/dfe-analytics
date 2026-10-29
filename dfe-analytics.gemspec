@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency 'google-cloud-bigquery', '~> 1.38'
+  spec.add_dependency 'googleauth', '~> 1.17'
   # json 3.0 removed the :quirks_mode option and raises on it; httparty's
   # response parser still passes it (httparty/parser.rb). Remove this pin once
   # httparty stops passing :quirks_mode to JSON.parse.
