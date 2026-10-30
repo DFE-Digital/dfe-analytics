@@ -65,4 +65,73 @@ RSpec.describe DfE::Analytics::AzureFederatedAuth do
       end
     end
   end
+
+  describe 'Google workload identity federation' do
+    let(:sts_access_token) { 'fake_sts_access_token' }
+    let(:google_access_token) { 'fake_google_access_token' }
+
+    before do
+      allow(File).to receive(:read).with('fake_az_token_path').and_return('fake_az_token')
+
+      stub_azure_access_token_request
+
+      stub_request(:post, 'https://sts.googleapis.com/v1/token')
+        .with do |request|
+          body = URI.decode_www_form(request.body).to_h
+
+          body['grant_type'] == 'urn:ietf:params:oauth:grant-type:token-exchange' &&
+            body['audience'] == 'fake_audience' &&
+            body['scope'] == 'https://www.googleapis.com/auth/iam' &&
+            body['requested_token_type'] == 'urn:ietf:params:oauth:token-type:access_token' &&
+            body['subject_token'] == 'fake_az_response_token' &&
+            body['subject_token_type'] == 'urn:ietf:params:oauth:token-type:jwt'
+        end
+        .to_return(
+          status: 200,
+          headers: { 'Content-Type' => 'application/json' },
+          body: {
+            access_token: sts_access_token,
+            issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+            token_type: 'Bearer',
+            expires_in: 3600
+          }.to_json
+        )
+
+      stub_request(
+        :post,
+        'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/fake:generateAccessToken'
+      )
+        .with do |request|
+          request.headers['Authorization'] == "Bearer #{sts_access_token}" &&
+            JSON.parse(request.body)['scope'] == 'fake_gcp_scope'
+        end
+        .to_return(
+          status: 200,
+          headers: { 'Content-Type' => 'application/json' },
+          body: {
+            accessToken: google_access_token,
+            expireTime: (Time.now.utc + 1.hour).iso8601
+          }.to_json
+        )
+    end
+
+    it 'uses googleauth to exchange the Entra token and impersonate the service account' do
+      credentials = described_class.gcp_client_credentials
+
+      credentials.fetch_access_token!
+
+      expect(credentials.access_token).to eq(google_access_token)
+
+      expect(
+        a_request(:post, 'https://sts.googleapis.com/v1/token')
+      ).to have_been_made.once
+
+      expect(
+        a_request(
+          :post,
+          'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/fake:generateAccessToken'
+        )
+      ).to have_been_made.once
+    end
+  end
 end
