@@ -1,6 +1,14 @@
 # Changelog
 
-## [v1.16.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.1) (2026-09-28)
+## [v1.16.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.2) (2026-11-02)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.16.1...v1.16.2)
+
+**Merged pull requests:**
+
+- Fix GCP WIF auth refresh error [\#246](https://github.com/DFE-Digital/dfe-analytics/pull/246) ([asatwal](https://github.com/asatwal))
+
+## [v1.16.1](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.1) (2026-09-29)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.16.0...v1.16.1)
 
