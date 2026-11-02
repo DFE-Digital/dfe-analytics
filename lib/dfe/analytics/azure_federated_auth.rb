@@ -4,29 +4,30 @@ require 'googleauth'
 
 module DfE
   module Analytics
-    # Azure client for workload identity federation with GCP using OAuth
-    class AzureFederatedAuth
+    # Google external account credentials using an Entra managed identity
+    # access token as the subject token.
+    class AzureFederatedAuth < Google::Auth::ExternalAccount::IdentityPoolCredentials
       DEFAULT_AZURE_SCOPE = 'api://AzureADTokenExchange/.default'
       DEFAULT_GCP_SCOPE   = 'https://www.googleapis.com/auth/cloud-platform'
-      ACCESS_TOKEN_EXPIRE_TIME_LEEWAY = 10
 
       def self.gcp_client_credentials
-        return @gcp_client_credentials if @gcp_client_credentials && !@gcp_client_credentials.expired?
-
-        azure_token = azure_access_token
-
-        azure_google_exchange_token = azure_google_exchange_access_token(azure_token)
-
-        google_token, expire_time = google_access_token(azure_google_exchange_token)
-
-        # Expire time with leeway that includes the max time for any retries
-        expire_time_with_leeway =
-          expire_time.to_datetime - ACCESS_TOKEN_EXPIRE_TIME_LEEWAY.seconds - DfE::Analytics::BigQueryApi::ALL_RETRIES_MAX_ELASPED_TIME.seconds
-
-        @gcp_client_credentials = Google::Auth::UserRefreshCredentials.new(access_token: google_token, expires_at: expire_time_with_leeway)
+        @gcp_client_credentials ||=
+          new(
+            {
+              audience: DfE::Analytics.config.google_cloud_credentials[:audience],
+              subject_token_type: DfE::Analytics.config.google_cloud_credentials[:subject_token_type],
+              token_url: DfE::Analytics.config.google_cloud_credentials[:token_url],
+              service_account_impersonation_url:
+                DfE::Analytics.config.google_cloud_credentials[:service_account_impersonation_url],
+              scope: DfE::Analytics.config.gcp_scope,
+              credential_source: {
+                url: DfE::Analytics.config.google_cloud_credentials[:credential_source][:url]
+              }
+            }
+          )
       end
 
-      def self.azure_access_token
+      def retrieve_subject_token!
         aad_token_request_body = {
           grant_type: 'client_credentials',
           client_id: DfE::Analytics.config.azure_client_id,
@@ -51,58 +52,6 @@ module DfE
         end
 
         azure_token_response.parsed_response['access_token']
-      end
-
-      def self.azure_google_exchange_access_token(azure_token)
-        request_body = {
-          grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
-          audience: DfE::Analytics.config.google_cloud_credentials[:audience],
-          scope: DfE::Analytics.config.gcp_scope,
-          requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-          subject_token: azure_token,
-          subject_token_type: DfE::Analytics.config.google_cloud_credentials[:subject_token_type]
-        }
-
-        exchange_token_response =
-          HTTParty.post(
-            DfE::Analytics.config.google_cloud_credentials[:token_url],
-            headers: { 'Content-Type' => 'application/json' },
-            body: request_body.to_json
-          )
-
-        unless exchange_token_response.success?
-          error_message = "Error calling google exchange token API: status: #{exchange_token_response.code} body: #{exchange_token_response.body}"
-
-          Rails.logger.error error_message
-
-          raise Error, error_message
-        end
-
-        exchange_token_response.parsed_response['access_token']
-      end
-
-      def self.google_access_token(azure_google_exchange_token)
-        google_token_response =
-          HTTParty.post(
-            DfE::Analytics.config.google_cloud_credentials[:service_account_impersonation_url],
-            headers: {
-              'Authorization' => "Bearer #{azure_google_exchange_token}",
-              'Content-Type' => 'application/json'
-            },
-            body: { scope: DfE::Analytics.config.gcp_scope }.to_json
-          )
-
-        unless google_token_response.success?
-          error_message = "Error calling google token API: status: #{google_token_response.code} body: #{google_token_response.body}"
-
-          Rails.logger.error error_message
-
-          raise Error, error_message
-        end
-
-        parsed_response = google_token_response.parsed_response
-
-        [parsed_response['accessToken'], parsed_response['expireTime']]
       end
 
       class Error < StandardError; end

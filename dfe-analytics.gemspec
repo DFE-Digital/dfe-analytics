@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Event pump for DfE Rails applications'
   spec.homepage      = 'https://teacher-services-tech-docs.london.cloudapps.digital/#teacher-services-technical-documentation'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.7.5')
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.3')
 
   spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
     Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
   end
 
+  spec.add_dependency 'googleauth', '~> 1.17'
   spec.add_dependency 'google-cloud-bigquery', '~> 1.38'
   # json 3.0 removed the :quirks_mode option and raises on it; httparty's
   # response parser still passes it (httparty/parser.rb). Remove this pin once
