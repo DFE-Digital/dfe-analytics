@@ -42,7 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rails', '>= 7'
   spec.add_development_dependency 'rspec-rails'
   spec.add_development_dependency 'rubocop', '~> 1.54'
-  spec.add_development_dependency 'rubocop-rspec', '~> 2.22'
+  spec.add_development_dependency 'rubocop-rspec', '~> 3.10'
   spec.add_development_dependency 'solargraph'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'timecop'
