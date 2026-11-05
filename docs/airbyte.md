@@ -27,23 +27,33 @@ Main configuration options for Airbyte:
 
 - The final tables use incremental append mode by default, with no deduplication. This results in a new row in the final table for every change in the service table. This allows Dashboards and Reports to have access to the latest and historical versions of the data.
 
-- A different Airbyte sync mode can be configured for an individual table in `analytics.yml`:
+- A different Airbyte sync mode can be configured for an individual table in `analytics.yml`. The following sync mode values are available:
 
-```yaml
-audits:
-  - sync_mode: incremental_deduped_history
-  - id
-  - auditable_type
-  - action
-  - created_at
-```
+  | VALUE                           | DESCRIPTION                        |
+  |---------------------------------|------------------------------------|
+  | `incremental_deduped_history`   | Incremental \| Append + Deduped     |
+  | `full_refresh_overwrite`        | Full refresh \| Overwrite           |
+  | `incremental_append`            | Incremental \| Append              |
+  | `full_refresh_append`           | Full refresh \| Append             |
+  | `full_refresh_overwrite_deduped` | Full refresh \| Overwrite + Deduped |
+
+  The following is an example of how to configure a custom Airbyte sync mode for the `audits` table in `analytics.yml`:
+
+  ```yaml
+  audits:
+    - sync_mode: incremental_deduped_history
+    - id
+    - auditable_type
+    - action
+    - created_at
+  ```
 
 - Most of the configuration is maintained by SD DevOps using terraform. Any service specific configuration is delegated to the service.
 
 
 ### Airbyte DfE Analytics configuration and tasks
 
-- Only tables and columns specified in the `analytics.yml` config file are synchronised 
+- Only tables and columns specified in the `analytics.yml` config file are synchronised
 
 - Any columns with sensitive data listed in the `analytics_blocklist.yml` config file will have the hidden policy tag applied. A rails rake task is available for this:<br>
    `rake dfe:analytics:big_query_apply_policy_tags`
