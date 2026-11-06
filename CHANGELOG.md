@@ -1,5 +1,25 @@
 # Changelog
 
+## [v1.16.3](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.3) (2026-11-06)
+
+[Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.16.2...v1.16.3)
+
+**Merged pull requests:**
+
+- Bump debug from 1.9.2 to 1.11.1 [\#261](https://github.com/DFE-Digital/dfe-analytics/pull/261) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump rspec-rails from 7.1.0 to 8.0.4 [\#260](https://github.com/DFE-Digital/dfe-analytics/pull/260) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump googleauth from 1.17.6 to 1.17.7 [\#259](https://github.com/DFE-Digital/dfe-analytics/pull/259) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump pry from 0.14.2 to 0.16.1 [\#258](https://github.com/DFE-Digital/dfe-analytics/pull/258) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Update rubocop-rspec requirement from ~\> 2.22 to ~\> 3.10 [\#257](https://github.com/DFE-Digital/dfe-analytics/pull/257) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump rexml from 3.3.9 to 3.4.2 [\#256](https://github.com/DFE-Digital/dfe-analytics/pull/256) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump yard from 0.9.37 to 0.9.44 [\#255](https://github.com/DFE-Digital/dfe-analytics/pull/255) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump websocket-driver from 0.7.6 to 0.8.2 [\#253](https://github.com/DFE-Digital/dfe-analytics/pull/253) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump sqlite3 from 2.7.4 to 2.9.6 [\#250](https://github.com/DFE-Digital/dfe-analytics/pull/250) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump activestorage from 7.2.2 to 7.2.3.2 [\#249](https://github.com/DFE-Digital/dfe-analytics/pull/249) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump crass from 1.0.6 to 1.0.8 [\#248](https://github.com/DFE-Digital/dfe-analytics/pull/248) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump mail from 2.8.1 to 2.9.1 [\#247](https://github.com/DFE-Digital/dfe-analytics/pull/247) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Make airbyte sync mode configurable per table to override the default [\#245](https://github.com/DFE-Digital/dfe-analytics/pull/245) ([asatwal](https://github.com/asatwal))
+
 ## [v1.16.2](https://github.com/DFE-Digital/dfe-analytics/tree/v1.16.2) (2026-11-02)
 
 [Full Changelog](https://github.com/DFE-Digital/dfe-analytics/compare/v1.16.1...v1.16.2)
