@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'httparty', '~> 0.24'
   spec.add_dependency 'json', '< 3'
   spec.add_dependency 'multi_xml', '~> 0.6.0'
-  spec.add_dependency 'request_store_rails', '~> 2'
+  spec.add_dependency 'request_store_rails', '>= 2', '< 4'
 
   spec.add_development_dependency 'appraisal'
   spec.add_development_dependency 'debug', '>= 1.0.0'
