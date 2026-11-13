@@ -32,20 +32,8 @@ RSpec.describe DfE::Analytics::BigQueryApi do
       end
     end
 
-    it 'raises a configuration error if airbyte is enabled and airbyte config is missing' do
-      with_analytics_config(test_dummy_config.merge(bigquery_airbyte_dataset: nil)) do
-        allow(DfE::Analytics::Config).to receive(:airbyte_enabled?).and_return(true)
-
-        expect do
-          described_class.client
-        end.to raise_error(DfE::Analytics::Config::ConfigurationError)
-      end
-    end
-
     it 'initializes and returns the BigQuery client with authorization' do
-      with_analytics_config(test_dummy_config.merge(bigquery_airbyte_dataset: 'airbyte_dataset')) do
-        allow(DfE::Analytics::Config).to receive(:airbyte_enabled?).and_return(true)
-
+      with_analytics_config(test_dummy_config) do
         expect(described_class.client).to eq(client)
       end
     end
@@ -53,7 +41,7 @@ RSpec.describe DfE::Analytics::BigQueryApi do
 
   describe '.insert' do
     subject(:insert) do
-      with_analytics_config(test_dummy_config.merge(bigquery_airbyte_dataset: 'airbyte_dataset')) do
+      with_analytics_config(test_dummy_config) do
         described_class.insert([event.as_json])
       end
     end

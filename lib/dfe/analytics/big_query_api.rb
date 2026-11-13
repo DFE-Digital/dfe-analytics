@@ -11,12 +11,10 @@ module DfE
       RETRY_INTERVAL_MULTIPLIER = 2
       BIGQUERY_MANDATORY_CONFIG =
         %i[bigquery_project_id bigquery_table_name bigquery_dataset azure_client_id azure_token_path azure_scope gcp_scope google_cloud_credentials].freeze
-      BIGQUERY_AIRBYTE_MANDATORY_CONFIG = %i[bigquery_airbyte_dataset].freeze
 
       def self.client
         @client ||= begin
           DfE::Analytics::Config.check_missing_config!(BIGQUERY_MANDATORY_CONFIG)
-          DfE::Analytics::Config.check_missing_config!(BIGQUERY_AIRBYTE_MANDATORY_CONFIG) if DfE::Analytics.airbyte_enabled?
 
           Google::Apis::BigqueryV2::BigqueryService.new
         end
@@ -79,7 +77,7 @@ module DfE
               table_name.to_s
             )
           rescue Google::Apis::ClientError => e
-            error_message = "DfE::Analytics Failed to retrieve table: #{table_name}: #{e.message}"
+            error_message = "DfE::Analytics Failed to retrieve table: #{dataset}.#{table_name}: #{e.message}"
             Rails.logger.error(error_message)
             raise PolicyTagError, error_message
           end
@@ -111,7 +109,7 @@ module DfE
               fields: 'schema'
             )
           rescue Google::Apis::ClientError => e
-            error_message = "DfE::Analytics  Failed to update table: #{table_name}: #{e.message}"
+            error_message = "DfE::Analytics  Failed to update table: #{dataset}.#{table_name}: #{e.message}"
             Rails.logger.error(error_message)
             raise PolicyTagError, error_message
           end
